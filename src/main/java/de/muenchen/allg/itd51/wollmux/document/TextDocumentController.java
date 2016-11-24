@@ -53,9 +53,6 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.core.util.Utils;
 import de.muenchen.allg.itd51.wollmux.db.DatasourceJoinerFactory;
 import de.muenchen.allg.itd51.wollmux.dialog.DialogFactory;
-import de.muenchen.allg.itd51.wollmux.dialog.formmodel.FormModel;
-import de.muenchen.allg.itd51.wollmux.dialog.formmodel.InvalidFormDescriptorException;
-import de.muenchen.allg.itd51.wollmux.dialog.formmodel.SingleDocumentFormModel;
 import de.muenchen.allg.itd51.wollmux.func.FunctionFactory;
 
 public class TextDocumentController
@@ -2235,49 +2232,5 @@ public class TextDocumentController
     }
 
     return overrideFragConf;
-  }
-
-  /**
-   * Erzeugt ein FormModel für ein einfaches Formular mit genau einem zugehörigen
-   * Formulardokument.
-   * 
-   * @param doc
-   *          Das Dokument zu dem ein FormModel erzeugt werden soll.
-   * @param visible
-   *          false zeigt an, dass das Dokument unsichtbar ist (und es die FormGUI
-   *          auch sein sollte).
-   * @return ein FormModel dem genau ein Formulardokument zugeordnet ist.
-   * @throws InvalidFormDescriptorException
-   */
-  public FormModel createSingleDocumentFormModel(boolean visible) throws InvalidFormDescriptorException
-  {
-  
-    // Abschnitt "Formular" holen:
-    ConfigThingy formConf;
-    try
-    {
-      formConf = getFormDescription().get("Formular");
-    }
-    catch (NodeNotFoundException e)
-    {
-      throw new InvalidFormDescriptorException(
-        L.m("Kein Abschnitt 'Formular' in der Formularbeschreibung vorhanden"));
-    }
-  
-    // Abschnitt Fenster/Formular aus wollmuxConf holen:
-    ConfigThingy formFensterConf;
-    try
-    {
-      formFensterConf =
-        WollMuxFiles.getWollmuxConf().query("Fenster").query("Formular").getLastChild();
-    }
-    catch (NodeNotFoundException x)
-    {
-      formFensterConf = new ConfigThingy("");
-    }
-  
-    return new SingleDocumentFormModel(this, formFensterConf, formConf,
-      getFunctionContext(), getFunctionLibrary(), getDialogLibrary(),
-      visible);
   }
 }

@@ -81,7 +81,6 @@ import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
 import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommand;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.allg.itd51.wollmux.dialog.formmodel.FormModel;
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeNew;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager.TextDocumentInfo;
@@ -1414,29 +1413,12 @@ public class WollMuxEventHandler
     @Override
     protected void doit() throws WollMuxFehlerException
     {
-      TextDocumentController documentController =
-        DocumentManager.getTextDocumentController(doc);
+      TextDocumentController documentController = DocumentManager.getTextDocumentController(doc);
 
-      FormModel formModel = DocumentManager.getDocumentManager().getFormModel(doc);
-      if (formModel != null)
-      {
-        // Werte über den FormController (den das FormModel kennt) setzen lassen
-        // (damit sind auch automatisch alle Abhängigkeiten richtig aufgelöst)
-        formModel.setValue(id, value, new ActionListener()
-        {
-          @Override
-          public void actionPerformed(ActionEvent arg0)
-          {
-            handleSetFormValueFinished(listener);
-          }
-        });
-      }
-      else
-      {
-        // Werte selber setzen:
-        documentController.addFormFieldValue(id, value);
-        if (listener != null) listener.actionPerformed(null);
-      }
+      // Werte selber setzen:
+      documentController.addFormFieldValue(id, value);
+      if (listener != null)
+        listener.actionPerformed(null);
     }
 
     @Override

@@ -52,7 +52,6 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.allg.itd51.wollmux.dialog.formmodel.FormModel;
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeNew;
 import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
 
@@ -71,7 +70,6 @@ public class DocumentManager
   private Map<HashableComponent, Info> info =
     new HashMap<HashableComponent, Info>();
   
-  private Map<XTextDocument, FormModel> formModels = new HashMap<XTextDocument, FormModel>();
   private Map<XTextDocument, MailMergeNew> mailMerge = new HashMap<XTextDocument, MailMergeNew>();
   
   /**
@@ -161,31 +159,6 @@ public class DocumentManager
   public Iterator<XEventListener> documentEventListenerIterator()
   {
     return registeredDocumentEventListener.iterator();
-  }
-
-  /**
-   * Liefert die zu diesem Dokument zugehörige FormularGUI, falls dem
-   * TextDocumentModel die Existent einer FormGUI über setFormGUI(...) mitgeteilt
-   * wurde - andernfalls wird null zurück geliefert.
-   * 
-   * @return Die FormularGUI des Formulardokuments oder null
-   */
-  synchronized public FormModel getFormModel(XTextDocument doc)
-  {
-    return formModels.get(doc);
-  }
-
-  /**
-   * Gibt dem TextDocumentModel die Existent der FormularGUI formGUI bekannt und wird
-   * vom DocumentCommandInterpreter in der Methode processFormCommands() gestartet
-   * hat, falls das Dokument ein Formulardokument ist.
-   * 
-   * @param formGUI
-   *          Die zu diesem Dokument zugehörige formGUI
-   */
-  synchronized public void setFormModel(XTextDocument doc, FormModel formModel)
-  {
-    this.formModels.put(doc, formModel);
   }
 
   /**
@@ -359,9 +332,6 @@ public class DocumentManager
   {
     if (mailMerge.containsKey(doc)) mailMerge.get(doc).dispose();
     mailMerge.remove(doc);
-
-    if (formModels.containsKey(doc)) formModels.get(doc).closing(doc);
-    formModels.remove(doc);
   }
 
   /**
