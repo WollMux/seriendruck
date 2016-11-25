@@ -61,8 +61,6 @@ public class DebugExternalMailMerge
         UNO.defaultContext.getServiceManager().createInstanceWithContext(
           "com.sun.star.ui.UIElementFactoryManager", UNO.defaultContext));
 
-    factoryRegistration.registerFactory("toolpanel", "WollMuxSidebarFactory", null,
-      "de.muenchen.allg.itd51.wollmux.sidebar.WollMuxSidebarFactory");
     XSet set =
       UnoRuntime.queryInterface(XSet.class, UNO.defaultContext.getServiceManager());
     set.insert(MailMergeComponent.__getComponentFactory(MailMergeComponent.class.getName()));

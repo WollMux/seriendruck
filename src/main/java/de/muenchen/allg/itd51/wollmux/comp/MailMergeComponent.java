@@ -80,7 +80,7 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
    * implementiert.
    */
   private static final java.lang.String[] SERVICENAMES =
-    { "de.muenchen.allg.itd51.wollmux.WollMux" };
+    { /*"de.muenchen.allg.itd51.wollmux.MailMerge"*/ };
 
   /**
    * Der Konstruktor initialisiert das WollMuxSingleton und startet damit den

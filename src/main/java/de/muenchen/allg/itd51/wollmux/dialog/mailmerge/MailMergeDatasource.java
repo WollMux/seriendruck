@@ -90,6 +90,7 @@ import de.muenchen.allg.itd51.wollmux.core.db.Dataset;
 import de.muenchen.allg.itd51.wollmux.core.db.Datasource;
 import de.muenchen.allg.itd51.wollmux.core.db.OOoDatasource;
 import de.muenchen.allg.itd51.wollmux.core.db.QueryResults;
+import de.muenchen.allg.itd51.wollmux.core.db.QueryResultsWithSchema;
 import de.muenchen.allg.itd51.wollmux.core.dialog.DimAdjust;
 import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel.FieldSubstitution;
 import de.muenchen.allg.itd51.wollmux.core.exceptions.UnavailableException;
@@ -97,7 +98,6 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.allg.itd51.wollmux.db.QueryResultsWithSchema;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 
 /**

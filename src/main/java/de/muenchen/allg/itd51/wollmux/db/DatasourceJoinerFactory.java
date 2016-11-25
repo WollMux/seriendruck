@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.lang3.NotImplementedException;
-
 import de.muenchen.allg.itd51.wollmux.WollMuxFiles;
 import de.muenchen.allg.itd51.wollmux.core.db.AttachDatasource;
 import de.muenchen.allg.itd51.wollmux.core.db.ColumnTransformer;
@@ -95,8 +93,11 @@ public class DatasourceJoinerFactory
           senderSourceStr = DatasourceJoiner.NOCONFIG;
   
         datasourceJoiner =
-          new DatasourceJoiner(collectDatasources(WollMuxFiles.getWollmuxConf(), WollMuxFiles.getDEFAULT_CONTEXT()), senderSourceStr, createLocalOverrideStorage(senderSourceStr, WollMuxFiles.getLosCacheFile(), WollMuxFiles.getDEFAULT_CONTEXT()),
-             datasourceTimeoutLong);
+          new DatasourceJoiner(collectDatasources(WollMuxFiles.getWollmuxConf(),
+              WollMuxFiles.getDEFAULT_CONTEXT()), 
+              senderSourceStr, 
+              createLocalOverrideStorage(senderSourceStr, WollMuxFiles.getLosCacheFile(), WollMuxFiles.getDEFAULT_CONTEXT()),
+              datasourceTimeoutLong);
         /*
          * Zum Zeitpunkt wo der DJ initialisiert wird sind die Funktions- und
          * Dialogbibliothek des WollMuxSingleton noch nicht initialisiert, deswegen
@@ -170,7 +171,7 @@ public class DatasourceJoinerFactory
         else if (type.equals("ooo"))
           ds = new OOoDatasource(datasources, sourceDesc, context);
         else if (type.equals("funky"))
-          throw new NotImplementedException("FunkyDatasource is not supported.");
+          ds = new FunkyDatasource(datasources, sourceDesc, context);
         else
           Logger.error(L.m("Ununterstützter Datenquellentyp: %1", type));
       }
