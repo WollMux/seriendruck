@@ -180,6 +180,12 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
       return;
     }
 
+    if (xTextDoc != null)
+    {
+      // FIXME: Der Aufruf ist nötig, um den globalen EventHandler zu registrieren :(
+      DocumentManager.getTextDocumentController(xTextDoc);
+    }
+    
     if (xTextDoc != null && docInfo == null)
     {
       docManager.addTextDocument(xTextDoc);

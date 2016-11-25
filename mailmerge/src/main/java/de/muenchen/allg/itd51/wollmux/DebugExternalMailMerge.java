@@ -4,7 +4,6 @@ import com.sun.star.container.XSet;
 import com.sun.star.frame.TerminationVetoException;
 import com.sun.star.frame.XTerminateListener;
 import com.sun.star.lang.EventObject;
-import com.sun.star.ui.XUIElementFactoryRegistration;
 import com.sun.star.uno.UnoRuntime;
 
 import de.muenchen.allg.afid.UNO;
@@ -54,12 +53,6 @@ public class DebugExternalMailMerge
         System.exit(0);
       }
     });
-
-    XUIElementFactoryRegistration factoryRegistration =
-      UnoRuntime.queryInterface(
-        XUIElementFactoryRegistration.class,
-        UNO.defaultContext.getServiceManager().createInstanceWithContext(
-          "com.sun.star.ui.UIElementFactoryManager", UNO.defaultContext));
 
     XSet set =
       UnoRuntime.queryInterface(XSet.class, UNO.defaultContext.getServiceManager());

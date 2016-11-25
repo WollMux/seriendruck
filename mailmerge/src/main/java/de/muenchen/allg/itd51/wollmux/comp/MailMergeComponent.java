@@ -42,6 +42,7 @@ import java.util.List;
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.container.XIndexAccess;
 import com.sun.star.container.XIndexContainer;
+import com.sun.star.document.XEventListener;
 import com.sun.star.form.FormButtonType;
 import com.sun.star.frame.DispatchDescriptor;
 import com.sun.star.frame.XDispatch;
@@ -61,6 +62,7 @@ import de.muenchen.allg.itd51.wollmux.WollMuxSingleton;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.event.Dispatch;
 import de.muenchen.allg.itd51.wollmux.event.DispatchProviderAndInterceptor;
+import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
 
 /**
  * Diese Klasse stellt den zentralen UNO-Service WollMux dar. Der Service hat
@@ -72,7 +74,7 @@ import de.muenchen.allg.itd51.wollmux.event.DispatchProviderAndInterceptor;
  * geschieht auch bei unsichtbar geöffneten Dokumenten). Als Folge wird das
  * WollMux-Singleton bei OOo-Start (einmalig) initialisiert.
  */
-public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispatchProvider
+public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispatchProvider, de.muenchen.mailmerge.XMailMerge
 {
 
   /**
@@ -80,7 +82,7 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
    * implementiert.
    */
   private static final java.lang.String[] SERVICENAMES =
-    { /*"de.muenchen.allg.itd51.wollmux.MailMerge"*/ };
+    { "de.muenchen.mailmerge.MailMerge" };
 
   /**
    * Der Konstruktor initialisiert das WollMuxSingleton und startet damit den
@@ -305,6 +307,18 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
     catch (Exception e)
     {}
     return -1;
+  }
+
+  @Override
+  public void addEventListener(XEventListener l)
+  {
+    WollMuxEventHandler.handleAddDocumentEventListener(l);
+  }
+
+  @Override
+  public void removeEventListener(XEventListener l)
+  {
+    WollMuxEventHandler.handleRemoveDocumentEventListener(l);
   }
   
 }

@@ -141,4 +141,9 @@ public class DocumentDispatch extends Dispatch
   {
     WollMuxEventHandler.handleSeriendruck(getDocumentController(), false);
   }
+  
+  public boolean status_wollmux_seriendruck()
+  {
+    return true;
+  }
 }

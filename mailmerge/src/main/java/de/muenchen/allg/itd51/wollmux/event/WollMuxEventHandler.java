@@ -55,6 +55,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import com.sun.star.awt.XWindow;
 import com.sun.star.beans.PropertyValue;
@@ -446,6 +447,87 @@ public class WollMuxEventHandler
   private static void handle(WollMuxEvent event)
   {
     EventProcessor.getInstance().addEvent(event);
+  }
+
+  // *******************************************************************************************
+
+  /**
+   * Erzeugt ein neues WollMuxEvent zum Registrieren des übergebenen XEventListeners
+   * und wird vom WollMux-Service aufgerufen.
+   * 
+   * @param listener
+   *          der zu registrierende XEventListener.
+   */
+  public static void handleAddDocumentEventListener(XEventListener listener)
+  {
+    handle(new OnAddDocumentEventListener(listener));
+  }
+
+  private static class OnAddDocumentEventListener extends BasicEvent
+  {
+    private XEventListener listener;
+
+    public OnAddDocumentEventListener(XEventListener listener)
+    {
+      this.listener = listener;
+    }
+
+    @Override
+    protected void doit()
+    {
+      DocumentManager.getDocumentManager().addDocumentEventListener(listener);
+
+      List<XComponent> processedDocuments = new Vector<XComponent>();
+      DocumentManager.getDocumentManager().getProcessedDocuments(processedDocuments);
+
+      for (XComponent compo : processedDocuments)
+      {
+        handleNotifyDocumentEventListener(listener, ON_WOLLMUX_PROCESSING_FINISHED,
+          compo);
+      }
+    }
+
+    @Override
+    public String toString()
+    {
+      return this.getClass().getSimpleName() + "(#" + listener.hashCode() + ")";
+    }
+  }
+
+  // *******************************************************************************************
+
+  /**
+   * Erzeugt ein neues WollMuxEvent, das den übergebenen XEventListener zu
+   * deregistriert.
+   * 
+   * @param listener
+   *          der zu deregistrierende XEventListener
+   */
+  public static void handleRemoveDocumentEventListener(XEventListener listener)
+  {
+    handle(new OnRemoveDocumentEventListener(listener));
+  }
+
+  private static class OnRemoveDocumentEventListener extends BasicEvent
+  {
+    private XEventListener listener;
+
+    public OnRemoveDocumentEventListener(XEventListener listener)
+    {
+      this.listener = listener;
+    }
+
+    @Override
+    protected void doit()
+    {
+      DocumentManager.getDocumentManager().removeDocumentEventListener(listener);
+    }
+
+    @Override
+    public String toString()
+    {
+      return this.getClass().getSimpleName() + "(#" + listener.hashCode() + ")";
+    }
   }
 
   // *******************************************************************************************
@@ -1099,7 +1181,8 @@ public class WollMuxEventHandler
     @Override
     public String toString()
     {
-      return this.getClass().getSimpleName() + "(#" + documentController.getFrameController().getFrame().hashCode() + ")";
+      XFrame frame = documentController.getFrameController().getFrame();
+      return this.getClass().getSimpleName() + "(#" + ((frame != null) ? frame.hashCode() : "Kein Frame") + ")";
     }
   }
 

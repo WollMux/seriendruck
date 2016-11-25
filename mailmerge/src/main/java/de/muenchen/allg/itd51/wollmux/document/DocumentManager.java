@@ -29,6 +29,7 @@
  */
 package de.muenchen.allg.itd51.wollmux.document;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -37,7 +38,10 @@ import java.util.Vector;
 import com.sun.star.document.XEventListener;
 import com.sun.star.lang.XComponent;
 import com.sun.star.text.XTextDocument;
+import com.sun.star.uno.UnoRuntime;
+import com.sun.star.uno.XInterface;
 
+import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.GlobalFunctions;
 import de.muenchen.allg.itd51.wollmux.WollMuxFiles;
 import de.muenchen.allg.itd51.wollmux.core.HashableComponent;
@@ -134,6 +138,71 @@ public class DocumentManager
     return info.get(new HashableComponent(compo));
   }
 
+  /**
+   * Fügt infoCollector alle Dokumente hinzu für die das
+   * OnWollMuxProcessingFinished-Event bereits verschickt wurde.
+   * 
+   * @author Matthias Benkmann (D-III-ITD-D101)
+   * 
+   *         TESTED
+   */
+  public synchronized void getProcessedDocuments(Collection<XComponent> infoCollector)
+  {
+    for (Map.Entry<HashableComponent, Info> ent : info.entrySet())
+    {
+      if (ent.getValue().isProcessingFinished())
+      {
+        XComponent compo = UNO.XComponent(ent.getKey().getComponent());
+        if (compo != null) infoCollector.add(compo);
+      }
+    }
+  }
+
+  /**
+   * Diese Methode registriert einen XEventListener, der Nachrichten empfängt wenn
+   * sich der Status der Dokumentbearbeitung ändert (z.B. wenn ein Dokument
+   * vollständig bearbeitet/expandiert wurde). Die Methode ignoriert alle
+   * XEventListenener-Instanzen, die bereits registriert wurden.
+   * Mehrfachregistrierung der selben Instanz ist also nicht möglich.
+   * 
+   * Achtung: Die Methode darf nicht direkt von einem UNO-Service aufgerufen werden,
+   * sondern jeder Aufruf muss über den EventHandler laufen. Deswegen exportiert
+   * WollMuxSingleton auch nicht das XEventBroadcaster-Interface.
+   */
+  public void addDocumentEventListener(XEventListener listener)
+  {
+    Logger.debug2("DocumentManager::addDocumentEventListener()");
+
+    if (listener == null) return;
+
+    Iterator<XEventListener> i = registeredDocumentEventListener.iterator();
+    while (i.hasNext())
+    {
+      XInterface l = UNO.XInterface(i.next());
+      if (UnoRuntime.areSame(l, listener)) return;
+    }
+    registeredDocumentEventListener.add(listener);
+  }
+
+  /**
+   * Diese Methode deregistriert einen XEventListener wenn er bereits registriert
+   * war.
+   * 
+   * Achtung: Die Methode darf nicht direkt von einem UNO-Service aufgerufen werden,
+   * sondern jeder Aufruf muss über den EventHandler laufen. Deswegen exportiert
+   * WollMuxSingleton auch nicht das XEventBroadcaster-Interface.
+   */
+  public void removeDocumentEventListener(XEventListener listener)
+  {
+    Logger.debug2("DocumentManager::removeDocumentEventListener()");
+    Iterator<XEventListener> i = registeredDocumentEventListener.iterator();
+    while (i.hasNext())
+    {
+      XInterface l = UNO.XInterface(i.next());
+      if (UnoRuntime.areSame(l, listener)) i.remove();
+    }
+  }
+  
   /**
    * Setzt in den Informationen zu compo (falls dem DocumentManager bekannt) das Flag
    * das anzeigt, dass das OnWollMuxProcessingFinished-Event für diese Komponente
@@ -289,6 +358,7 @@ public class DocumentManager
     public TextDocumentInfo(XTextDocument doc)
     {
       this.doc = doc;
+      getTextDocumentController();
     }
 
     /**
