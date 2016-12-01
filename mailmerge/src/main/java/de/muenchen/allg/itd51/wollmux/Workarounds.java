@@ -54,19 +54,13 @@ public class Workarounds
 {
   private static Boolean workaround89783 = null;
 
-  private static Boolean workaround103137 = null;
-
   private static Boolean workaround102164 = null;
 
   private static Boolean workaround73229 = null;
 
   private static Boolean workaround96281 = null;
 
-  private static Boolean workaround102619 = null;
-
   private static ClassLoader workaround102164CL = null;
-
-  private static Boolean workaroundSunJavaBug4737732 = null;
 
   public static Boolean applyWorkaround(String issueNumber)
   {
@@ -128,33 +122,6 @@ public class Workarounds
   }
 
   /**
-   * Issue #103137 betrifft OOo 3.0 und 3.1. Der Workaround kann entfernt werden,
-   * wenn keine Dokumente mehr im Umlauf sind, deren Generator OOo 2 ist und in denen
-   * Textstellen mindestens einmal aus- und wieder eingeblendet wurden. Notfalls muss
-   * man vor der Deaktivierung einen Mechanismus über die Dokumentablagen der
-   * Referate laufen lassen der dafür sorgt, dass der Altbestand der von OOo 2
-   * erzeugten Dokumente von sämtlichen text:display="none"-Stellen befreit wurde.
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  public static boolean applyWorkaroundForOOoIssue103137()
-  {
-    if (workaround103137 == null)
-    {
-      String version = Utils.getOOoVersion();
-      if (version != null
-        && (version.startsWith("3.0") || version.startsWith("3.1")))
-      {
-        workaround103137 = applyWorkaround("103137");
-      }
-      else
-        workaround103137 = Boolean.FALSE;
-    }
-
-    return workaround103137.booleanValue();
-  }
-
-  /**
    * Issue #96281 betrifft OOo 3.1 und 3.2. Ob es in 3.3 gelöst sein wird wissen wir
    * nicht. Seien wir einfach mal pessimistisch.
    * 
@@ -177,37 +144,6 @@ public class Workarounds
     return workaround96281.booleanValue();
   }
 
-  /**
-   * Folgender Workaround bezieht sich auf das SUN-JRE Issue
-   * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4737732 und ist in der Klasse
-   * d.m.a.i.wollmux.dialog.FormGUI implementiert. Der Workaround ist notwendig, wenn
-   * WollMux mit einem SunJRE < 1.7 gestartet wird. Den Java-Bug konnten wir bislang
-   * vor allem unter Linux mit KDE feststellen. Der Java-Bug ist in Oracle JRE 1.7
-   * behoben und auch mit dem aktuellen openJDK 1.7 tritt er nicht mehr auf. Der
-   * Workaround war von 2006 bis 2014 immer standardmäßig aktiv, führt aber mit
-   * Basisclient 5.0 verstärkt zum Issue trac#11494. Deshalb wird der Workaround 
-   * jetzt nur noch mit SunJRE <= 1.6 angewendet. Er kann vermutlich komplett
-   * entfernt werden (wenn WollMux unter Linux nicht mehr mit SunJRE 1.6 genutzt wird)
-   */
-  public static boolean applyWorkaroundForSunJavaBug4737732()
-  {
-    if(workaroundSunJavaBug4737732 == null)
-    {
-      String javaVendor = System.getProperty("java.vendor");
-      String javaVersion = System.getProperty("java.version");
-      if(javaVendor.equals("Sun Microsystems Inc.") && (javaVersion.startsWith("1.6.") || javaVersion.startsWith("1.5.")))
-      {
-        Logger.debug("Workaround für Sun-JRE Issue 4737732 aktiv.");
-        workaroundSunJavaBug4737732  = Boolean.TRUE;
-      }
-      else
-      {
-        workaroundSunJavaBug4737732 = Boolean.FALSE;
-      }
-    }
-    return workaroundSunJavaBug4737732;
-  }
-  
   /**
    * Wegen https://bugs.documentfoundation.org/show_bug.cgi?id=89783 muss der
    * OOoMailMerge in mehrere Pakete aufgeteilt werden, wenn das

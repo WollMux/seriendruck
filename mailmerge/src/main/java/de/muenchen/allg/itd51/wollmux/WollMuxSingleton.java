@@ -537,19 +537,6 @@ public class WollMuxSingleton
   }
 
   /**
-   * Überprüft, ob von url gelesen werden kann und wirft eine IOException, falls
-   * nicht.
-   * 
-   * @throws IOException
-   *           falls von url nicht gelesen werden kann.
-   * @author Matthias Benkmann (D-III-ITD 5.1)
-   */
-  public static void checkURL(URL url) throws IOException
-  {
-    url.openStream().close();
-  }
-
-  /**
    * Git zurück, ob sich der WollMux im NoConfig-Modus befindet,
    * d.h. es wurde keine Config-Datei gefunden.
    * 

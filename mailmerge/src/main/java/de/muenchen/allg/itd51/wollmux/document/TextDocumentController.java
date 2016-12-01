@@ -389,41 +389,6 @@ public class TextDocumentController
   }
   
   /**
-   * Führt alle Funktionen aus funcs der Reihe nach aus, solange bis eine davon einen
-   * nicht-leeren String zurückliefert und interpretiert diesen als Angabe, welche
-   * Aktionen für das Dokument auszuführen sind. Derzeit werden nur "noaction" und
-   * "allactions" unterstützt. Den Funktionen werden als {@link Values} diverse Daten
-   * zur Verfügung gestellt. Derzeit sind dies
-   * <ul>
-   * <li>"User/<Name>" Werte von Benutzervariablen (vgl.
-   * {@link #getUserFieldMaster(String)}</li>
-   * </ul>
-   * 
-   * @return 0 => noaction, Integer.MAX_VALUE => allactions, -1 => WollMux-Default
-   * 
-   * @author Matthias Benkmann (D-III-ITD-D101)
-   * 
-   *         TESTED
-   */
-  public int evaluateDocumentActions(Iterator<Function> funcs)
-  {
-    Values values = new MyValues();
-    while (funcs.hasNext())
-    {
-      Function f = funcs.next();
-      String res = f.getString(values);
-      if (res.length() > 0)
-      {
-        if (res.equals("noaction")) return 0;
-        if (res.equals("allactions")) return Integer.MAX_VALUE;
-        Logger.error(L.m(
-          "Unbekannter Rückgabewert \"%1\" von Dokumentaktionen-Funktion", res));
-      }
-    }
-    return -1;
-  }
-  
-  /**
    * Fügt an der Stelle r ein neues Textelement vom Typ css.text.TextField.InputUser
    * ein, und verknüpft das Feld so, dass die Trafo trafo verwendet wird, um den
    * angezeigten Feldwert zu berechnen.
@@ -807,20 +772,6 @@ public class TextDocumentController
     }
   }
   
-  /**
-   * Markiert das Dokument als Formulardokument - damit liefert
-   * {@link #isFormDocument()} zukünftig true und der Typ "formDocument" wird
-   * persistent im Dokument hinterlegt.
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  public synchronized void markAsFormDocument()
-  {
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
-    model.setType("formDocument");
-    model.getPersistentData().setData(DataID.SETTYPE, "formDocument");
-  }
-
   /**
    * Liefert die aktuell im Dokument gesetzte FilenameGeneratorFunction in Form eines
    * ConfigThingy-Objekts, oder null, wenn keine gültige FilenameGeneratorFunction
@@ -1793,43 +1744,6 @@ public class TextDocumentController
     {
       Logger.error(e);
     }
-  }
-
-  /**
-   * Die Methode fügt die Formular-Abschnitte aus der Formularbeschreibung der Notiz
-   * von formCmd zur aktuellen Formularbeschreibung des Dokuments in den persistenten
-   * Daten hinzu und löscht die Notiz (sowie den übrigen Inhalt von formCmd).
-   * 
-   * @param formCmd
-   *          Das formCmd, das die Notiz mit den hinzuzufügenden Formular-Abschnitten
-   *          einer Formularbeschreibung enthält.
-   * @throws ConfigurationErrorException
-   *           Die Notiz der Formularbeschreibung ist nicht vorhanden, die
-   *           Formularbeschreibung ist nicht vollständig oder kann nicht geparst
-   *           werden.
-   */
-  synchronized public void addToCurrentFormDescription(DocumentCommand.Form formCmd)
-      throws ConfigurationErrorException
-  {
-    XTextRange range = formCmd.getTextCursor();
-
-    XTextContent annotationField =
-      UNO.XTextContent(TextDocumentModel.findAnnotationFieldRecursive(range));
-    if (annotationField == null)
-      throw new ConfigurationErrorException(
-        L.m("Die zugehörige Notiz mit der Formularbeschreibung fehlt."));
-
-    Object content = UNO.getProperty(annotationField, "Content");
-    if (content == null)
-      throw new ConfigurationErrorException(
-        L.m("Die zugehörige Notiz mit der Formularbeschreibung kann nicht gelesen werden."));
-
-    // Formularbeschreibung übernehmen und persistent speichern:
-    TextDocumentModel.addToFormDescription(model.getFormDescription(), content.toString());
-    storeCurrentFormDescription();
-
-    // Notiz (sowie anderen Inhalt des Bookmarks) löschen
-    formCmd.setTextRangeString("");
   }
 
   /**

@@ -64,11 +64,6 @@ package de.muenchen.allg.itd51.wollmux;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -571,34 +566,6 @@ public class WollMuxFiles
     }
     else
       debugMode = false;
-  }
-
-  /**
-   * Schreibt die Kinder von conf (also keinen umschließenden Wurzel-Abschnitt) in
-   * die Datei file.
-   */
-  public static void writeConfToFile(File file, ConfigThingy conf)
-      throws UnsupportedEncodingException, FileNotFoundException, IOException
-  {
-    if (conf == null)
-      return;
-    
-    Writer out = null;
-    try
-    {
-      out = new OutputStreamWriter(new FileOutputStream(file), ConfigThingy.CHARSET);
-      out.write("\uFEFF");
-      out.write(conf.stringRepresentation(true, '"'));
-    }
-    finally
-    {
-      try
-      {
-        out.close();
-      }
-      catch (Exception x)
-      {}
-    }
   }
 
   private static class SlowServerWatchdog extends Thread

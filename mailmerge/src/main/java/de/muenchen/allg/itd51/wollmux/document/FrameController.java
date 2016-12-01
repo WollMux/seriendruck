@@ -1,13 +1,10 @@
 package de.muenchen.allg.itd51.wollmux.document;
 
-import java.lang.reflect.Method;
-
 import com.sun.star.awt.DeviceInfo;
 import com.sun.star.awt.PosSize;
 import com.sun.star.awt.XWindow;
 import com.sun.star.frame.XFrame;
 import com.sun.star.text.XTextDocument;
-import com.sun.star.uno.UnoRuntime;
 import com.sun.star.view.DocumentZoomType;
 
 import de.muenchen.allg.afid.UNO;
@@ -56,52 +53,6 @@ public class FrameController
     if (frame != null)
     {
       frame.getContainerWindow().setVisible(visible);
-    }
-  }
-  
-  /**
-   * Setzt die Position des Fensters auf die übergebenen Koordinaten, wobei die
-   * Nachteile der UNO-Methode setWindowPosSize greifen, bei der die Fensterposition
-   * nicht mit dem äusseren Fensterrahmen beginnt, sondern mit der grauen Ecke links
-   * über dem File-Menü.
-   * 
-   * @param docX
-   * @param docY
-   * @param docWidth
-   * @param docHeight
-   */
-  public synchronized void setWindowPosSize(final int docX, final int docY,
-      final int docWidth, final int docHeight)
-  {
-    try
-    {
-      // Seit KDE4 muss ein maximiertes Fenster vor dem Verschieben "demaximiert" werden 
-      // sonst wird die Positionierung ignoriert. Leider ist die dafür benötigte Klasse
-      // erst seit OpenOffice.org 3.4 verfügbar - zur Abwärtskompatibilität erfolgt der
-      // Aufruf daher über Reflection.
-      try
-      {
-        Class<?> c = Class.forName("com.sun.star.awt.XTopWindow2");
-        Object o = UnoRuntime.queryInterface(c, getFrame().getContainerWindow());
-        Method getIsMaximized = c.getMethod("getIsMaximized", (Class[])null);
-        Method setIsMaximized = c.getMethod("setIsMaximized", (boolean.class));
-        if ((Boolean)getIsMaximized.invoke(o, (Object[])null))
-        {
-          setIsMaximized.invoke(o, false);
-        }
-      }
-      catch (java.lang.Exception e)
-      {}
-
-      getFrame().getContainerWindow().setPosSize(docX, docY, docWidth, docHeight,
-        PosSize.SIZE);
-      getFrame().getContainerWindow().setPosSize(docX, docY, docWidth, docHeight,
-        PosSize.POS);
-
-    }
-    catch (java.lang.Exception e)
-    { 
-      Logger.debug(e);
     }
   }
   

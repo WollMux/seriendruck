@@ -66,28 +66,19 @@ import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager.TextDocumentInfo;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnAddDocumentEventListener;
-import de.muenchen.allg.itd51.wollmux.event.handlers.OnCloseAndOpenExt;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnCloseTextDocument;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnCollectNonWollMuxFormFieldsViaPrintModel;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnExecutePrintFunction;
-import de.muenchen.allg.itd51.wollmux.event.handlers.OnFocusFormField;
-import de.muenchen.allg.itd51.wollmux.event.handlers.OnFormControllerInitCompleted;
-import de.muenchen.allg.itd51.wollmux.event.handlers.OnFormValueChanged;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnHandleMailMergeNewReturned;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnInitialize;
-import de.muenchen.allg.itd51.wollmux.event.handlers.OnJumpToMark;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnNotifyDocumentEventListener;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnPrint;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnRegisterDispatchInterceptor;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnRemoveDocumentEventListener;
-import de.muenchen.allg.itd51.wollmux.event.handlers.OnSaveTempAndOpenExt;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnSeriendruck;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetFormValue;
-import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetFormValueFinished;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetPrintBlocksPropsViaPrintModel;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetVisibleState;
-import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetWindowPosSize;
-import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetWindowVisible;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnTextDocumentClosed;
 import de.muenchen.allg.itd51.wollmux.event.handlers.WollMuxEvent;
 
@@ -323,32 +314,7 @@ public class WollMuxEventHandler
 
   // *******************************************************************************************
 
-  /**
-   * Erzeugt ein neues WollMuxEvent, welches dafür sorgt, dass alle Formularfelder
-   * Dokument auf den neuen Wert gesetzt werden. Bei Formularfeldern mit
-   * TRAFO-Funktion wird die Transformation entsprechend durchgeführt.
-   * 
-   * Dieses Event wird (derzeit) vom FormModelImpl ausgelöst, wenn in der
-   * Formular-GUI der Wert des Formularfeldes fieldID geändert wurde und sorgt dafür,
-   * dass die Wertänderung auf alle betroffenen Formularfelder im Dokument doc
-   * übertragen werden.
-   * 
-   * @param idToFormValues
-   *          Eine HashMap die unter dem Schlüssel fieldID den Vektor aller
-   *          FormFields mit der ID fieldID liefert.
-   * @param fieldId
-   *          Die ID der Formularfelder, deren Werte angepasst werden sollen.
-   * @param newValue
-   *          Der neue untransformierte Wert des Formularfeldes.
-   * @param funcLib
-   *          Die Funktionsbibliothek, die zur Gewinnung der Trafo-Funktion verwendet
-   *          werden soll.
-   */
-  public static void handleFormValueChanged(TextDocumentController documentController, String fieldId,
-      String newValue)
-  {
-    handle(new OnFormValueChanged(documentController, fieldId, newValue));
-  }
+  
 
   
 
@@ -384,88 +350,6 @@ public class WollMuxEventHandler
   }
 
   
-
-  // *******************************************************************************************
-
-  /**
-   * Erzeugt ein Event, das den ViewCursor des Dokuments auf das aktuell in der
-   * Formular-GUI bearbeitete Formularfeld setzt.
-   * 
-   * Dieses Event wird (derzeit) vom FormModelImpl ausgelöst, wenn in der
-   * Formular-GUI ein Formularfeld den Fokus bekommen hat und es sorgt dafür, dass
-   * der View-Cursor des Dokuments das entsprechende FormField im Dokument anspringt.
-   * 
-   * @param idToFormValues
-   *          Eine HashMap die unter dem Schlüssel fieldID den Vektor aller
-   *          FormFields mit der ID fieldID liefert.
-   * @param fieldId
-   *          die ID des Formularfeldes das den Fokus bekommen soll. Besitzen mehrere
-   *          Formularfelder diese ID, so wird bevorzugt das erste Formularfeld aus
-   *          dem Vektor genommen, das keine Trafo enthält. Ansonsten wird das erste
-   *          Formularfeld im Vektor verwendet.
-   */
-  public static void handleFocusFormField(TextDocumentController documentController, String fieldId)
-  {
-    handle(new OnFocusFormField(documentController, fieldId));
-  }
-
-  
-
-  // *******************************************************************************************
-
-  /**
-   * Erzeugt ein Event, das die Position und Größe des übergebenen Dokument-Fensters
-   * auf die vorgegebenen Werte setzt. ACHTUNG: Die Maßangaben beziehen sich auf die
-   * linke obere Ecke des Fensterinhalts OHNE die Titelzeile und die
-   * Fensterdekoration des Rahmens. Um die linke obere Ecke des gesamten Fensters
-   * richtig zu setzen, müssen die Größenangaben des Randes der Fensterdekoration und
-   * die Höhe der Titelzeile VOR dem Aufruf der Methode entsprechend eingerechnet
-   * werden.
-   * 
-   * @param model
-   *          Das XModel-Interface des Dokuments dessen Position/Größe gesetzt werden
-   *          soll.
-   * @param docX
-   *          Die linke obere Ecke des Fensterinhalts X-Koordinate der Position in
-   *          Pixel, gezählt von links oben.
-   * @param docY
-   *          Die Y-Koordinate der Position in Pixel, gezählt von links oben.
-   * @param docWidth
-   *          Die Größe des Dokuments auf der X-Achse in Pixel
-   * @param docHeight
-   *          Die Größe des Dokuments auf der Y-Achse in Pixel. Auch hier wird die
-   *          Titelzeile des Rahmens nicht beachtet und muss vorher entsprechend
-   *          eingerechnet werden.
-   */
-  public static void handleSetWindowPosSize(TextDocumentController documentController, int docX,
-      int docY, int docWidth, int docHeight)
-  {
-    handle(new OnSetWindowPosSize(documentController, docX, docY, docWidth, docHeight));
-  }
-
-  
-
-  // *******************************************************************************************
-
-  /**
-   * Erzeugt ein Event, das die Anzeige des übergebenen Dokuments auf sichtbar oder
-   * unsichtbar schaltet. Dabei wird direkt die entsprechende Funktion der UNO-API
-   * verwendet.
-   * 
-   * @param documentController
-   *          Das XModel interface des dokuments, welches sichtbar oder unsichtbar
-   *          geschaltet werden soll.
-   * @param visible
-   *          true, wenn das Dokument sichtbar geschaltet werden soll und false, wenn
-   *          das Dokument unsichtbar geschaltet werden soll.
-   */
-  public static void handleSetWindowVisible(TextDocumentController documentController, boolean visible)
-  {
-    handle(new OnSetWindowVisible(documentController, visible));
-  }
-
-  
-
   // *******************************************************************************************
 
   /**
@@ -479,48 +363,6 @@ public class WollMuxEventHandler
     handle(new OnCloseTextDocument(documentController));
   }
 
-  
-
-  // *******************************************************************************************
-
-  /**
-   * Erzeugt ein Event, das das übergebene Dokument in eine temporäre Datei
-   * speichert, eine externe Anwendung mit dieser aufruft und das Dokument dann
-   * schließt, wobei der ExterneAnwendungen-Abschnitt zu ext die näheren Details wie
-   * den FILTER regelt.
-   * 
-   * @param documentController
-   *          Das an die externe Anwendung weiterzureichende TextDocumentModel.
-   * @param ext
-   *          identifiziert den entsprechenden Eintrag im Abschnitt
-   *          ExterneAnwendungen.
-   */
-  public static void handleCloseAndOpenExt(TextDocumentController documentController, String ext)
-  {
-    handle(new OnCloseAndOpenExt(documentController, ext));
-  }
-
-  
-
-  // *******************************************************************************************
-
-  /**
-   * Erzeugt ein Event, das das übergebene Dokument in eine temporäre Datei speichert
-   * und eine externe Anwendung mit dieser aufruft, wobei der
-   * ExterneAnwendungen-Abschnitt zu ext die näheren Details wie den FILTER regelt.
-   * 
-   * @param documentController
-   *          Das an die externe Anwendung weiterzureichende TextDocumentModel.
-   * @param ext
-   *          identifiziert den entsprechenden Eintrag im Abschnitt
-   *          ExterneAnwendungen.
-   */
-  public static void handleSaveTempAndOpenExt(TextDocumentController documentController, String ext)
-  {
-    handle(new OnSaveTempAndOpenExt(documentController, ext));
-  }
-
-  
 
   // *******************************************************************************************
 
@@ -532,8 +374,6 @@ public class WollMuxEventHandler
   {
     handle(new OnInitialize());
   }
-
-  
 
   // *******************************************************************************************
 
@@ -689,46 +529,6 @@ public class WollMuxEventHandler
     handle(new OnCollectNonWollMuxFormFieldsViaPrintModel(documentController, listener));
   }
 
-  
-
-  // *******************************************************************************************
-
-  /**
-   * Dieses WollMuxEvent ist das Gegenstück zu handleSetFormValue und wird dann
-   * erzeugt, wenn nach einer Änderung eines Formularwertes - gesteuert durch die
-   * FormGUI - alle abhängigen Formularwerte angepasst wurden. In diesem Fall ist die
-   * einzige Aufgabe dieses Events, den unlockActionListener zu informieren, den
-   * handleSetFormValueViaPrintModel() nicht selbst informieren konnte.
-   * 
-   * Das Event wird aus der Implementierung vom OnSetFormValueViaPrintModel.doit()
-   * erzeugt, wenn Feldänderungen über die FormGUI laufen.
-   * 
-   * @param unlockActionListener
-   *          Der zu informierende unlockActionListener.
-   */
-  public static void handleSetFormValueFinished(ActionListener unlockActionListener)
-  {
-    handle(new OnSetFormValueFinished(unlockActionListener));
-  }
-
-  
-
-  // *******************************************************************************************
-
-  /**
-   * Erzeugt ein neues WollMuxEvent, das signasisiert, das die nächste Marke
-   * 'setJumpMark' angesprungen werden soll. Wird im
-   * DocumentCommandInterpreter.DocumentExpander.fillPlaceholders aufgerufen wenn
-   * nach dem Einfügen von Textbausteine keine Einfügestelle vorhanden ist aber eine
-   * Marke 'setJumpMark'
-   */
-  public static void handleJumpToMark(XTextDocument doc, boolean msg)
-  {
-    handle(new OnJumpToMark(doc, msg));
-  }
-
-  
-
   // *******************************************************************************************
 
   /**
@@ -768,18 +568,4 @@ public class WollMuxEventHandler
 
   // *******************************************************************************************
 
-  /**
-   * Erzeugt ein neues WollMuxEvent, das signasisiert, dass der FormController (der
-   * zeitgleich mit einer FormGUI zum TextDocument model gestartet wird) vollständig
-   * initialisiert ist und notwendige Aktionen wie z.B. das Zurücksetzen des
-   * Modified-Status des Dokuments durchgeführt werden können. Vor dem Zurücksetzen
-   * des Modified-Status, wird auf die erste Seite des Dokuments gesprungen.
-   * 
-   * Das Event wird vom FormModel erzeugt, wenn es vom FormController eine
-   * entsprechende Nachricht erhält.
-   */
-  public static void handleFormControllerInitCompleted(TextDocumentController documentController)
-  {
-    handle(new OnFormControllerInitCompleted(documentController));
-  }
 }
