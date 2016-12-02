@@ -69,7 +69,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import com.sun.star.beans.XPropertySet;
-import com.sun.star.container.XEnumeration;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.sdb.CommandType;
 import com.sun.star.sdbc.XConnection;
@@ -82,16 +81,17 @@ import com.sun.star.table.XCellRange;
 import com.sun.star.text.XTextDocument;
 
 import de.muenchen.allg.afid.UNO;
+import de.muenchen.allg.afid.UnoCollection;
 import de.muenchen.allg.itd51.wollmux.XPrintModel;
-import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
-import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.core.db.ColumnNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.db.Dataset;
 import de.muenchen.allg.itd51.wollmux.core.db.Datasource;
 import de.muenchen.allg.itd51.wollmux.core.db.OOoDatasource;
 import de.muenchen.allg.itd51.wollmux.core.db.QueryResults;
 import de.muenchen.allg.itd51.wollmux.core.db.TimeoutException;
+import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
+import de.muenchen.allg.itd51.wollmux.core.util.L;
+import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.dialog.Common;
 
 public class MailMerge
@@ -721,24 +721,27 @@ public class MailMerge
 
     try
     {
-      XSpreadsheetDocument doc = null;
-      XEnumeration xenu = UNO.desktop.getComponents().createEnumeration();
-      while (xenu.hasMoreElements())
+      XSpreadsheetDocument foundDoc  = null;
+      
+      for (XSpreadsheetDocument doc : UnoCollection.getCollection(UNO.desktop.getComponents(), XSpreadsheetDocument.class))
       {
-        doc = UNO.XSpreadsheetDocument(xenu.nextElement());
         if (doc != null)
         {
           String title =
             (String) UNO.getProperty(
               UNO.XModel(doc).getCurrentController().getFrame(), "Title");
-          if (windowTitle.equals(title)) break;
+          if (windowTitle.equals(title)) 
+          {
+            foundDoc = doc;
+            break;
+          }
         }
       }
 
-      if (doc != null)
+      if (foundDoc != null)
       {
         XCellRangesQuery sheet =
-          UNO.XCellRangesQuery(doc.getSheets().getByName(sheetName));
+          UNO.XCellRangesQuery(foundDoc.getSheets().getByName(sheetName));
         if (sheet != null)
         {
           SortedSet<Integer> columnIndexes = new TreeSet<Integer>();
@@ -932,12 +935,10 @@ public class MailMerge
       /*
        * Titel aller offenen Calc-Fenster bestimmen.
        */
-      XEnumeration xenu = UNO.desktop.getComponents().createEnumeration();
-      while (xenu.hasMoreElements())
+      for (XSpreadsheetDocument doc : UnoCollection.getCollection(UNO.desktop.getComponents(), XSpreadsheetDocument.class))
       {
         try
         {
-          XSpreadsheetDocument doc = UNO.XSpreadsheetDocument(xenu.nextElement());
           if (doc != null)
           {
             String title =
@@ -1236,12 +1237,10 @@ public class MailMerge
       String[] tableNames = null;
       if (calcDocumentTitles.contains(datasourceName))
       {
-        XEnumeration xenu = UNO.desktop.getComponents().createEnumeration();
-        while (xenu.hasMoreElements())
+        for (XSpreadsheetDocument doc : UnoCollection.getCollection(UNO.desktop.getComponents(), XSpreadsheetDocument.class))
         {
           try
           {
-            XSpreadsheetDocument doc = UNO.XSpreadsheetDocument(xenu.nextElement());
             if (doc != null)
             {
               String title =

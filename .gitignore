@@ -1,10 +1,10 @@
 syntax: glob
 bin/
 *~
-/target
+**/target
 *.urd
 .project
 .classpath
-/.settings
-/.idea
+**/.settings
+**/.idea
 *.iml

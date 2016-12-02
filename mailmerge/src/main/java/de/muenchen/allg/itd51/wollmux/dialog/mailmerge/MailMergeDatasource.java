@@ -59,7 +59,6 @@ import javax.swing.SwingUtilities;
 
 import com.sun.star.awt.XTopWindow;
 import com.sun.star.beans.XPropertySet;
-import com.sun.star.container.XEnumeration;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.document.XEventListener;
 import com.sun.star.frame.XFrame;
@@ -85,6 +84,7 @@ import com.sun.star.util.XCloseListener;
 import com.sun.star.util.XModifiable;
 
 import de.muenchen.allg.afid.UNO;
+import de.muenchen.allg.afid.UnoCollection;
 import de.muenchen.allg.itd51.wollmux.core.db.ColumnNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.db.Dataset;
 import de.muenchen.allg.itd51.wollmux.core.db.Datasource;
@@ -521,12 +521,10 @@ public class MailMergeDatasource
         XOfficeDatabaseDocument dbdoc = ds.getDatabaseDocument();
         String url = UNO.XModel(dbdoc).getURL();
 
-        XEnumeration xenu = UNO.desktop.getComponents().createEnumeration();
-        while (xenu.hasMoreElements())
+        for (XModel model : UnoCollection.getCollection(UNO.desktop.getComponents(), XModel.class))
         {
           try
           {
-            XModel model = UNO.XModel(xenu.nextElement());
             if (model.getURL().equals(url))
             {
               document = model;
@@ -1136,8 +1134,10 @@ public class MailMergeDatasource
     try
     {
       String[] datasourceNamesA = UNO.XNameAccess(UNO.dbContext).getElementNames();
-      for (int i = 0; i < datasourceNamesA.length; ++i)
-        datasourceNames.add(datasourceNamesA[i]);
+      for (String datasourceName : datasourceNamesA)
+      {
+        datasourceNames.add(datasourceName);
+      }
     }
     catch (Exception x)
     {
@@ -1501,11 +1501,8 @@ public class MailMergeDatasource
     win.docs = new Vector<XSpreadsheetDocument>();
     try
     {
-      XSpreadsheetDocument spread = null;
-      XEnumeration xenu = UNO.desktop.getComponents().createEnumeration();
-      while (xenu.hasMoreElements())
+      for (XSpreadsheetDocument spread : UnoCollection.getCollection(UNO.desktop.getComponents(), XSpreadsheetDocument.class))
       {
-        spread = UNO.XSpreadsheetDocument(xenu.nextElement());
         if (spread != null)
         {
           XFrame frame = UNO.XModel(spread).getCurrentController().getFrame();
@@ -1563,11 +1560,8 @@ public class MailMergeDatasource
     XSpreadsheetDocument newCalcDoc = null;
     try
     {
-      XSpreadsheetDocument spread;
-      XEnumeration xenu = UNO.desktop.getComponents().createEnumeration();
-      while (xenu.hasMoreElements())
+      for (XSpreadsheetDocument spread : UnoCollection.getCollection(UNO.desktop.getComponents(), XSpreadsheetDocument.class))
       {
-        spread = UNO.XSpreadsheetDocument(xenu.nextElement());
         if (spread != null && url.equals(UNO.XModel(spread).getURL()))
         {
           newCalcDoc = spread;

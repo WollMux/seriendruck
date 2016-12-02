@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import com.sun.star.beans.XPropertySet;
-import com.sun.star.container.XEnumeration;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XMultiServiceFactory;
@@ -22,6 +21,7 @@ import com.sun.star.text.XTextRange;
 import com.sun.star.uno.RuntimeException;
 
 import de.muenchen.allg.afid.UNO;
+import de.muenchen.allg.afid.UnoCollection;
 import de.muenchen.allg.itd51.wollmux.SachleitendeVerfuegung;
 import de.muenchen.allg.itd51.wollmux.WollMuxFiles;
 import de.muenchen.allg.itd51.wollmux.WollMuxSingleton;
@@ -455,13 +455,10 @@ public class TextDocumentController
 
     try
     {
-      XEnumeration xenu =
-        UNO.XTextFieldsSupplier(model.doc).getTextFields().createEnumeration();
-      while (xenu.hasMoreElements())
+      for (XDependentTextField tf : UnoCollection.getCollection(UNO.XTextFieldsSupplier(model.doc).getTextFields(), XDependentTextField.class))
       {
         try
         {
-          XDependentTextField tf = UNO.XDependentTextField(xenu.nextElement());
           if (tf == null) continue;
 
           if (UNO.supportsService(tf, "com.sun.star.text.TextField.InputUser"))

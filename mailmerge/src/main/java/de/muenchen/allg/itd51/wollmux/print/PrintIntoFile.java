@@ -58,7 +58,6 @@ import javax.swing.WindowConstants;
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.container.NoSuchElementException;
-import com.sun.star.container.XEnumeration;
 import com.sun.star.container.XEnumerationAccess;
 import com.sun.star.container.XIndexAccess;
 import com.sun.star.container.XNameAccess;
@@ -78,10 +77,11 @@ import com.sun.star.uno.AnyConverter;
 import com.sun.star.uno.UnoRuntime;
 
 import de.muenchen.allg.afid.UNO;
+import de.muenchen.allg.afid.UnoCollection;
 import de.muenchen.allg.afid.UnoProps;
 import de.muenchen.allg.itd51.wollmux.WollMuxFiles;
-import de.muenchen.allg.itd51.wollmux.core.HashableComponent;
 import de.muenchen.allg.itd51.wollmux.Workarounds;
+import de.muenchen.allg.itd51.wollmux.core.HashableComponent;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.ooo.TextDocument;
@@ -120,11 +120,8 @@ public class PrintIntoFile
       String url = storeInTemporaryFile(inputDoc, dest);
 
       String inputDocFirstPageStyleName = "";
-      XEnumeration enu =
-        UNO.XEnumerationAccess(inputDoc.getText()).createEnumeration();
-      while (enu.hasMoreElements())
+      for (Object o : UnoCollection.getCollection(UNO.XEnumerationAccess(inputDoc.getText()), Object.class))
       {
-        Object o = enu.nextElement();
         Object prop = UNO.getProperty(o, "PageStyleName");
         if (AnyConverter.isString(prop))
         {
@@ -456,10 +453,8 @@ public class PrintIntoFile
       throws NoSuchElementException, WrappedTargetException
   {
     String pc = "" + pageCount;
-    XEnumeration enu = textFields.createEnumeration();
-    while (enu.hasMoreElements())
+    for (Object textfield : UnoCollection.getCollection(textFields, Object.class))
     {
-      Object textfield = enu.nextElement();
       // Der eigentlich redundante Test auf das Property NumberingType ist eine
       // Optimierung, da supportsService sehr langsam ist.
       if (UNO.getProperty(textfield, "NumberingType") != null
@@ -501,11 +496,8 @@ public class PrintIntoFile
   private static void fixInputUserFields(XEnumerationAccess textFields)
       throws NoSuchElementException, WrappedTargetException
   {
-    XEnumeration enu = textFields.createEnumeration();
-    while (enu.hasMoreElements())
+    for (Object textfield : UnoCollection.getCollection(textFields, Object.class))
     {
-      Object textfield = enu.nextElement();
-
       // Der eigentlich Test, ob der Inhalt des Content-Properties mit "WM(FUNCTION"
       // beginnt ist eine Optimierung, da in der Regel nur die betroffenen
       // InputUser-Textfelder mit diesem Text anfangen und supportsService sehr
@@ -735,11 +727,10 @@ public class PrintIntoFile
                */
               try
               {
-                XEnumeration xenu = UNO.desktop.getComponents().createEnumeration();
-                while (xenu.hasMoreElements())
+                for (XTextDocument document : UnoCollection.getCollection(UNO.desktop.getComponents(), XTextDocument.class))
                 {
-                  inputDoc = UNO.XTextDocument(xenu.nextElement());
-                  if (inputDoc != null && !UnoRuntime.areSame(inputDoc, doc[0]))
+                  if (document != null && !UnoRuntime.areSame(document, doc[0]))
+                    inputDoc = document;
                     break;
                 }
               }

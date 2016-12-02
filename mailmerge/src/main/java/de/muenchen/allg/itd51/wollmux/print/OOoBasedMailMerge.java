@@ -51,7 +51,6 @@ import com.sun.star.beans.PropertyValue;
 import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.container.NoSuchElementException;
-import com.sun.star.container.XEnumeration;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.frame.XModel;
 import com.sun.star.frame.XStorable;
@@ -82,24 +81,25 @@ import com.sun.star.util.XCancellable;
 import com.sun.star.view.XPrintable;
 
 import de.muenchen.allg.afid.UNO;
+import de.muenchen.allg.afid.UnoCollection;
 import de.muenchen.allg.afid.UnoProps;
 import de.muenchen.allg.itd51.wollmux.ModalDialogs;
 import de.muenchen.allg.itd51.wollmux.SachleitendeVerfuegung;
 import de.muenchen.allg.itd51.wollmux.XPrintModel;
+import de.muenchen.allg.itd51.wollmux.core.db.ColumnNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.document.FormFieldFactory;
-import de.muenchen.allg.itd51.wollmux.core.document.PersistentDataContainer;
-import de.muenchen.allg.itd51.wollmux.core.document.SimulationResults;
-import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
 import de.muenchen.allg.itd51.wollmux.core.document.FormFieldFactory.FormField;
 import de.muenchen.allg.itd51.wollmux.core.document.FormFieldFactory.FormFieldType;
+import de.muenchen.allg.itd51.wollmux.core.document.PersistentDataContainer;
 import de.muenchen.allg.itd51.wollmux.core.document.PersistentDataContainer.DataID;
+import de.muenchen.allg.itd51.wollmux.core.document.SimulationResults;
 import de.muenchen.allg.itd51.wollmux.core.document.SimulationResults.SimulationResultsProcessor;
+import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
 import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommand;
-import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommands;
 import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommand.InsertFormValue;
+import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommands;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.allg.itd51.wollmux.core.db.ColumnNotFoundException;
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeNew;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 
@@ -1185,16 +1185,9 @@ public class OOoBasedMailMerge
   {
     if (UNO.XTextFieldsSupplier(tmpDoc) != null)
     {
-      XEnumeration xenum =
-        UNO.XTextFieldsSupplier(tmpDoc).getTextFields().createEnumeration();
-      while (xenum.hasMoreElements())
+      for (XDependentTextField tf : UnoCollection.getCollection(UNO.XTextFieldsSupplier(tmpDoc).getTextFields(), XDependentTextField.class))
       {
-        XDependentTextField tf = null;
-        try
-        {
-          tf = UNO.XDependentTextField(xenum.nextElement());
-        }
-        catch (Exception e)
+        if (tf == null)
         {
           continue;
         }
@@ -1257,16 +1250,9 @@ public class OOoBasedMailMerge
     int numberOfNextSets = 1;
     if (UNO.XTextFieldsSupplier(doc) != null)
     {
-      XEnumeration xenum =
-        UNO.XTextFieldsSupplier(doc).getTextFields().createEnumeration();
-      while (xenum.hasMoreElements())
+      for (XDependentTextField tf : UnoCollection.getCollection(UNO.XTextFieldsSupplier(doc).getTextFields(), XDependentTextField.class))
       {
-        XDependentTextField tf = null;
-        try
-        {
-          tf = UNO.XDependentTextField(xenum.nextElement());
-        }
-        catch (Exception e)
+        if (tf == null)
         {
           continue;
         }
