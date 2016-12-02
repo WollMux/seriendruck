@@ -31,15 +31,10 @@
 package de.muenchen.allg.itd51.wollmux.print;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,7 +47,6 @@ import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.container.NoSuchElementException;
 import com.sun.star.container.XNameAccess;
-import com.sun.star.frame.XModel;
 import com.sun.star.frame.XStorable;
 import com.sun.star.io.IOException;
 import com.sun.star.lang.IllegalArgumentException;
@@ -76,8 +70,6 @@ import com.sun.star.uno.AnyConverter;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XNamingService;
 import com.sun.star.util.CloseVetoException;
-import com.sun.star.util.URL;
-import com.sun.star.util.XCancellable;
 import com.sun.star.view.XPrintable;
 
 import de.muenchen.allg.afid.UNO;
@@ -86,14 +78,11 @@ import de.muenchen.allg.afid.UnoProps;
 import de.muenchen.allg.itd51.wollmux.ModalDialogs;
 import de.muenchen.allg.itd51.wollmux.SachleitendeVerfuegung;
 import de.muenchen.allg.itd51.wollmux.XPrintModel;
-import de.muenchen.allg.itd51.wollmux.core.db.ColumnNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.document.FormFieldFactory;
 import de.muenchen.allg.itd51.wollmux.core.document.FormFieldFactory.FormField;
 import de.muenchen.allg.itd51.wollmux.core.document.FormFieldFactory.FormFieldType;
 import de.muenchen.allg.itd51.wollmux.core.document.PersistentDataContainer;
 import de.muenchen.allg.itd51.wollmux.core.document.PersistentDataContainer.DataID;
-import de.muenchen.allg.itd51.wollmux.core.document.SimulationResults;
-import de.muenchen.allg.itd51.wollmux.core.document.SimulationResults.SimulationResultsProcessor;
 import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
 import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommand;
 import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommand.InsertFormValue;
@@ -113,17 +102,17 @@ public class OOoBasedMailMerge
 
   private static final String COLUMN_PREFIX_MULTI_PARAMETER_FUNCTION = "WM:MP";
 
-  private static final String COLUMN_PREFIX_TEXTSECTION = "WM:SE_";
+  static final String COLUMN_PREFIX_TEXTSECTION = "WM:SE_";
 
   private static final String TEMP_WOLLMUX_MAILMERGE_PREFIX = "WollMuxMailMerge";
 
-  private static final String DATASOURCE_ODB_FILENAME = "datasource.odb";
+  static final String DATASOURCE_ODB_FILENAME = "datasource.odb";
 
-  private static final String TABLE_NAME = "data";
+  static final String TABLE_NAME = "data";
 
-  private static final char OPENSYMBOL_CHECKED = 0xE4C4;
+  static final char OPENSYMBOL_CHECKED = 0xE4C4;
 
-  private static final char OPENSYMBOL_UNCHECKED = 0xE470;
+  static final char OPENSYMBOL_UNCHECKED = 0xE470;
 
   /**
    * Druckfunktion für den Seriendruck in ein Gesamtdokument mit Hilfe des
@@ -288,556 +277,6 @@ public class OOoBasedMailMerge
     }
 
     tmpDir.delete();
-  }
-
-  /**
-   * A optional XCancellable mail merge thread.
-   * 
-   * @author Jan-Marek Glogowski (ITM-I23)
-   */
-  private static class MailMergeThread extends Thread
-  {
-    private XCancellable mailMergeCancellable = null;
-
-    private Object result = null;
-
-    private final XJob mailMerge;
-
-    private final File outputDir;
-
-    private final ArrayList<NamedValue> mmProps;
-
-    MailMergeThread(XJob mailMerge, File outputDir, ArrayList<NamedValue> mmProps)
-    {
-      this.mailMerge = mailMerge;
-      this.outputDir = outputDir;
-      this.mmProps = mmProps;
-    }
-
-    @Override
-    public void run()
-    {
-      try
-      {
-        Logger.debug(L.m("Starting OOo-MailMerge in Verzeichnis %1", outputDir));
-        // The XCancellable mail merge interface was included in LO >= 4.3.
-        mailMergeCancellable =
-          UnoRuntime.queryInterface(XCancellable.class, mailMerge);
-        if (mailMergeCancellable != null)
-          Logger.debug(L.m("XCancellable interface im mailMerge-Objekt gefunden!"));
-        else
-          Logger.debug(L.m("KEIN XCancellable interface im mailMerge-Objekt gefunden!"));
-
-        result = mailMerge.execute(mmProps.toArray(new NamedValue[mmProps.size()]));
-
-        Logger.debug(L.m("Finished Mail Merge"));
-      }
-      catch (Exception e)
-      {
-        Logger.debug(L.m("OOo-MailMergeService fehlgeschlagen: %1", e.getMessage()));
-      }
-      mailMergeCancellable = null;
-    }
-
-    public synchronized void cancel()
-    {
-      if (mailMergeCancellable != null) mailMergeCancellable.cancel();
-    }
-
-    public Object getResult()
-    {
-      return result;
-    }
-  }
-
-  /**
-   * Übernimmt das Aktualisieren der Fortschrittsanzeige im XPrintModel pmod.
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  private static class ProgressUpdater
-  {
-    private XPrintModel pmod;
-
-    private int currentCount;
-
-    public final int maxDatasets;
-
-    public ProgressUpdater(XPrintModel pmod, int maxDatasets)
-    {
-      this.pmod = pmod;
-      this.currentCount = 0;
-      this.maxDatasets = maxDatasets;
-      pmod.setPrintProgressMaxValue((short) maxDatasets);
-      pmod.setPrintProgressValue((short) 0);
-    }
-
-    public void incrementProgress()
-    {
-      pmod.setPrintProgressValue((short) ++currentCount);
-    }
-
-    public void setMessage(String text)
-    {
-      this.currentCount = 0;
-      pmod.setPrintMessage(text);
-    }
-  }
-
-  /**
-   * Repräsentiert eine (noch nicht registrierte) Datenquelle für OpenOffice.org.
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  public static abstract class OOoDataSource implements SimulationResultsProcessor
-  {
-    /**
-     * Liefert das für die Registrierung der OOo-Datenquelle benötigte
-     * {@link XDocumentDataSource}-Objekt zurück.
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    abstract public XDocumentDataSource createXDocumentDatasource();
-
-    /**
-     * Liefert einen {@link DataSourceWriter} zurück, über den Datensätze in die
-     * Datenquelle geschrieben werden können.
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    abstract public DataSourceWriter getDataSourceWriter();
-
-    /**
-     * Liefert die Anzahl der Datensätze der Datenquelle zurück.
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    abstract public int getSize();
-
-    /**
-     * Entfernt die Datenquelle
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    abstract public void remove();
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * de.muenchen.allg.itd51.wollmux.SimulationResults.SimulationResultsProcessor
-     * #processSimulationResults(de.muenchen.allg.itd51.wollmux.SimulationResults)
-     */
-    @Override
-    public void processSimulationResults(SimulationResults simRes)
-    {
-      if (simRes == null) return;
-
-      HashMap<String, String> data =
-        new HashMap<String, String>(simRes.getFormFieldValues());
-      for (FormField field : simRes.getFormFields())
-      {
-        String columnName = getSpecialColumnNameForFormField(field);
-        if (columnName == null) continue;
-        String content = simRes.getFormFieldContent(field);
-
-        // Checkboxen müssen über bestimmte Zeichen der Schriftart OpenSymbol
-        // angenähert werden.
-        if (field.getType() == FormFieldType.CheckBoxFormField)
-          if (content.equalsIgnoreCase("TRUE"))
-            content = "" + OPENSYMBOL_CHECKED;
-          else
-            content = "" + OPENSYMBOL_UNCHECKED;
-
-        data.put(columnName, content);
-      }
-
-      for (Map.Entry<String, Boolean> entry : simRes.getGroupsVisibilityState().entrySet())
-      {
-        Logger.log(entry.getKey() + " --> " + entry.getValue());
-        data.put(COLUMN_PREFIX_TEXTSECTION + entry.getKey(), entry.getValue().toString());
-      }
-
-      try
-      {
-        getDataSourceWriter().addDataset(data);
-      }
-      catch (Exception e)
-      {
-        Logger.error(e);
-      }
-    }
-  }
-
-  /**
-   * Implementierung einer {@link OOoDataSource}, die als Backend ein CSV-Datei
-   * verwendet.
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  public static class CsvBasedOOoDataSource extends OOoDataSource
-  {
-    File parentDir;
-
-    CSVDataSourceWriter dsw;
-
-    /**
-     * Erzeugt eine {@link OOoDataSource}, die als Backend eine CSV-Datei verwendet
-     * und die dafür notwendige Datei (eine .csv-Datei) im Verzeichnis parentDir
-     * ablegt.
-     */
-    public CsvBasedOOoDataSource(File parentDir)
-    {
-      this.parentDir = parentDir;
-      this.dsw = new CSVDataSourceWriter(parentDir);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seede.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.OOoDataSource#
-     * getDataSourceWriter()
-     */
-    @Override
-    public DataSourceWriter getDataSourceWriter()
-    {
-      return dsw;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seede.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.OOoDataSource#
-     * createXDocumentDatasource()
-     */
-    @Override
-    public XDocumentDataSource createXDocumentDatasource()
-    {
-      XSingleServiceFactory dbContext =
-        UNO.XSingleServiceFactory(UNO.createUNOService("com.sun.star.sdb.DatabaseContext"));
-      XDocumentDataSource dataSource = null;
-      if (dbContext != null) try
-      {
-        dataSource = UNO.XDocumentDataSource(dbContext.createInstance());
-      }
-      catch (Exception e)
-      {
-        Logger.error(e);
-      }
-
-      if (dataSource != null)
-      {
-        String dirURL = UNO.getParsedUNOUrl(parentDir.toURI().toString()).Complete;
-        UNO.setProperty(dataSource, "URL", "sdbc:flat:" + dirURL);
-
-        UnoProps p = new UnoProps();
-        p.setPropertyValue("Extension", "csv");
-        p.setPropertyValue("CharSet", "UTF-8");
-        p.setPropertyValue("FixedLength", false);
-        p.setPropertyValue("HeaderLine", true);
-        p.setPropertyValue("FieldDelimiter", ",");
-        p.setPropertyValue("StringDelimiter", "\"");
-        p.setPropertyValue("DecimalDelimiter", ".");
-        p.setPropertyValue("ThousandDelimiter", "");
-        UNO.setProperty(dataSource, "Info", p.getProps());
-
-        XStorable xStorable = UNO.XStorable(dataSource.getDatabaseDocument());
-        XModel model = UNO.XModel(xStorable);
-        URL url = null;
-        File tmpFile = new File(parentDir, DATASOURCE_ODB_FILENAME);
-        url = UNO.getParsedUNOUrl(tmpFile.toURI().toString());
-        if (url != null && xStorable != null && model != null) try
-        {
-          xStorable.storeAsURL(url.Complete, model.getArgs());
-        }
-        catch (IOException e)
-        {
-          Logger.error(e);
-        }
-      }
-      return dataSource;
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * de.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.OOoDataSource#getSize()
-     */
-    @Override
-    public int getSize()
-    {
-      return dsw.getSize();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * de.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.OOoDataSource#remove()
-     */
-    @Override
-    public void remove()
-    {
-      dsw.getCSVFile().delete();
-    }
-  }
-
-  /**
-   * Beschreibt einen DataSourceWriter mit dem die Daten des Seriendrucks in eine
-   * Datenquelle geschrieben werden können. Eine konkrete Ableitungen ist der
-   * {@link CSVDataSourceWriter}.
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  public static interface DataSourceWriter
-  {
-    /**
-     * Fügt der zu erzeugenden Datenquelle einen neuen Datensatz hinzu durch
-     * Schlüssel/Wert-Paare in einer HashMap definiert ist.
-     * 
-     * @throws Exception
-     *           falls etwas beim Hinzufügen schief geht.
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    public void addDataset(HashMap<String, String> ds) throws Exception;
-
-    /**
-     * Nachdem mit {@link #addDataset(HashMap)} alle Datensätze hinzugefügt wurden
-     * schließt der Aufruf dieser Methode die Erzeugung der Datenquelle ab. Nach dem
-     * Aufruf von {@link #flushAndClose()} ist die Erzeugung abgeschlossen und es
-     * darf kein weiterer Aufruf von {@link #addDataset(HashMap)} erfolgen (bzw.
-     * dieser ist dann ohne Wirkung).
-     * 
-     * @throws Exception
-     *           falls etwas beim Finalisieren schief geht.
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    public void flushAndClose() throws Exception;
-
-    /**
-     * Liefert die Anzahl der (bisher) mit {@link #addDataset(HashMap)} hinzugefügten
-     * Datensätze zurück.
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    public int getSize();
-
-    /**
-     * Entscheidet ob aus den PersistentData der Originaldatei die WollMux-Abschitte
-     * gelöscht werden müssen.
-     * 
-     * @return true falls die Abschnitte gelöscht werden müssen, false sonst
-     */
-    public boolean isAdjustMainDoc();
-  }
-
-  /**
-   * Implementiert einen DataSourceWriter, der Daten in eine CSV-Datei data.csv in
-   * einem frei wählbaren Zielverzeichnis schreibt.
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  public static class CSVDataSourceWriter implements DataSourceWriter
-  {
-    /**
-     * Enthält die zu erzeugende bzw. erzeugte csv-Datei.
-     */
-    File csvFile = null;
-
-    /**
-     * Sammelt alle über {@link #addDataset(HashMap)} gesetzten Datensätze
-     */
-    ArrayList<HashMap<String, String>> datasets;
-
-    /**
-     * Sammelt die Namen aller über {@link #addDataset(HashMap)} gesetzten Spalten.
-     */
-    HashSet<String> columns;
-
-    /**
-     * Enthält nach einem Aufruf von {@link #getHeaders()} die sortierten Headers.
-     */
-    ArrayList<String> headers = null;
-
-    /**
-     * Wenn {@link #validateColumntHeaders()} Leerzeichen in den Headern findet,
-     * müssen die PersistentData des Originaldokuments angepasst werden.
-     */
-    private boolean adjustPersistentData = false;
-
-    /**
-     * Erzeugt einen CSVDataSourceWriter, der die zu erzeugende csv-Datei in
-     * parentDir ablegt.
-     */
-    public CSVDataSourceWriter(File parentDir)
-    {
-      csvFile = new File(parentDir, TABLE_NAME + ".csv");
-      datasets = new ArrayList<HashMap<String, String>>();
-      columns = new HashSet<String>();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * de.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.DataSourceWriter#getSize
-     * ()
-     */
-    @Override
-    public int getSize()
-    {
-      return datasets.size();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * de.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.DataSourceWriter#addDataset
-     * (java.util.HashMap)
-     */
-    @Override
-    public void addDataset(HashMap<String, String> ds) throws Exception
-    {
-      datasets.add(ds);
-      columns.addAll(ds.keySet());
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seede.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.DataSourceWriter#
-     * flushAndClose()
-     */
-    @Override
-    public void flushAndClose() throws Exception
-    {
-      validateColumnHeaders();
-
-      FileOutputStream fos = new FileOutputStream(csvFile);
-      PrintStream p = new PrintStream(fos, true, "UTF-8");
-      p.print(line(getHeaders()));
-      for (HashMap<String, String> ds : datasets)
-      {
-        ArrayList<String> entries = new ArrayList<String>();
-        for (String key : getHeaders())
-        {
-          String val = ds.get(key);
-          if (val == null) val = "";
-          entries.add(val);
-        }
-        p.print(line(entries));
-      }
-      p.close();
-    }
-
-    /**
-     * Überprüft ob die Headerzeilen der Datenquelle gültig sind, dh. keine
-     * Zeilenumbrüche enthalten. Wenn Zeilenumbrüche gefunden werden, wird eine
-     * entsprechende Meldung angezeigt.
-     * 
-     * @throws ColumnNotFoundException
-     *           Falls die Datenquelle in der Headerzeile mindestens 1 Spalte mit
-     *           Zeilenumbruch enthält.
-     */
-    private void validateColumnHeaders() throws ColumnNotFoundException
-    {
-      Logger.debug(L.m("validateColumnHeaders()"));
-      String invalidHeaders = "";
-      for (String key : getHeaders())
-      {
-        if (key.contains("\n"))
-        {
-          invalidHeaders += "• " + key + "\n";
-        }
-      }
-      if (!invalidHeaders.isEmpty())
-      {
-        boolean anpassen =
-          ModalDialogs.showQuestionModal(
-            L.m("WollMux-Seriendruck"),
-            L.m("Zeilenumbrüche in Spaltenüberschriften sind für den Seriendruck nicht erlaubt.\n")
-              + L.m("\nBitte entfernen Sie die Zeilenumbrüche aus den folgenden Überschriften der Datenquelle:\n\n")
-              + invalidHeaders
-              + L.m("\nSoll das Hauptdokument entsprechend angepasst werden?"));
-
-        if (anpassen)
-        {
-          adjustPersistentData = true;
-        }
-        throw new ColumnNotFoundException(
-          L.m("Spaltenüberschriften enthalten newlines"));
-      }
-    }
-
-    /**
-     * Erzeugt die zu dem durch list repräsentierten Datensatz zugehörige
-     * vollständige Textzeile für die csv-Datei.
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    private String line(List<String> list)
-    {
-      StringBuffer buf = new StringBuffer();
-      for (String el : list)
-      {
-        if (buf.length() != 0) buf.append(",");
-        buf.append(literal(el));
-      }
-      buf.append("\n");
-      return buf.toString();
-    }
-
-    /**
-     * Erzeugt ein für die csv-Datei gültiges literal aus dem Wert value und
-     * übernimmt insbesondere das Escaping der Anführungszeichen.
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    private String literal(String value)
-    {
-      String esc = value.replaceAll("\"", "\"\"");
-      return "\"" + esc + "\"";
-    }
-
-    /**
-     * Liefert eine alphabetisch sortierte Liste alle Spaltennamen zurück, die jemals
-     * über {@link #addDataset(HashMap)} benutzt bzw. gesetzt wurden.
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    private ArrayList<String> getHeaders()
-    {
-      if (headers != null) return headers;
-      headers = new ArrayList<String>(columns);
-      Collections.sort(headers);
-      return headers;
-    }
-
-    /**
-     * Liefert das File-Objekt der csv-Datei zurück, in die geschrieben wird/wurde.
-     * 
-     * @author Christoph Lutz (D-III-ITD-D101)
-     */
-    public File getCSVFile()
-    {
-      return csvFile;
-    }
-
-    /**
-     * Liefert den Wert von {@link #adjustPersistentData} zurück.
-     * 
-     * @author Ulrich Kitzinger (GBI I21)
-     */
-    @Override
-    public boolean isAdjustMainDoc()
-    {
-      return adjustPersistentData;
-    }
   }
 
   /**
@@ -1151,7 +590,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
-  private static String getSpecialColumnNameForFormField(FormField field)
+  static String getSpecialColumnNameForFormField(FormField field)
   {
     String trafo = field.getTrafoName();
     String id = field.getId();
