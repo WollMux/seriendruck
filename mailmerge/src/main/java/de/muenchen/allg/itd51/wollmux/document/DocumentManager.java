@@ -57,7 +57,6 @@ import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeNew;
-import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
 
 /**
  * Verwaltet Informationen zu allen offenen OOo-Dokumenten.
@@ -358,7 +357,6 @@ public class DocumentManager
     public TextDocumentInfo(XTextDocument doc)
     {
       this.doc = doc;
-      getTextDocumentController();
     }
 
     /**
@@ -372,11 +370,6 @@ public class DocumentManager
       if (documentController == null)
       {
         documentController = new TextDocumentController(new TextDocumentModel(doc, createPersistentDataContainer(doc)), GlobalFunctions.getInstance().getGlobalFunctions(), GlobalFunctions.getInstance().getFunctionDialogs());
-
-        /**
-         * Dispatch Handler in eigenem Event registrieren, da es Deadlocks gegeben hat.
-         */
-        WollMuxEventHandler.handleRegisterDispatchInterceptor(documentController);
       }
       return documentController;
     }

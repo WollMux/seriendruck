@@ -9,6 +9,14 @@ import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
 
+/**
+ * Erzeugt ein neues WollMuxEvent, das signasisiert, dass die neue
+ * Seriendruckfunktion des WollMux gestartet werden soll.
+ * 
+ * Das Event wird über den DispatchHandler aufgerufen, wenn z.B. über das Menü
+ * "Extras->Seriendruck (WollMux)" die dispatch-url wollmux:SeriendruckNeu
+ * abgesetzt wurde.
+ */
 public class OnSeriendruck extends BasicEvent
 {
   private TextDocumentController documentController;
@@ -35,7 +43,7 @@ public class OnSeriendruck extends BasicEvent
         public void actionPerformed(ActionEvent actionEvent)
         {
           if (actionEvent.getSource() instanceof MailMergeNew)
-            WollMuxEventHandler.handleMailMergeNewReturned(documentController);
+            WollMuxEventHandler.getInstance().handleMailMergeNewReturned(documentController);
         }
       });
       DocumentManager.getDocumentManager().setCurrentMailMergeNew(documentController.getModel().doc, mmn);

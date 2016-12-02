@@ -8,6 +8,10 @@ import de.muenchen.allg.itd51.wollmux.document.FrameController;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 import de.muenchen.allg.itd51.wollmux.event.DispatchProviderAndInterceptor;
 
+/**
+ * Erzeugt ein neues WollMuxEvent zum Registrieren eines (frischen)
+ * {@link DispatchProviderAndInterceptor} auf frame.
+ */
 public class OnRegisterDispatchInterceptor extends BasicEvent
 {
   private TextDocumentController documentController;

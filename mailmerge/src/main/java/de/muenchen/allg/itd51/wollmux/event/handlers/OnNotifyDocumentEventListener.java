@@ -10,6 +10,13 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
 
+/**
+ * Über dieses Event werden alle registrierten DocumentEventListener (falls
+ * listener==null) oder ein bestimmter registrierter DocumentEventListener (falls
+ * listener != null) (XEventListener-Objekte) über Statusänderungen der
+ * Dokumentbearbeitung informiert
+ * 
+ */
 public class OnNotifyDocumentEventListener extends BasicEvent
 {
   private String eventName;
@@ -18,6 +25,20 @@ public class OnNotifyDocumentEventListener extends BasicEvent
 
   private XEventListener listener;
 
+  /**
+   * 
+   * @param listener
+   *          der zu benachrichtigende XEventListener. Falls null werden alle
+   *          registrierten Listener benachrichtig. listener wird auf jeden Fall
+   *          nur benachrichtigt, wenn er zur Zeit der Abarbeitung des Events
+   *          noch registriert ist.
+   * @param eventName
+   *          Name des Events
+   * @param source
+   *          Das von der Statusänderung betroffene Dokument (üblicherweise eine
+   *          XComponent)
+   * 
+   */
   public OnNotifyDocumentEventListener(XEventListener listener, String eventName,
       Object source)
   {

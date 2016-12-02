@@ -312,13 +312,13 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
   @Override
   public void addEventListener(XEventListener l)
   {
-    WollMuxEventHandler.handleAddDocumentEventListener(l);
+    WollMuxEventHandler.getInstance().handleAddDocumentEventListener(l);
   }
 
   @Override
   public void removeEventListener(XEventListener l)
   {
-    WollMuxEventHandler.handleRemoveDocumentEventListener(l);
+    WollMuxEventHandler.getInstance().handleRemoveDocumentEventListener(l);
   }
   
 }

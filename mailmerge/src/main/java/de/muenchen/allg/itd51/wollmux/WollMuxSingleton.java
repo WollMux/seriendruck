@@ -52,7 +52,6 @@
 package de.muenchen.allg.itd51.wollmux;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Iterator;
@@ -152,9 +151,6 @@ public class WollMuxSingleton
     // erfolgreich.
     if (DatasourceJoinerFactory.getDatasourceJoiner() == null) successfulStartup = false;
 
-    // Initialisiere EventProcessor
-    WollMuxEventHandler.setAcceptEvents(successfulStartup);
-
     // register global EventListener
     try
     {
@@ -240,7 +236,7 @@ public class WollMuxSingleton
       singletonInstance = new WollMuxSingleton(ctx);
 
       // Event ON_FIRST_INITIALIZE erzeugen:
-      WollMuxEventHandler.handleInitialize();
+      WollMuxEventHandler.getInstance().handleInitialize();
     }
   }
 

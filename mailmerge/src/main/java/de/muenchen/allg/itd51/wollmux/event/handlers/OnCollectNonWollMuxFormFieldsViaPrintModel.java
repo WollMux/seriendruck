@@ -5,6 +5,15 @@ import java.awt.event.ActionListener;
 import de.muenchen.allg.itd51.wollmux.WollMuxFehlerException;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 
+/**
+ * Sammelt alle Formularfelder des Dokuments model auf, die nicht von
+ * WollMux-Kommandos umgeben sind, jedoch trotzdem vom WollMux verstanden und
+ * befüllt werden (derzeit c,s,s,t,textfield,Database-Felder).
+ * 
+ * Das Event wird aus der Implementierung von XPrintModel (siehe TextDocumentModel)
+ * geworfen, wenn dort die Methode collectNonWollMuxFormFields aufgerufen wird.
+ * 
+ */
 public class OnCollectNonWollMuxFormFieldsViaPrintModel extends BasicEvent
 {
   private ActionListener listener;

@@ -1,8 +1,5 @@
 package de.muenchen.allg.itd51.wollmux.event.handlers;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import com.sun.star.awt.XWindow;
 import com.sun.star.frame.XFrame;
 import com.sun.star.frame.XFrames;
@@ -19,8 +16,6 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
  */
 public class BasicEvent implements WollMuxEvent
 {
-
-  private boolean[] lock = new boolean[] { true };
 
   /**
    * Diese Method ist für die Ausführung des Events zuständig. Nach der Bearbeitung
@@ -140,80 +135,6 @@ public class BasicEvent implements WollMuxEvent
     catch (java.lang.Exception e)
     {
       Logger.error(e);
-    }
-  }
-
-  /**
-   * Setzt einen lock, der in Verbindung mit setUnlock und der
-   * waitForUnlock-Methode verwendet werden kann, um quasi Modalität für nicht
-   * modale Dialoge zu realisieren und setzt alle OOo-Fenster auf enabled==false.
-   * setLock() sollte stets vor dem Aufruf des nicht modalen Dialogs erfolgen, nach
-   * dem Aufruf des nicht modalen Dialogs folgt der Aufruf der
-   * waitForUnlock()-Methode. Der nicht modale Dialog erzeugt bei der Beendigung
-   * ein ActionEvent, das dafür sorgt, dass setUnlock aufgerufen wird.
-   */
-  protected void setLock()
-  {
-    enableAllOOoWindows(false);
-    synchronized (lock)
-    {
-      lock[0] = true;
-    }
-  }
-
-  /**
-   * Macht einen mit setLock() gesetzten Lock rückgängig, und setzt alle
-   * OOo-Fenster auf enabled==true und bricht damit eine evtl. wartende
-   * waitForUnlock()-Methode ab.
-   */
-  protected void setUnlock()
-  {
-    synchronized (lock)
-    {
-      lock[0] = false;
-      lock.notifyAll();
-    }
-    enableAllOOoWindows(true);
-  }
-
-  /**
-   * Wartet so lange, bis der vorher mit setLock() gesetzt lock mit der Methode
-   * setUnlock() aufgehoben wird. So kann die quasi Modalität nicht modale Dialoge
-   * zu realisiert werden. setLock() sollte stets vor dem Aufruf des nicht modalen
-   * Dialogs erfolgen, nach dem Aufruf des nicht modalen Dialogs folgt der Aufruf
-   * der waitForUnlock()-Methode. Der nicht modale Dialog erzeugt bei der
-   * Beendigung ein ActionEvent, das dafür sorgt, dass setUnlock aufgerufen wird.
-   */
-  protected void waitForUnlock()
-  {
-    try
-    {
-      synchronized (lock)
-      {
-        while (lock[0] == true)
-          lock.wait();
-      }
-    }
-    catch (InterruptedException e)
-    {}
-  }
-
-  /**
-   * Dieser ActionListener kann nicht modalen Dialogen übergeben werden und sorgt
-   * in Verbindung mit den Methoden setLock() und waitForUnlock() dafür, dass quasi
-   * modale Dialoge realisiert werden können.
-   */
-  protected UnlockActionListener unlockActionListener = new UnlockActionListener();
-
-  protected class UnlockActionListener implements ActionListener
-  {
-    public ActionEvent actionEvent = null;
-
-    @Override
-    public void actionPerformed(ActionEvent arg0)
-    {
-      actionEvent = arg0;
-      setUnlock();
     }
   }
 }

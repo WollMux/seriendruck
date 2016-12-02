@@ -4,6 +4,10 @@ import com.sun.star.document.XEventListener;
 
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 
+/**
+ * Erzeugt ein neues WollMuxEvent, das den übergebenen XEventListener
+ * deregistriert.
+ */
 public class OnRemoveDocumentEventListener extends BasicEvent
 {
   private XEventListener listener;

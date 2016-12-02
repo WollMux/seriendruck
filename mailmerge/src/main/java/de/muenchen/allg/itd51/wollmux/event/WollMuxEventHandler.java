@@ -50,9 +50,8 @@
 package de.muenchen.allg.itd51.wollmux.event;
 
 import java.awt.event.ActionListener;
-import java.util.LinkedList;
-import java.util.List;
 
+import com.google.common.eventbus.EventBus;
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.document.XEventListener;
 import com.sun.star.frame.XDispatch;
@@ -60,8 +59,6 @@ import com.sun.star.frame.XFrame;
 import com.sun.star.text.XTextDocument;
 
 import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
-import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager.TextDocumentInfo;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
@@ -89,141 +86,40 @@ import de.muenchen.allg.itd51.wollmux.event.handlers.WollMuxEvent;
  */
 public class WollMuxEventHandler
 {
+  private static WollMuxEventHandler instance;
+  
+  public static WollMuxEventHandler getInstance()
+  {
+    if (instance == null)
+    {
+      instance = new WollMuxEventHandler();
+    }
+    
+    return instance;
+  }
+  
+  private EventBus eventBus;
+  
   /**
    * Name des OnWollMuxProcessingFinished-Events.
    */
   public static final String ON_WOLLMUX_PROCESSING_FINISHED =
     "OnWollMuxProcessingFinished";
 
-  /**
-   * Mit dieser Methode ist es möglich die Entgegennahme von Events zu blockieren.
-   * Alle eingehenden Events werden ignoriert, wenn accept auf false gesetzt ist und
-   * entgegengenommen, wenn accept auf true gesetzt ist.
-   * 
-   * @param accept
-   */
-  public static void setAcceptEvents(boolean accept)
+  private WollMuxEventHandler() 
   {
-    EventProcessor.getInstance().setAcceptEvents(accept);
+    eventBus = new EventBus();
+    eventBus.register(new WollMuxEventListener());
   }
-
-  /**
-   * Der EventProcessor sorgt für eine synchronisierte Verarbeitung aller
-   * Wollmux-Events. Alle Events werden in eine synchronisierte eventQueue
-   * hineingepackt und von einem einzigen eventProcessingThread sequentiell
-   * abgearbeitet.
-   * 
-   * @author lut
-   */
-  public static class EventProcessor
-  {
-    /**
-     * Gibt an, ob der EventProcessor überhaupt events entgegennimmt. Ist
-     * acceptEvents=false, werden alle Events ignoriert.
-     */
-    private boolean acceptEvents = false;
-
-    private List<WollMuxEvent> eventQueue = new LinkedList<WollMuxEvent>();
-
-    private static EventProcessor singletonInstance;
-
-    private static Thread eventProcessorThread;
-
-    private static EventProcessor getInstance()
-    {
-      if (singletonInstance == null)
-      {
-        singletonInstance = new EventProcessor();
-        singletonInstance.start();
-      }
-      return singletonInstance;
-    }
-
-    /**
-     * Mit dieser Methode ist es möglich die Entgegennahme von Events zu blockieren.
-     * Alle eingehenden Events werden ignoriert, wenn accept auf false gesetzt ist
-     * und entgegengenommen, wenn accept auf true gesetzt ist.
-     * 
-     * @param accept
-     */
-    private void setAcceptEvents(boolean accept)
-    {
-      acceptEvents = accept;
-      if (accept)
-        Logger.debug(L.m("EventProcessor: akzeptiere neue Events."));
-      else
-        Logger.debug(L.m("EventProcessor: blockiere Entgegennahme von Events!"));
-    }
-
-    private EventProcessor()
-    {
-      // starte den eventProcessorThread
-      eventProcessorThread = new Thread(new Runnable()
-      {
-        @Override
-        public void run()
-        {
-          Logger.debug(L.m("Starte EventProcessor-Thread"));
-          try
-          {
-            while (true)
-            {
-              WollMuxEvent event;
-              synchronized (eventQueue)
-              {
-                while (eventQueue.isEmpty())
-                  eventQueue.wait();
-                event = eventQueue.remove(0);
-              }
-
-              event.process();
-            }
-          }
-          catch (InterruptedException e)
-          {
-            Logger.error(L.m("EventProcessor-Thread wurde unterbrochen:"));
-            Logger.error(e);
-          }
-          Logger.debug(L.m("Beende EventProcessor-Thread"));
-        }
-      });
-    }
-
-    /**
-     * Startet den {@link #eventProcessorThread}.
-     * 
-     * @author Matthias Benkmann (D-III-ITD-D101)
-     */
-    private void start()
-    {
-      eventProcessorThread.start();
-    }
-
-    /**
-     * Diese Methode fügt ein Event an die eventQueue an wenn der WollMux erfolgreich
-     * initialisiert wurde und damit events akzeptieren darf. Anschliessend weckt sie
-     * den EventProcessor-Thread.
-     * 
-     * @param event
-     */
-    private void addEvent(WollMuxEvent event)
-    {
-      if (acceptEvents) synchronized (eventQueue)
-      {
-        eventQueue.add(event);
-        eventQueue.notifyAll();
-      }
-    }
-  }
-
+  
   /**
    * Stellt das WollMuxEvent event in die EventQueue des EventProcessors.
    * 
    * @param event
    */
-  private static void handle(WollMuxEvent event)
+  private void handle(WollMuxEvent event)
   {
-    EventProcessor.getInstance().addEvent(event);
+    eventBus.post(event);
   }
 
   // *******************************************************************************************
@@ -235,7 +131,7 @@ public class WollMuxEventHandler
    * @param listener
    *          der zu registrierende XEventListener.
    */
-  public static void handleAddDocumentEventListener(XEventListener listener)
+  public void handleAddDocumentEventListener(XEventListener listener)
   {
     handle(new OnAddDocumentEventListener(listener));
   }
@@ -251,7 +147,7 @@ public class WollMuxEventHandler
    * @param listener
    *          der zu deregistrierende XEventListener
    */
-  public static void handleRemoveDocumentEventListener(XEventListener listener)
+  public void handleRemoveDocumentEventListener(XEventListener listener)
   {
     handle(new OnRemoveDocumentEventListener(listener));
   }
@@ -266,7 +162,7 @@ public class WollMuxEventHandler
    * 
    * Dieses Event wird vom EventProcessor geworfen, wenn der FormularMax zurückkehrt.
    */
-  public static void handleMailMergeNewReturned(TextDocumentController documentController)
+  public void handleMailMergeNewReturned(TextDocumentController documentController)
   {
     handle(new OnHandleMailMergeNewReturned(documentController));
   }
@@ -305,7 +201,7 @@ public class WollMuxEventHandler
    *          Da {@link TextDocumentInfo} synchronized ist kam es zum Deadlock.
    * 
    */
-  public static void handleTextDocumentClosed(DocumentManager.Info docInfo)
+  public void handleTextDocumentClosed(DocumentManager.Info docInfo)
   {
     handle(new OnTextDocumentClosed(docInfo));
   }
@@ -343,7 +239,7 @@ public class WollMuxEventHandler
    * 
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
-  public static void handleSetVisibleState(TextDocumentController documentController, String groupId,
+  public void handleSetVisibleState(TextDocumentController documentController, String groupId,
       boolean visible, ActionListener listener)
   {
     handle(new OnSetVisibleState(documentController, groupId, visible, listener));
@@ -358,7 +254,7 @@ public class WollMuxEventHandler
    * @param documentController
    *          Das zu schließende TextDocumentModel.
    */
-  public static void handleCloseTextDocument(TextDocumentController documentController)
+  public void handleCloseTextDocument(TextDocumentController documentController)
   {
     handle(new OnCloseTextDocument(documentController));
   }
@@ -370,7 +266,7 @@ public class WollMuxEventHandler
    * Erzeugt ein neues WollMuxEvent, das ggf. notwendige interaktive
    * Initialisierungen vornimmt.
    */
-  public static void handleInitialize()
+  public void handleInitialize()
   {
     handle(new OnInitialize());
   }
@@ -385,7 +281,7 @@ public class WollMuxEventHandler
    *          der {@link XFrame} auf den der {@link DispatchProviderAndInterceptor}
    *          registriert werden soll.
    */
-  public static void handleRegisterDispatchInterceptor(TextDocumentController documentController)
+  public void handleRegisterDispatchInterceptor(TextDocumentController documentController)
   {
       handle(new OnRegisterDispatchInterceptor(documentController));
   }
@@ -413,7 +309,7 @@ public class WollMuxEventHandler
    * 
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
-  public static void handleNotifyDocumentEventListener(XEventListener listener,
+  public void handleNotifyDocumentEventListener(XEventListener listener,
       String eventName, Object source)
   {
     handle(new OnNotifyDocumentEventListener(listener, eventName, source));
@@ -433,7 +329,7 @@ public class WollMuxEventHandler
    * Das Event wird ausgelöst, wenn der registrierte WollMuxDispatchInterceptor eines
    * Dokuments eine entsprechende Nachricht bekommt.
    */
-  public static void handleExecutePrintFunctions(TextDocumentController documentController)
+  public void handleExecutePrintFunctions(TextDocumentController documentController)
   {
     handle(new OnExecutePrintFunction(documentController));
   }
@@ -461,7 +357,7 @@ public class WollMuxEventHandler
    * 
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
-  public static void handleSetPrintBlocksPropsViaPrintModel(XTextDocument doc,
+  public void handleSetPrintBlocksPropsViaPrintModel(XTextDocument doc,
       String blockName, boolean visible, boolean showHighlightColor,
       ActionListener listener)
   {
@@ -500,7 +396,7 @@ public class WollMuxEventHandler
    *          Der unlockActionListener wird immer informiert, wenn alle notwendigen
    *          Anpassungen durchgeführt wurden.
    */
-  public static void handleSetFormValue(XTextDocument doc, String id, String value,
+  public void handleSetFormValue(XTextDocument doc, String id, String value,
       ActionListener unlockActionListener)
   {
     handle(new OnSetFormValue(doc, id, value, unlockActionListener));
@@ -523,7 +419,7 @@ public class WollMuxEventHandler
    *          Der unlockActionListener wird immer informiert, wenn alle notwendigen
    *          Anpassungen durchgeführt wurden.
    */
-  public static void handleCollectNonWollMuxFormFieldsViaPrintModel(
+  public void handleCollectNonWollMuxFormFieldsViaPrintModel(
       TextDocumentController documentController, ActionListener listener)
   {
     handle(new OnCollectNonWollMuxFormFieldsViaPrintModel(documentController, listener));
@@ -539,7 +435,7 @@ public class WollMuxEventHandler
    * "Extras->Seriendruck (WollMux)" die dispatch-url wollmux:SeriendruckNeu
    * abgesetzt wurde.
    */
-  public static void handleSeriendruck(TextDocumentController documentController,
+  public void handleSeriendruck(TextDocumentController documentController,
       boolean useDocPrintFunctions)
   {
     handle(new OnSeriendruck(documentController, useDocPrintFunctions));
@@ -558,14 +454,9 @@ public class WollMuxEventHandler
    * "Datei->Drucken" oder über die Symbolleiste die dispatch-url .uno:Print bzw.
    * .uno:PrintDefault abgesetzt wurde.
    */
-  public static void handlePrint(TextDocumentController documentController, XDispatch origDisp,
+  public void handlePrint(TextDocumentController documentController, XDispatch origDisp,
       com.sun.star.util.URL origUrl, PropertyValue[] origArgs)
   {
     handle(new OnPrint(documentController, origDisp, origUrl, origArgs));
   }
-
-  
-
-  // *******************************************************************************************
-
 }

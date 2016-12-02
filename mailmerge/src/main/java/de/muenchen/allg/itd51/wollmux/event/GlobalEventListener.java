@@ -182,8 +182,10 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
 
     if (xTextDoc != null)
     {
-      // FIXME: Der Aufruf ist nötig, um den globalen EventHandler zu registrieren :(
-      DocumentManager.getTextDocumentController(xTextDoc);
+      /**
+       * Dispatch Handler in eigenem Event registrieren, da es Deadlocks gegeben hat.
+       */
+      WollMuxEventHandler.getInstance().handleRegisterDispatchInterceptor(DocumentManager.getTextDocumentController(xTextDoc));
     }
     
     if (xTextDoc != null && docInfo == null)
@@ -210,7 +212,7 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
      * darf AUF KEINEN FALL info.hasTextDocumentModel() getestet oder
      * info.getTextDocumentModel() aufgerufen werden!
      */
-    if (info != null) WollMuxEventHandler.handleTextDocumentClosed(info);
+    if (info != null) WollMuxEventHandler.getInstance().handleTextDocumentClosed(info);
   }
 
   /**

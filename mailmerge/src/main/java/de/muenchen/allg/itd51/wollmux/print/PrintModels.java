@@ -573,7 +573,7 @@ public class PrintModels
     public void setFormValue(String id, String value)
     {
       SyncActionListener s = new SyncActionListener();
-      WollMuxEventHandler.handleSetFormValue(documentController.getModel().doc, id, value, s);
+      WollMuxEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc, id, value, s);
       s.synchronize();
     }
 
@@ -626,7 +626,7 @@ public class PrintModels
     public void collectNonWollMuxFormFields()
     {
       SyncActionListener s = new SyncActionListener();
-      WollMuxEventHandler.handleCollectNonWollMuxFormFieldsViaPrintModel(documentController, s);
+      WollMuxEventHandler.getInstance().handleCollectNonWollMuxFormFieldsViaPrintModel(documentController, s);
       s.synchronize();
     }
 
@@ -812,7 +812,7 @@ public class PrintModels
         boolean showHighlightColor)
     {
       SyncActionListener s = new SyncActionListener();
-      WollMuxEventHandler.handleSetPrintBlocksPropsViaPrintModel(documentController.getModel().doc,
+      WollMuxEventHandler.getInstance().handleSetPrintBlocksPropsViaPrintModel(documentController.getModel().doc,
         blockName, visible, showHighlightColor, s);
       s.synchronize();
     }
@@ -838,7 +838,7 @@ public class PrintModels
     public void setGroupVisible(String groupID, boolean visible)
     {
       SyncActionListener s = new SyncActionListener();
-      WollMuxEventHandler.handleSetVisibleState(documentController, groupID, visible, s);
+      WollMuxEventHandler.getInstance().handleSetVisibleState(documentController, groupID, visible, s);
       s.synchronize();
     }
 

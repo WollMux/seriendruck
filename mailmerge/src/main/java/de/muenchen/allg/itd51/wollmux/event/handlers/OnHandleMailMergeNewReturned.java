@@ -4,6 +4,12 @@ import de.muenchen.allg.itd51.wollmux.WollMuxFehlerException;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 
+/**
+ * Erzeugt ein neues WollMuxEvent, das aufgerufen wird, wenn ein MailMerge-Dialog
+ * beendet wird und die entsprechenden internen Referenzen gelöscht werden können.
+ * 
+ * Dieses Event wird geworfen, wenn MailMerge zurückkehrt.
+ */
 public class OnHandleMailMergeNewReturned extends BasicEvent
 {
   private TextDocumentController documentController;

@@ -10,6 +10,15 @@ import de.muenchen.allg.itd51.wollmux.Workarounds;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
 
+/**
+ * Der Handler für das Drucken eines TextDokuments führt in Abhängigkeit von der
+ * Existenz von Serienbrieffeldern und Druckfunktion die entsprechenden Aktionen
+ * aus.
+ * 
+ * Das Event wird über den DispatchHandler aufgerufen, wenn z.B. über das Menü
+ * "Datei->Drucken" oder über die Symbolleiste die dispatch-url .uno:Print bzw.
+ * .uno:PrintDefault abgesetzt wurde.
+ */
 public class OnPrint extends BasicEvent
 {
   private XDispatch origDisp;
@@ -50,7 +59,7 @@ public class OnPrint extends BasicEvent
     if (hasPrintFunction)
     {
       // Druckfunktion aufrufen
-      WollMuxEventHandler.handleExecutePrintFunctions(documentController);
+      WollMuxEventHandler.getInstance().handleExecutePrintFunctions(documentController);
     }
     else
     {
