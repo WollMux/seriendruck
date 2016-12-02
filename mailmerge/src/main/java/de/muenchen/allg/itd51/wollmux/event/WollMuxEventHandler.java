@@ -56,6 +56,8 @@ import com.sun.star.beans.PropertyValue;
 import com.sun.star.document.XEventListener;
 import com.sun.star.frame.XDispatch;
 import com.sun.star.frame.XFrame;
+import com.sun.star.frame.XModel;
+import com.sun.star.lang.XComponent;
 import com.sun.star.text.XTextDocument;
 
 import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
@@ -65,6 +67,7 @@ import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnAddDocumentEventListener;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnCloseTextDocument;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnCollectNonWollMuxFormFieldsViaPrintModel;
+import de.muenchen.allg.itd51.wollmux.event.handlers.OnCreateDocument;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnExecutePrintFunction;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnHandleMailMergeNewReturned;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnInitialize;
@@ -77,6 +80,7 @@ import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetFormValue;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetPrintBlocksPropsViaPrintModel;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetVisibleState;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnTextDocumentClosed;
+import de.muenchen.allg.itd51.wollmux.event.handlers.OnViewCreated;
 import de.muenchen.allg.itd51.wollmux.event.handlers.WollMuxEvent;
 
 /**
@@ -207,13 +211,6 @@ public class WollMuxEventHandler
   }
 
   
-
-  // *******************************************************************************************
-
-  
-
-  
-
   // *******************************************************************************************
 
   /**
@@ -459,4 +456,19 @@ public class WollMuxEventHandler
   {
     handle(new OnPrint(documentController, origDisp, origUrl, origArgs));
   }
+  
+  // *******************************************************************************************
+
+  public void handleOnCreateDocument(XComponent comp)
+  {
+    handle(new OnCreateDocument(comp));
+  }
+  
+  // *******************************************************************************************
+
+  public void handleOnViewCreated(XModel comp)
+  {
+    handle(new OnViewCreated(comp));
+  }
+
 }

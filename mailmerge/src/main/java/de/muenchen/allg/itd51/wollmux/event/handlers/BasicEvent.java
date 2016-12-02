@@ -14,7 +14,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 /**
  * Dient als Basisklasse für konkrete Event-Implementierungen.
  */
-public class BasicEvent implements WollMuxEvent
+public abstract class BasicEvent implements WollMuxEvent
 {
 
   /**

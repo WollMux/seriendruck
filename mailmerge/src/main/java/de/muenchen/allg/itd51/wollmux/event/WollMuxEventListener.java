@@ -5,6 +5,7 @@ import com.google.common.eventbus.Subscribe;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnAddDocumentEventListener;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnCloseTextDocument;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnCollectNonWollMuxFormFieldsViaPrintModel;
+import de.muenchen.allg.itd51.wollmux.event.handlers.OnCreateDocument;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnExecutePrintFunction;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnHandleMailMergeNewReturned;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnInitialize;
@@ -17,6 +18,7 @@ import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetFormValue;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetPrintBlocksPropsViaPrintModel;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnSetVisibleState;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnTextDocumentClosed;
+import de.muenchen.allg.itd51.wollmux.event.handlers.OnViewCreated;
 import de.muenchen.allg.itd51.wollmux.event.handlers.WollMuxEvent;
 
 /**
@@ -113,6 +115,18 @@ public class WollMuxEventListener
   
   @Subscribe
   public void onTextDocumentClosed(OnTextDocumentClosed event)
+  {
+    event.process();
+  }
+  
+  @Subscribe
+  public void onCreateDocument(OnCreateDocument event)
+  {
+    event.process();
+  }
+
+  @Subscribe
+  public void onViewCreated(OnViewCreated event)
   {
     event.process();
   }

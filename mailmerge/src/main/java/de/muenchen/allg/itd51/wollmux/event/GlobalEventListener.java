@@ -50,20 +50,13 @@
 
 package de.muenchen.allg.itd51.wollmux.event;
 
-import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.frame.XModel;
 import com.sun.star.lang.EventObject;
-import com.sun.star.lang.IllegalArgumentException;
 import com.sun.star.lang.XComponent;
-import com.sun.star.text.XTextDocument;
-import com.sun.star.uno.AnyConverter;
 
 import de.muenchen.allg.afid.UNO;
-import de.muenchen.allg.afid.UnoProps;
-import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
-import de.muenchen.allg.itd51.wollmux.document.DocumentManager.Info;
 
 /**
  * Der GlobalEventListener sorgt dafür, dass der WollMux alle wichtigen globalen
@@ -108,12 +101,18 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
       if (docEvent.Source == null) return;
       String event = docEvent.EventName;
 
-      if (ON_CREATE.equals(event))
+      switch (event)
+      {
+      case ON_CREATE:
         onCreate(docEvent.Source);
-      else if (ON_VIEW_CREATED.equals(event))
+        break;
+      case ON_VIEW_CREATED:
         onViewCreated(docEvent.Source);
-      else if (ON_UNLOAD.equals(event))
+        break;
+      case ON_UNLOAD:
         onUnload(docEvent.Source);
+        break;
+      }
     }
     catch (Throwable t)
     {
@@ -138,16 +137,12 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
    */
   private void onCreate(Object source)
   {
-    XComponent compo = UNO.XComponent(source);
-    if (compo == null) return;
+    XComponent comp = UNO.XComponent(source);
+    if (comp != null)
+    {
+      WollMuxEventHandler.getInstance().handleOnCreateDocument(comp);
+    }
 
-    // durch das Hinzufügen zum docManager kann im Event onViewCreated erkannt
-    // werden, dass das Dokument frisch erzeugt wurde:
-    XTextDocument xTextDoc = UNO.XTextDocument(source);
-    if (xTextDoc != null)
-      docManager.addTextDocument(xTextDoc);
-    else
-      docManager.add(compo);
     // Verarbeitet wird das Dokument erst bei onViewCreated
   }
 
@@ -168,29 +163,11 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
    */
   private void onViewCreated(Object source)
   {
-    XModel compo = UNO.XModel(source);
+    XModel comp = UNO.XModel(source);
 
-    Info docInfo = docManager.getInfo(compo);
-    // docInfo ist hier nur dann ungleich null, wenn das Dokument mit Create erzeugt
-    // wurde.
-    XTextDocument xTextDoc = UNO.XTextDocument(compo);
-    if (xTextDoc != null && docInfo != null && isDocumentLoadedHidden(compo))
+    if (comp != null)
     {
-      docManager.remove(compo);
-      return;
-    }
-
-    if (xTextDoc != null)
-    {
-      /**
-       * Dispatch Handler in eigenem Event registrieren, da es Deadlocks gegeben hat.
-       */
-      WollMuxEventHandler.getInstance().handleRegisterDispatchInterceptor(DocumentManager.getTextDocumentController(xTextDoc));
-    }
-    
-    if (xTextDoc != null && docInfo == null)
-    {
-      docManager.addTextDocument(xTextDoc);
+      WollMuxEventHandler.getInstance().handleOnViewCreated(comp);
     }
   }
 
@@ -213,30 +190,6 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
      * info.getTextDocumentModel() aufgerufen werden!
      */
     if (info != null) WollMuxEventHandler.getInstance().handleTextDocumentClosed(info);
-  }
-
-  /**
-   * Liefert nur dann true zurück, wenn das Dokument mit der
-   * MediaDescriptor-Eigenschaft Hidden=true geöffnet wurde.
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  private boolean isDocumentLoadedHidden(XModel compo)
-  {
-    UnoProps props = new UnoProps(compo.getArgs());
-    try
-    {
-      return AnyConverter.toBoolean(props.getPropertyValue("Hidden"));
-    }
-    catch (UnknownPropertyException e)
-    {
-      return false;
-    }
-    catch (IllegalArgumentException e)
-    {
-      Logger.error(L.m("das darf nicht vorkommen!"), e);
-      return false;
-    }
   }
 
   @Override
