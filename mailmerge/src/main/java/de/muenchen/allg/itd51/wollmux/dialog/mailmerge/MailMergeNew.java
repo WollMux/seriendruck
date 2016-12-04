@@ -102,7 +102,7 @@ import de.muenchen.allg.itd51.wollmux.dialog.trafo.TrafoDialogParameters;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 import de.muenchen.allg.itd51.wollmux.email.EMailSender;
-import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
+import de.muenchen.allg.itd51.wollmux.event.MailMergeEventHandler;
 import de.muenchen.allg.itd51.wollmux.print.PrintModels;
 
 /**
@@ -635,11 +635,11 @@ public class MailMergeNew implements MailMergeParams.MailMergeController
     Iterator<String> dataIter = data.iterator();
     for (String column : schema)
     {
-      WollMuxEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc, column, dataIter.next(), null);
+      MailMergeEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc, column, dataIter.next(), null);
     }
-    WollMuxEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc,
+    MailMergeEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc,
       MailMergeParams.TAG_DATENSATZNUMMER, previewDatasetNumberStr, null);
-    WollMuxEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc,
+    MailMergeEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc,
       MailMergeParams.TAG_SERIENBRIEFNUMMER, previewDatasetNumberStr, null);
   }
 

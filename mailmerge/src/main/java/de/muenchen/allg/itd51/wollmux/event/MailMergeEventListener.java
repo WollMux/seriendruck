@@ -8,7 +8,6 @@ import de.muenchen.allg.itd51.wollmux.event.handlers.OnCollectNonWollMuxFormFiel
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnCreateDocument;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnExecutePrintFunction;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnHandleMailMergeNewReturned;
-import de.muenchen.allg.itd51.wollmux.event.handlers.OnInitialize;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnNotifyDocumentEventListener;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnPrint;
 import de.muenchen.allg.itd51.wollmux.event.handlers.OnRegisterDispatchInterceptor;
@@ -25,9 +24,9 @@ import de.muenchen.allg.itd51.wollmux.event.handlers.WollMuxEvent;
  * Handler für {@link WollMuxEvent}s.
  * 
  */
-public class WollMuxEventListener
+public class MailMergeEventListener
 {
-  WollMuxEventListener() {}
+  MailMergeEventListener() {}
   
   @Subscribe
   public void onAddDocumentEventListener(OnAddDocumentEventListener event)
@@ -55,12 +54,6 @@ public class WollMuxEventListener
 
   @Subscribe
   public void onHandleMailMergeNewReturned(OnHandleMailMergeNewReturned event)
-  {
-    event.process();
-  }
-  
-  @Subscribe
-  public void onInitialize(OnInitialize event)
   {
     event.process();
   }

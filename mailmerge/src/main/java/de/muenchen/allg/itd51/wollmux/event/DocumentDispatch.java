@@ -129,17 +129,17 @@ public class DocumentDispatch extends Dispatch
 
   public void dispatch__uno_print(String arg, PropertyValue[] props)
   {
-    WollMuxEventHandler.getInstance().handlePrint(getDocumentController(), origDisp, origUrl, props);
+    MailMergeEventHandler.getInstance().handlePrint(getDocumentController(), origDisp, origUrl, props);
   }
 
   public void dispatch__uno_printdefault(String arg, PropertyValue[] props)
   {
-    WollMuxEventHandler.getInstance().handlePrint(getDocumentController(), origDisp, origUrl, props);
+    MailMergeEventHandler.getInstance().handlePrint(getDocumentController(), origDisp, origUrl, props);
   }
 
   public void dispatch_wollmux_seriendruck(String arg, PropertyValue[] props)
   {
-    WollMuxEventHandler.getInstance().handleSeriendruck(getDocumentController(), false);
+    MailMergeEventHandler.getInstance().handleSeriendruck(getDocumentController(), false);
   }
   
   public boolean status_wollmux_seriendruck()

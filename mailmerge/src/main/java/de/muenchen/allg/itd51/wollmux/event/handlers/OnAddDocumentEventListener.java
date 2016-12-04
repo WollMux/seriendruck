@@ -7,7 +7,7 @@ import com.sun.star.document.XEventListener;
 import com.sun.star.lang.XComponent;
 
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
-import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
+import de.muenchen.allg.itd51.wollmux.event.MailMergeEventHandler;
 
 /**
  * Erzeugt ein neues WollMuxEvent zum Registrieren des übergebenen XEventListeners
@@ -33,7 +33,7 @@ public class OnAddDocumentEventListener extends BasicEvent
 
     for (XComponent compo : processedDocuments)
     {
-      WollMuxEventHandler.getInstance().handleNotifyDocumentEventListener(listener, WollMuxEventHandler.ON_WOLLMUX_PROCESSING_FINISHED,
+      MailMergeEventHandler.getInstance().handleNotifyDocumentEventListener(listener, MailMergeEventHandler.ON_WOLLMUX_PROCESSING_FINISHED,
         compo);
     }
   }

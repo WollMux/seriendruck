@@ -7,7 +7,7 @@ import de.muenchen.allg.itd51.wollmux.WollMuxFehlerException;
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeNew;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
-import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
+import de.muenchen.allg.itd51.wollmux.event.MailMergeEventHandler;
 
 /**
  * Erzeugt ein neues WollMuxEvent, das signasisiert, dass die neue
@@ -43,7 +43,7 @@ public class OnSeriendruck extends BasicEvent
         public void actionPerformed(ActionEvent actionEvent)
         {
           if (actionEvent.getSource() instanceof MailMergeNew)
-            WollMuxEventHandler.getInstance().handleMailMergeNewReturned(documentController);
+            MailMergeEventHandler.getInstance().handleMailMergeNewReturned(documentController);
         }
       });
       DocumentManager.getDocumentManager().setCurrentMailMergeNew(documentController.getModel().doc, mmn);

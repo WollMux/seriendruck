@@ -8,7 +8,7 @@ import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.WollMuxFehlerException;
 import de.muenchen.allg.itd51.wollmux.Workarounds;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
-import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
+import de.muenchen.allg.itd51.wollmux.event.MailMergeEventHandler;
 
 /**
  * Der Handler für das Drucken eines TextDokuments führt in Abhängigkeit von der
@@ -59,7 +59,7 @@ public class OnPrint extends BasicEvent
     if (hasPrintFunction)
     {
       // Druckfunktion aufrufen
-      WollMuxEventHandler.getInstance().handleExecutePrintFunctions(documentController);
+      MailMergeEventHandler.getInstance().handleExecutePrintFunctions(documentController);
     }
     else
     {

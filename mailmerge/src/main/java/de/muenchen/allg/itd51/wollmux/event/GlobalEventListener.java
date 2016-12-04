@@ -140,7 +140,7 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
     XComponent comp = UNO.XComponent(source);
     if (comp != null)
     {
-      WollMuxEventHandler.getInstance().handleOnCreateDocument(comp);
+      MailMergeEventHandler.getInstance().handleOnCreateDocument(comp);
     }
 
     // Verarbeitet wird das Dokument erst bei onViewCreated
@@ -167,7 +167,7 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
 
     if (comp != null)
     {
-      WollMuxEventHandler.getInstance().handleOnViewCreated(comp);
+      MailMergeEventHandler.getInstance().handleOnViewCreated(comp);
     }
   }
 
@@ -189,7 +189,7 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
      * darf AUF KEINEN FALL info.hasTextDocumentModel() getestet oder
      * info.getTextDocumentModel() aufgerufen werden!
      */
-    if (info != null) WollMuxEventHandler.getInstance().handleTextDocumentClosed(info);
+    if (info != null) MailMergeEventHandler.getInstance().handleTextDocumentClosed(info);
   }
 
   @Override

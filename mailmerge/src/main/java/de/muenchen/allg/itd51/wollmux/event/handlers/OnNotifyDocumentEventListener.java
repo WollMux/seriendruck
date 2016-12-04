@@ -8,7 +8,7 @@ import com.sun.star.lang.XComponent;
 import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
-import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
+import de.muenchen.allg.itd51.wollmux.event.MailMergeEventHandler;
 
 /**
  * Über dieses Event werden alle registrierten DocumentEventListener (falls
@@ -84,7 +84,7 @@ public class OnNotifyDocumentEventListener extends BasicEvent
     }
 
     XComponent compo = UNO.XComponent(source);
-    if (compo != null && eventName.equals(WollMuxEventHandler.ON_WOLLMUX_PROCESSING_FINISHED))
+    if (compo != null && eventName.equals(MailMergeEventHandler.ON_WOLLMUX_PROCESSING_FINISHED))
       DocumentManager.getDocumentManager().setProcessingFinished(
         compo);
 

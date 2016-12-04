@@ -64,7 +64,7 @@ import de.muenchen.allg.itd51.wollmux.dialog.PrintParametersDialog.PageRange;
 import de.muenchen.allg.itd51.wollmux.dialog.PrintParametersDialog.PageRangeType;
 import de.muenchen.allg.itd51.wollmux.dialog.PrintProgressBar;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
-import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
+import de.muenchen.allg.itd51.wollmux.event.MailMergeEventHandler;
 
 /**
  * Diese Klasse enthält eine Fabrik für die Erzeugung eines XPrintModels, die
@@ -573,7 +573,7 @@ public class PrintModels
     public void setFormValue(String id, String value)
     {
       SyncActionListener s = new SyncActionListener();
-      WollMuxEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc, id, value, s);
+      MailMergeEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc, id, value, s);
       s.synchronize();
     }
 
@@ -626,7 +626,7 @@ public class PrintModels
     public void collectNonWollMuxFormFields()
     {
       SyncActionListener s = new SyncActionListener();
-      WollMuxEventHandler.getInstance().handleCollectNonWollMuxFormFieldsViaPrintModel(documentController, s);
+      MailMergeEventHandler.getInstance().handleCollectNonWollMuxFormFieldsViaPrintModel(documentController, s);
       s.synchronize();
     }
 
@@ -812,7 +812,7 @@ public class PrintModels
         boolean showHighlightColor)
     {
       SyncActionListener s = new SyncActionListener();
-      WollMuxEventHandler.getInstance().handleSetPrintBlocksPropsViaPrintModel(documentController.getModel().doc,
+      MailMergeEventHandler.getInstance().handleSetPrintBlocksPropsViaPrintModel(documentController.getModel().doc,
         blockName, visible, showHighlightColor, s);
       s.synchronize();
     }
@@ -838,7 +838,7 @@ public class PrintModels
     public void setGroupVisible(String groupID, boolean visible)
     {
       SyncActionListener s = new SyncActionListener();
-      WollMuxEventHandler.getInstance().handleSetVisibleState(documentController, groupID, visible, s);
+      MailMergeEventHandler.getInstance().handleSetVisibleState(documentController, groupID, visible, s);
       s.synchronize();
     }
 

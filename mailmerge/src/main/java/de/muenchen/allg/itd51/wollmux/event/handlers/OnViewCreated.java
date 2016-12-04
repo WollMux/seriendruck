@@ -14,7 +14,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager.Info;
 import de.muenchen.allg.itd51.wollmux.event.GlobalEventListener;
-import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
+import de.muenchen.allg.itd51.wollmux.event.MailMergeEventHandler;
 
 /**
  * Event wird aufgerufen, wenn die Erstellung eines neuen 
@@ -52,7 +52,7 @@ public class OnViewCreated extends BasicEvent
       /**
        * Dispatch Handler in eigenem Event registrieren, da es Deadlocks gegeben hat.
        */
-      WollMuxEventHandler.getInstance().handleRegisterDispatchInterceptor(DocumentManager.getTextDocumentController(xTextDoc));
+      MailMergeEventHandler.getInstance().handleRegisterDispatchInterceptor(DocumentManager.getTextDocumentController(xTextDoc));
     }
     
     if (xTextDoc != null && docInfo == null)

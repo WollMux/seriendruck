@@ -88,15 +88,15 @@ import de.muenchen.allg.itd51.wollmux.event.handlers.WollMuxEvent;
  * 
  * @author Christoph Lutz (D-III-ITD 5.1)
  */
-public class WollMuxEventHandler
+public class MailMergeEventHandler
 {
-  private static WollMuxEventHandler instance;
+  private static MailMergeEventHandler instance;
   
-  public static WollMuxEventHandler getInstance()
+  public static MailMergeEventHandler getInstance()
   {
     if (instance == null)
     {
-      instance = new WollMuxEventHandler();
+      instance = new MailMergeEventHandler();
     }
     
     return instance;
@@ -110,10 +110,14 @@ public class WollMuxEventHandler
   public static final String ON_WOLLMUX_PROCESSING_FINISHED =
     "OnWollMuxProcessingFinished";
 
-  private WollMuxEventHandler() 
+  private InitEventListener initEventListener;
+
+  private MailMergeEventHandler() 
   {
     eventBus = new EventBus();
-    eventBus.register(new WollMuxEventListener());
+    initEventListener = new InitEventListener();
+    eventBus.register(initEventListener);
+    eventBus.register(new MailMergeEventListener());
   }
   
   /**
@@ -266,6 +270,7 @@ public class WollMuxEventHandler
   public void handleInitialize()
   {
     handle(new OnInitialize());
+    eventBus.unregister(initEventListener);
   }
 
   // *******************************************************************************************

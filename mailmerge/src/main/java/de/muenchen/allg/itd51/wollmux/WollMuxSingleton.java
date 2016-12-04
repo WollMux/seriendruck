@@ -67,10 +67,8 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.allg.itd51.wollmux.db.DatasourceJoinerFactory;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.event.GlobalEventListener;
-import de.muenchen.allg.itd51.wollmux.event.WollMuxEventHandler;
 
 /**
  * Diese Klasse ist ein Singleton, welches den WollMux initialisiert und alle
@@ -93,8 +91,6 @@ public class WollMuxSingleton
    */
   private NoConfig noConfig;
   
-  private boolean menusCreated = false;
-
   /**
    * Die WollMux-Hauptklasse ist als singleton realisiert.
    */
@@ -114,8 +110,6 @@ public class WollMuxSingleton
     {
       Logger.error(e);
     }
-
-    boolean successfulStartup = true;
 
     if (!WollMuxFiles.setupWollMuxDir())
     {
@@ -146,10 +140,6 @@ public class WollMuxSingleton
      */
     registerDatasources(WollMuxFiles.getWollmuxConf(),
       WollMuxFiles.getDEFAULT_CONTEXT());
-
-    // Versuchen, den DJ zu initialisieren und Flag setzen, falls nicht
-    // erfolgreich.
-    if (DatasourceJoinerFactory.getDatasourceJoiner() == null) successfulStartup = false;
 
     // register global EventListener
     try
@@ -215,16 +205,6 @@ public class WollMuxSingleton
     return singletonInstance;
   }
 
-  public boolean isMenusCreated()
-  {
-    return menusCreated;
-  }
-
-  public void setMenusCreated(boolean menusCreated)
-  {
-    this.menusCreated = menusCreated;
-  }
-
   /**
    * Diese Methode initialisiert das WollMuxSingleton (nur dann, wenn es noch nicht
    * initialisiert wurde)
@@ -234,9 +214,6 @@ public class WollMuxSingleton
     if (singletonInstance == null)
     {
       singletonInstance = new WollMuxSingleton(ctx);
-
-      // Event ON_FIRST_INITIALIZE erzeugen:
-      WollMuxEventHandler.getInstance().handleInitialize();
     }
   }
 
