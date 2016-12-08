@@ -8,3 +8,5 @@ bin/
 **/.settings
 **/.idea
 *.iml
+**/oxt/mailmerge.rdb
+**/oxt/mailmerge.uno.jar

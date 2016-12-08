@@ -200,7 +200,7 @@ public class WollMuxFiles
 
     // cache.conf und wollmux.log im .wollmux-Verzeichnis
     losCacheFile = new File(wollmuxDir, "cache.conf");
-    wollmuxLogFile = new File(wollmuxDir, "wollmux.log");
+    wollmuxLogFile = new File(wollmuxDir, "mailmerge.log");
 
     StringBuilder debug2Messages = new StringBuilder();
     try

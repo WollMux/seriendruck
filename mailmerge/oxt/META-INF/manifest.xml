@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE manifest:manifest PUBLIC "-//OpenOffice.org//DTD Manifest 1.0//EN" "Manifest.dtd">
+<manifest:manifest>
+	<manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-component;type=Java" manifest:full-path="mailmerge.uno.jar"/>
+	<manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-typelibrary;type=RDB" manifest:full-path="mailmerge.rdb"/>
+	<manifest:file-entry manifest:media-type="application/vnd.sun.star.package-bundle-description;locale=de" manifest:full-path="help/component_de.txt"/>
+	<manifest:file-entry manifest:media-type="application/vnd.sun.star.package-bundle-description;locale=en" manifest:full-path="help/component_en.txt"/>
+</manifest:manifest>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description xmlns="http://openoffice.org/extensions/description/2006"
+	     xmlns:xlink="http://www.w3.org/1999/xlink">
+	<version value="${project.version}" />
+	<identifier value="de.muenchen.mailmerge"/>
+	<dependencies>
+		<OpenOffice.org-minimal-version value="2.1" name="OpenOffice.org 2.1"/>
+	</dependencies>
+
+	<publisher>
+		<name xlink:href="http://www.wollmux.org" lang="de">WollMux.org</name>
+	</publisher>
+
+	<display-name>
+		<name lang="de-DE">LHM Seriendruck</name>
+		<name lang="en-EN">MailMerge</name>
+	</display-name>
+</description>

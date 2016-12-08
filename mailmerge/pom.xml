@@ -23,6 +23,113 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.10</version>
+				<executions>
+					<execution>
+						<id>include-rdb</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>de.muenchen</groupId>
+									<artifactId>mailmerge-interfaces</artifactId>
+									<version>0.0.1-SNAPSHOT</version>
+									<type>rdb</type>
+									<outputDirectory>${basedir}/oxt</outputDirectory>
+									<destFileName>mailmerge.rdb</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<outputDirectory>${project.build.directory}</outputDirectory>
+					<recompressZippedFiles>true</recompressZippedFiles>
+				</configuration>
+				<executions>
+					<execution>
+						<id>assemble-unojar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>mailmerge.uno</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<archive>
+								<addMavenDescriptor>false</addMavenDescriptor>
+								<manifest>
+									<addClasspath>false</addClasspath>
+									<classpathPrefix>lib/</classpathPrefix>
+								</manifest>
+								<manifestEntries>
+									<RegistrationClassName>de.muenchen.allg.itd51.wollmux.comp.MailMergeComponent</RegistrationClassName>
+									<Main-Class>com.sun.star.lib.loader.Loader</Main-Class>
+									<UNO-Type-Path>&lt;&gt;</UNO-Type-Path>
+								</manifestEntries>
+							</archive>
+							<archiverConfig>
+								<compress>false</compress>
+							</archiverConfig>
+							<descriptors>
+								<descriptor>src/assembly/assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<execution>
+						<id>assemble-oxt</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>MailMerge</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>src/assembly/assembly-oxt.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<id>oxt</id>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<move file="${project.build.directory}/MailMerge.zip" tofile="${project.build.directory}/MailMerge.oxt" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>sun.jdk</groupId>
+						<artifactId>tools</artifactId>
+						<version>1.7.0</version>
+						<scope>system</scope>
+						<systemPath>${java.home}/../lib/tools.jar</systemPath>
+					</dependency>
+				</dependencies>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -70,7 +177,7 @@
 		<dependency>
 			<groupId>de.muenchen</groupId>
 			<artifactId>unohelper</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.mail</groupId>
