@@ -92,9 +92,8 @@ import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.dialog.Common;
 import de.muenchen.allg.itd51.wollmux.dialog.NonNumericKeyConsumer;
-import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeParams.DatasetSelectionType;
-import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeParams.IndexSelection;
-import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeParams.SubmitArgument;
+import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui.IndexSelection;
+import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui.SubmitArgument;
 import de.muenchen.allg.itd51.wollmux.dialog.trafo.GenderDialog;
 import de.muenchen.allg.itd51.wollmux.dialog.trafo.TrafoDialog;
 import de.muenchen.allg.itd51.wollmux.dialog.trafo.TrafoDialogFactory;
@@ -110,7 +109,7 @@ import de.muenchen.allg.itd51.wollmux.print.PrintModels;
  * 
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
-public class MailMergeNew implements MailMergeParams.MailMergeController
+public class MailMergeNew implements MailMergeController
 {
   /**
    * ID der Property in der die Serienbriefdaten gespeichert werden.
@@ -963,23 +962,23 @@ public class MailMergeNew implements MailMergeParams.MailMergeController
       case INDIVIDUAL:
         IndexSelection indexSelection =
           (IndexSelection) args.get(SubmitArgument.indexSelection);
-        selected.addAll(indexSelection.selectedIndexes);
+        selected.addAll(indexSelection.getSelectedIndexes());
         break;
       case RANGE:
         indexSelection = (IndexSelection) args.get(SubmitArgument.indexSelection);
-        if (indexSelection.rangeStart < 1) indexSelection.rangeStart = 1;
-        if (indexSelection.rangeEnd < 1) indexSelection.rangeEnd = data.size();
-        if (indexSelection.rangeEnd > data.size())
-          indexSelection.rangeEnd = data.size();
-        if (indexSelection.rangeStart > data.size())
-          indexSelection.rangeStart = data.size();
-        if (indexSelection.rangeStart > indexSelection.rangeEnd)
+        if (indexSelection.getRangeStart() < 1) indexSelection.setRangeStart(1);
+        if (indexSelection.getRangeEnd() < 1) indexSelection.setRangeEnd(data.size());
+        if (indexSelection.getRangeEnd() > data.size())
+          indexSelection.setRangeEnd(data.size());
+        if (indexSelection.getRangeStart() > data.size())
+          indexSelection.setRangeStart(data.size());
+        if (indexSelection.getRangeStart() > indexSelection.getRangeEnd())
         {
-          int t = indexSelection.rangeStart;
-          indexSelection.rangeStart = indexSelection.rangeEnd;
-          indexSelection.rangeEnd = t;
+          int t = indexSelection.getRangeStart();
+          indexSelection.setRangeStart(indexSelection.getRangeEnd());
+          indexSelection.setRangeEnd(t);
         }
-        for (int i = indexSelection.rangeStart; i <= indexSelection.rangeEnd; ++i)
+        for (int i = indexSelection.getRangeStart(); i <= indexSelection.getRangeEnd(); ++i)
           selected.add(i - 1); // wir zählen ab 0, anders als rangeStart/End
         break;
     }
