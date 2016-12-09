@@ -20,7 +20,7 @@ public class PrinterSettingsUIElement extends UIElement
   public PrinterSettingsUIElement(String label, String group,
       final MailMergeParams mmp)
   {
-    super(Box.createHorizontalBox(), group, mmp);
+    super(Box.createHorizontalBox(), group);
     
     Box hbox = (Box) getCompo();
     printerNameField = new JTextField();

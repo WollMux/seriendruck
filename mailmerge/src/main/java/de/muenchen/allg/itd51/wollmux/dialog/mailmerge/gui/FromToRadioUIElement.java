@@ -42,7 +42,7 @@ public class FromToRadioUIElement extends UIElement implements
       UIElementAction action, final String value, String group,
       final MailMergeParams mmp)
   {
-    super(Box.createHorizontalBox(), group, mmp);
+    super(Box.createHorizontalBox(), group);
     this.mmp = mmp;
 
     Box hbox = (Box) getCompo();

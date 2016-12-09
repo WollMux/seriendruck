@@ -89,7 +89,7 @@ import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommand.Ins
 import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommands;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeNew;
+import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeControllerImpl;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 
 public class OOoBasedMailMerge
@@ -138,7 +138,7 @@ public class OOoBasedMailMerge
     OOoDataSource ds = new CsvBasedOOoDataSource(tmpDir);
     try
     {
-      MailMergeNew.mailMergeNewSetFormValue(pmod, ds);
+      MailMergeControllerImpl.mailMergeNewSetFormValue(pmod, ds);
       if (pmod.isCanceled()) return;
       ds.getDataSourceWriter().flushAndClose();
     }

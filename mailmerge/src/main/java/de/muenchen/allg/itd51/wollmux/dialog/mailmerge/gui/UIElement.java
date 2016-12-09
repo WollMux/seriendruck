@@ -1,6 +1,7 @@
 package de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui;
 
 import java.awt.Component;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.swing.Box;
@@ -35,18 +36,15 @@ public class UIElement
 
   private boolean enabled = true;
 
-  private MailMergeParams mmp;
-
   /**
    * Erzeugt ein UIElement, das über die Hauptkomponente compo dargestellt werden,
    * über die Sichtbarkeitsgruppe group ein-/ausgeblendet werden kann und im
    * Kontext vom {@link MailMergeParams} mmp gültig ist.
    */
-  public UIElement(Component compo, String group, MailMergeParams mmp)
+  public UIElement(Component compo, String group)
   {
     this.compo = compo;
     this.group = group;
-    this.mmp = mmp;
   }
 
   /**
@@ -55,11 +53,11 @@ public class UIElement
    * 
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  public void updateView()
+  public void updateView(HashSet<String> visibleGroups)
   {
     if (group != null)
     {
-      visible = mmp.getVisibleGroups().contains(group);
+      visible = visibleGroups.contains(group);
       compo.setVisible(visible);
     }
   }
@@ -137,7 +135,7 @@ public class UIElement
     {
       case label:
       {
-        return new UIElement(new JLabel(label), group, mmp);
+        return new UIElement(new JLabel(label), group);
       }
   
       case radio:
@@ -154,7 +152,7 @@ public class UIElement
         tf.setBackground(MailMergeParams.DESC_COLOR);
         tf.setBorder(new LineBorder(MailMergeParams.DESC_COLOR, 4));
         mmp.descriptionFields.add(tf);
-        return new UIElement(tf, group, mmp);
+        return new UIElement(tf, group);
       }
   
       case fromtoradio:
@@ -166,16 +164,16 @@ public class UIElement
       case glue:
       {
         if (orient == Orientation.vertical)
-          return new UIElement(Box.createVerticalGlue(), group, mmp);
+          return new UIElement(Box.createVerticalGlue(), group);
         else
-          return new UIElement(Box.createHorizontalGlue(), group, mmp);
+          return new UIElement(Box.createHorizontalGlue(), group);
       }
   
       case button:
       {
         JButton button = new JButton(label);
         button.addActionListener(action.createActionListener(value, mmp));
-        return new UIElement(button, group, mmp);
+        return new UIElement(button, group);
       }
   
       case targetdirpicker:

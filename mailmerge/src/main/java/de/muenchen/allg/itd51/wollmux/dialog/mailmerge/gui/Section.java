@@ -2,6 +2,7 @@ package de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -117,14 +118,14 @@ public class Section
    * 
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  public void updateView()
+  public void updateView(HashSet<String> visibleGroups)
   {
     visible = false;
     HasRadioElement firstEnabledRadio = null;
     boolean hasEnabledPreset = false;
     for (UIElement el : elements)
     {
-      el.updateView();
+      el.updateView(visibleGroups);
       if (el.isVisible()) visible = true;
 
       // ggf. Voreinstellungen von Radio-Buttons anpassen

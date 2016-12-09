@@ -37,7 +37,7 @@ public class TextWithDatafieldTagsUIElement extends UIElement
       JComponent toAdd, SubmitArgument argKey, String errorMessageIfEmpty,
       String group, final MailMergeParams mmp)
   {
-    super(Box.createVerticalBox(), group, mmp);
+    super(Box.createVerticalBox(), group);
     Box vbox = (Box) getCompo();
 
     this.setTextTags(new TextComponentTags(textCompo));

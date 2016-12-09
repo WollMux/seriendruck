@@ -27,7 +27,7 @@ public class TargetDirPickerUIElement extends UIElement
   public TargetDirPickerUIElement(String label, UIElementAction action,
       final String value, String group, final MailMergeParams mmp)
   {
-    super(Box.createHorizontalBox(), group, mmp);
+    super(Box.createHorizontalBox(), group);
     Box hbox = (Box) getCompo();
     this.targetDirectory = new JTextField();
     DimAdjust.maxHeightIsPrefMaxWidthUnlimited(targetDirectory);

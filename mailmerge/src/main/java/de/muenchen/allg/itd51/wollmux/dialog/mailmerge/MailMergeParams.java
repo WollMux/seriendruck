@@ -45,8 +45,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.Box;
 import javax.swing.JDialog;
@@ -56,9 +54,6 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
-import com.sun.star.text.XTextDocument;
-
-import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.WollMuxFiles;
 import de.muenchen.allg.itd51.wollmux.core.dialog.TextComponentTags;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
@@ -67,7 +62,6 @@ import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.db.DatasourceJoinerFactory;
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui.Section;
-import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui.SubmitArgument;
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui.UIElementAction;
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui.UIElementType;
 
@@ -488,7 +482,9 @@ public class MailMergeParams
   {
     processRules();
     for (Section s : getSections())
-      s.updateView();
+    {
+      s.updateView(visibleGroups);
+    }
     repack(getDialog());
   }
 
@@ -523,9 +519,9 @@ public class MailMergeParams
         switch (k)
         {
           case SHOW_GROUPS:
-            getVisibleGroups().clear();
+            visibleGroups.clear();
             for (ConfigThingy group : key)
-              getVisibleGroups().add(group.toString());
+              visibleGroups.add(group.toString());
             break;
 
           case SET_DESCRIPTION:
@@ -661,102 +657,5 @@ public class MailMergeParams
       return false;
     }
     return allAvailable;
-  }
-
-  /**
-   * Testmethode
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  public static void main(String[] args)
-  {
-    final List<String> fieldNames = new ArrayList<String>();
-    fieldNames.add("Anrede");
-    fieldNames.add("Name");
-    fieldNames.add("EMail");
-    final MailMergeParams mmp = new MailMergeParams();
-    ConfigThingy sdConf = new ConfigThingy("sdConf");
-    try
-    {
-      sdConf =
-        new ConfigThingy(
-          "dialogConf",
-          new URL(
-            "file:///home/christoph.lutz/workspace/WollMux/src/data/seriendruckdialog.conf"));
-      sdConf = sdConf.get("Dialoge").get("Seriendruckdialog");
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
-    }
-
-    final ConfigThingy seriendruckConf = sdConf;
-    MailMergeController mmc = new MailMergeController()
-    {
-      public boolean hasPrintfunction(String name)
-      {
-        String[] funcs =
-          new String[] {
-          "OOoMailMergeToPrinter", "OOoMailMergeToOdtFile", "MailMergeNewToODTEMail",
-          "MailMergeNewToPDFEMail", "MailMergeNewSetFormValue", /* "PDFGesamtdokument", */
-          "MailMergeNewToSingleODT", "MailMergeNewToSinglePDF", "PDFGesamtdokumentOutput" };
-        for (String func : funcs)
-          if (func.equals(name)) return true;
-        return false;
-      }
-
-      public void doMailMerge(List<String> usePrintFunctions,
-          boolean ignoreDocPrintFuncs, DatasetSelectionType datasetSelectionType,
-          Map<SubmitArgument, Object> pmodArgs)
-      {
-        Logger.init(System.out, Logger.ALL);
-        System.out.print("PrintFunctions: ");
-        for (String func : usePrintFunctions)
-          System.out.print("'" + func + "' ");
-        System.out.println("");
-        System.out.println("IgnoreDocPrintFuncs: " + ignoreDocPrintFuncs);
-        System.out.println("datasetSelectionType: " + datasetSelectionType);
-        System.out.println("pmodArgs: ");
-        for (Entry<SubmitArgument, Object> en : pmodArgs.entrySet())
-          System.out.println("  " + en.getKey() + ": " + en.getValue());
-      }
-
-      public List<String> getColumnNames()
-      {
-        return fieldNames;
-      }
-
-      public String getDefaultFilename()
-      {
-        return "MeinDokument";
-      }
-
-      private boolean initialized = false;
-
-      public XTextDocument getTextDocument()
-      {
-        if (!initialized) try
-        {
-          initialized = true;
-          UNO.init();
-        }
-        catch (Exception e)
-        {
-          e.printStackTrace();
-        }
-        return UNO.XTextDocument(UNO.desktop.getCurrentComponent());
-      }
-    };
-
-    mmp.showDoMailmergeDialog(new JFrame("irgendwas"), mmc, seriendruckConf,
-      "christoph.lutz@muenchen.de");
-
-    try
-    {
-      Thread.sleep(5000);
-    }
-    catch (InterruptedException e)
-    {}
-    System.exit(0);
   }
 }

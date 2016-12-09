@@ -3,6 +3,8 @@ package de.muenchen.allg.itd51.wollmux.dialog.mailmerge;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JFrame;
+
 import com.sun.star.text.XTextDocument;
 
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui.SubmitArgument;
@@ -45,4 +47,28 @@ public interface MailMergeController
   public void doMailMerge(List<String> usePrintFunctions,
       boolean ignoreDocPrintFuncs, DatasetSelectionType datasetSelectionType,
       Map<SubmitArgument, Object> args);
+  
+  /**
+   * Zeigt einen Dialog zum Auswählen der Datenquelle an.
+   * @param parent
+   * @param callback
+   */
+  public void showDatasourceSelectionDialog(final JFrame parent,
+      final Runnable callback);
+  
+  public boolean hasDatasource();
+  
+  public void close();
+  
+  public void bringDatasourceToFront();
+  
+  public boolean isDatasourceSupportingAddColumns();
+  
+  public void showAddMissingColumnsDialog(JFrame parent);
+  
+  public void showAdjustFieldsDialog(JFrame parent);
+  
+  public int getNumberOfDatasets();
+  
+  public List<String> getValuesForDataset(int rowIndex);
 }

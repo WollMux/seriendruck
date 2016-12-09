@@ -3,6 +3,7 @@ package de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -29,7 +30,7 @@ public class RadioButtonUIElement extends UIElement implements
   public RadioButtonUIElement(String label, UIElementAction action,
       final String value, String group, final MailMergeParams mmp)
   {
-    super(Box.createHorizontalBox(), group, mmp);
+    super(Box.createHorizontalBox(), group);
 
     // Die hbox benötige ich, da sonst in Kombination mit einem FromToUIElement ein
     // falsches Alignment verwendet wird.
@@ -56,9 +57,10 @@ public class RadioButtonUIElement extends UIElement implements
     radio.setEnabled(enabled);
   }
 
-  public void updateView()
+  @Override
+  public void updateView(HashSet<String> visibleGroups)
   {
-    super.updateView();
+    super.updateView(visibleGroups);
     if (action == UIElementAction.setActionType
       || action == UIElementAction.setOutput)
     {

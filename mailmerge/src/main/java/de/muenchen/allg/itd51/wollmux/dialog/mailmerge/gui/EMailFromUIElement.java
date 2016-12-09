@@ -22,7 +22,7 @@ public class EMailFromUIElement extends UIElement
   public EMailFromUIElement(String label, UIElementAction action,
       final String value, String group, final MailMergeParams mmp)
   {
-    super(Box.createVerticalBox(), group, mmp);
+    super(Box.createVerticalBox(), group);
     Box vbox = (Box) getCompo();
 
     Box hbox = Box.createHorizontalBox();

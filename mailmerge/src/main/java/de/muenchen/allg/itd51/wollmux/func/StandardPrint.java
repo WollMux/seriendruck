@@ -51,7 +51,7 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.dialog.SachleitendeVerfuegungenDruckdialog.VerfuegungspunktInfo;
-import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeNew;
+import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeControllerImpl;
 import de.muenchen.allg.itd51.wollmux.print.MailMerge;
 import de.muenchen.allg.itd51.wollmux.print.OOoBasedMailMerge;
 import de.muenchen.allg.itd51.wollmux.print.PrintFunction;
@@ -210,7 +210,7 @@ public class StandardPrint
   /**
    * PrintFunction, die das jeweils nächste Element der Seriendruckdaten nimmt und
    * die Seriendruckfelder im Dokument entsprechend setzt. Siehe
-   * {@link MailMergeNew#mailMergeNewSetFormValue(XPrintModel)}.
+   * {@link MailMergeControllerImpl#mailMergeNewSetFormValue(XPrintModel)}.
    * 
    * @throws Exception
    *           falls was schief geht.
@@ -219,7 +219,7 @@ public class StandardPrint
   public static void mailMergeNewSetFormValue(final XPrintModel pmod)
       throws Exception
   {
-    MailMergeNew.mailMergeNewSetFormValue(pmod);
+    MailMergeControllerImpl.mailMergeNewSetFormValue(pmod);
   }
 
   /**
@@ -235,7 +235,7 @@ public class StandardPrint
     Integer maxProcessableDatasets =
       Workarounds.workaroundForTDFIssue89783(pmod.getTextDocument());
     if (maxProcessableDatasets != null
-      && MailMergeNew.mailMergeNewGetSelectionSize(pmod) > maxProcessableDatasets)
+      && MailMergeControllerImpl.mailMergeNewGetSelectionSize(pmod) > maxProcessableDatasets)
     {
       ModalDialogs.showInfoModal(
         L.m("WollMux-Seriendruck Fehler"),
@@ -273,7 +273,7 @@ public class StandardPrint
       throws Exception
   {
     boolean isODT = true;
-    MailMergeNew.saveToFile(pmod, isODT);
+    MailMergeControllerImpl.saveToFile(pmod, isODT);
   }
   
   /**
@@ -287,7 +287,7 @@ public class StandardPrint
       throws Exception
   {
     boolean isODT = false;
-    MailMergeNew.saveToFile(pmod, isODT);
+    MailMergeControllerImpl.saveToFile(pmod, isODT);
   }
 
   /**
@@ -301,7 +301,7 @@ public class StandardPrint
   {
     //TODO Funktion entfernen, wenn die Standard-Config 13.X schon länger (~2 Jahre) im Einsatz ist
     boolean isODT = true;
-    MailMergeNew.sendAsEmail(pmod, isODT);
+    MailMergeControllerImpl.sendAsEmail(pmod, isODT);
   }
   
   /**
@@ -313,7 +313,7 @@ public class StandardPrint
   public static void mailMergeNewToODTEMail(final XPrintModel pmod)
   {
     boolean isODT = true;
-    MailMergeNew.sendAsEmail(pmod, isODT);
+    MailMergeControllerImpl.sendAsEmail(pmod, isODT);
   }
   
   /**
@@ -325,7 +325,7 @@ public class StandardPrint
   public static void mailMergeNewToPDFEMail(final XPrintModel pmod)
   {
     boolean isODT = false;
-    MailMergeNew.sendAsEmail(pmod, isODT);
+    MailMergeControllerImpl.sendAsEmail(pmod, isODT);
   }
   
   /**
