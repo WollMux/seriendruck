@@ -5,8 +5,10 @@ import com.sun.star.text.XTextDocument;
 
 import de.muenchen.allg.itd51.wollmux.WollMuxFehlerException;
 import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
+import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeNew;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager.TextDocumentInfo;
+import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 import de.muenchen.allg.itd51.wollmux.event.DispatchProviderAndInterceptor;
 import de.muenchen.allg.itd51.wollmux.event.GlobalEventListener;
 
@@ -58,7 +60,11 @@ public class OnTextDocumentClosed extends BasicEvent
   protected void doit() throws WollMuxFehlerException
   {
     if (docInfo.hasTextDocumentModel())
-      DocumentManager.getDocumentManager().dispose(docInfo.getTextDocumentController().getModel().doc);
+    {
+      TextDocumentController documentController = docInfo.getTextDocumentController();
+      MailMergeNew.disposeInstance(documentController);
+      DocumentManager.getDocumentManager().dispose(documentController.getModel().doc);
+    }
   }
 
   @Override

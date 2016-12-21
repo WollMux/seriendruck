@@ -37,7 +37,6 @@ package de.muenchen.allg.itd51.wollmux;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
@@ -490,9 +489,9 @@ public class SachleitendeVerfuegung
    * @return Vector of Verfuegungspunkt, der für jeden Verfuegungspunkt im Dokument
    *         doc einen Eintrag enthält.
    */
-  private static Vector<Verfuegungspunkt> scanVerfuegungspunkte(XTextDocument doc)
+  private static List<Verfuegungspunkt> scanVerfuegungspunkte(XTextDocument doc)
   {
-    Vector<Verfuegungspunkt> verfuegungspunkte = new Vector<Verfuegungspunkt>();
+    List<Verfuegungspunkt> verfuegungspunkte = new ArrayList<Verfuegungspunkt>();
 
     // Verfügungspunkt1 hinzufügen wenn verfügbar.
     XTextRange punkt1 = getVerfuegungspunkt1(doc);
@@ -546,118 +545,6 @@ public class SachleitendeVerfuegung
   }
 
   /**
-   * Repräsentiert einen vollständigen Verfügungspunkt, der aus Überschrift (römische
-   * Ziffer + Überschrift) und Inhalt besteht. Die Klasse bietet Methden an, über die
-   * auf alle für den Druck wichtigen Eigenschaften des Verfügungspunktes zugegriffen
-   * werden kann (z.B. Überschrift, Anzahl Zuleitungszeilen, ...)
-   * 
-   * @author christoph.lutz
-   */
-  public static class Verfuegungspunkt
-  {
-    /**
-     * Enthält den vollständigen Text der erste Zeile des Verfügungspunktes
-     * einschließlich der römischen Ziffer.
-     */
-    protected String heading;
-
-    /**
-     * Vector of String, der alle Zuleitungszeilen enthält, die mit addParagraph
-     * hinzugefügt wurden.
-     */
-    protected Vector<String> zuleitungszeilen;
-
-    /**
-     * Enthält die Anzahl der Ausdrucke, die mindestens ausgedruckt werden sollen.
-     */
-    protected int minNumberOfCopies;
-
-    /**
-     * Erzeugt einen neuen Verfügungspunkt, wobei firstPar der Absatz ist, der die
-     * erste Zeile mit der römischen Ziffer und der Überschrift enthält.
-     * 
-     * @param heading
-     *          Text der ersten Zeile des Verfügungspunktes mit der römischen Ziffer
-     *          und der Überschrift.
-     */
-    public Verfuegungspunkt(String heading)
-    {
-      this.heading = heading;
-      this.zuleitungszeilen = new Vector<String>();
-      this.minNumberOfCopies = 0;
-    }
-
-    /**
-     * Fügt einen weitere Zuleitungszeile des Verfügungspunktes hinzu (wenn paragraph
-     * nicht null ist).
-     * 
-     * @param paragraph
-     *          XTextRange, das den gesamten Paragraphen der Zuleitungszeile enthält.
-     */
-    public void addZuleitungszeile(String zuleitung)
-    {
-      zuleitungszeilen.add(zuleitung);
-    }
-
-    /**
-     * Liefert die Anzahl der Ausfertigungen zurück, mit denen der Verfügungspunkt
-     * ausgeduckt werden soll; Die Anzahl erhöht sich mit jeder hinzugefügten
-     * Zuleitungszeile. Der Mindestwert kann mit setMinNumberOfCopies gesetzt werden.
-     * 
-     * @return Anzahl der Ausfertigungen mit denen der Verfügungspunkt gedruckt
-     *         werden soll.
-     */
-    public int getNumberOfCopies()
-    {
-      if (zuleitungszeilen.size() > minNumberOfCopies)
-        return zuleitungszeilen.size();
-      else
-        return minNumberOfCopies;
-    }
-
-    /**
-     * Setzt die Anzahl der Ausfertigungen, die Mindestens ausgedruckt werden sollen,
-     * auch dann wenn z.B. keine Zuleitungszeilen vorhanden sind.
-     * 
-     * @param minNumberOfCopies
-     *          Anzahl der Ausfertigungen mit denen der Verfügungspunkt mindestens
-     *          ausgedruckt werden soll.
-     */
-    public void setMinNumberOfCopies(int minNumberOfCopies)
-    {
-      this.minNumberOfCopies = minNumberOfCopies;
-    }
-
-    /**
-     * Liefert einen Vector of Strings, der die Texte der Zuleitungszeilen
-     * beinhaltet, die dem Verfügungspunkt mit addParagraph hinzugefügt wurden.
-     * 
-     * @return Vector of Strings mit den Texten der Zuleitungszeilen.
-     */
-    public Vector<String> getZuleitungszeilen()
-    {
-      return zuleitungszeilen;
-    }
-
-    /**
-     * Liefert den Text der Überschrift des Verfügungspunktes einschließlich der
-     * römischen Ziffer als String zurück, wobei mehrfache Leerzeichen (\s+) durch
-     * einfache Leerzeichen ersetzt werden.
-     * 
-     * @return römischer Ziffer + Überschrift
-     */
-    public String getHeading()
-    {
-      String text = heading;
-
-      // Tabs und Spaces durch single spaces ersetzen
-      text = text.replaceAll("\\s+", " ");
-
-      return text;
-    }
-  }
-
-  /**
    * Zeigt den Druckdialog für Sachleitende Verfügungen an und liefert die dort
    * getroffenen Einstellungen als Liste von VerfuegungspunktInfo-Objekten zurück,
    * oder null, wenn Fehler auftraten oder der Druckvorgang abgebrochen wurde.
@@ -670,16 +557,11 @@ public class SachleitendeVerfuegung
   {
     //JGM: Update der Dokumentenstruktur (Kommandos und TextSections)
     DocumentManager.getTextDocumentController(doc).updateDocumentCommands();
-    Vector<Verfuegungspunkt> vps = scanVerfuegungspunkte(doc);
-    Iterator<Verfuegungspunkt> iter = vps.iterator();
-    while (iter.hasNext())
+    for (Verfuegungspunkt vp : scanVerfuegungspunkte(doc))
     {
-      Verfuegungspunkt vp = iter.next();
       String text = L.m("Verfügungspunkt '%1'", vp.getHeading());
-      Iterator<String> zuleits = vp.getZuleitungszeilen().iterator();
-      while (zuleits.hasNext())
+      for (String zuleit : vp.getZuleitungszeilen())
       {
-        String zuleit = zuleits.next();
         text += "\n  --> '" + zuleit + "'";
       }
       Logger.debug2(text);
@@ -706,7 +588,7 @@ public class SachleitendeVerfuegung
     try
     {
       SyncActionListener s = new SyncActionListener();
-      new SachleitendeVerfuegungenDruckdialog(printDialogConf, vps, s);
+      new SachleitendeVerfuegungenDruckdialog(printDialogConf, scanVerfuegungspunkte(doc), s);
       ActionEvent result = s.synchronize();
       String cmd = result.getActionCommand();
       SachleitendeVerfuegungenDruckdialog slvd =

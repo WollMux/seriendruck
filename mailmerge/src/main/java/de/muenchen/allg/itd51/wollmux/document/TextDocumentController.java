@@ -24,7 +24,6 @@ import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.afid.UnoCollection;
 import de.muenchen.allg.itd51.wollmux.SachleitendeVerfuegung;
 import de.muenchen.allg.itd51.wollmux.WollMuxFiles;
-import de.muenchen.allg.itd51.wollmux.WollMuxSingleton;
 import de.muenchen.allg.itd51.wollmux.core.db.ColumnNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.db.Dataset;
 import de.muenchen.allg.itd51.wollmux.core.dialog.DialogLibrary;
@@ -50,7 +49,6 @@ import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.parser.SyntaxErrorException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.allg.itd51.wollmux.core.util.Utils;
 import de.muenchen.allg.itd51.wollmux.db.DatasourceJoinerFactory;
 import de.muenchen.allg.itd51.wollmux.dialog.DialogFactory;
 import de.muenchen.allg.itd51.wollmux.func.FunctionFactory;
@@ -147,7 +145,7 @@ public class TextDocumentController
   public synchronized void addPrintFunction(String functionName)
   {
     model.addPrintFunction(functionName);
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
     
     // Frame veranlassen, die dispatches neu einzulesen - z.B. damit File->Print
     // auch auf die neue Druckfunktion reagiert.
@@ -173,7 +171,7 @@ public class TextDocumentController
   public synchronized void removePrintFunction(String functionName)
   {
     model.removePrintFunction(functionName);
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
     
     // Frame veranlassen, die dispatches neu einzulesen - z.B. damit File->Print
     // auch auf gelöschte Druckfunktion reagiert.
@@ -407,7 +405,7 @@ public class TextDocumentController
   synchronized public void addNewInputUserField(XTextRange r, String trafoName,
       String hint)
   {
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
 
     try
     {
@@ -796,7 +794,7 @@ public class TextDocumentController
    */
   public synchronized void setFilenameGeneratorFunc(ConfigThingy c)
   {
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
     if (c == null)
       model.getPersistentData().removeData(DataID.FILENAMEGENERATORFUNC);
     else
@@ -823,7 +821,7 @@ public class TextDocumentController
   public synchronized void setPrintBlocksProps(String blockName, boolean visible,
       boolean showHighlightColor)
   {
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
 
     Iterator<DocumentCommand> iter = new HashSet<DocumentCommand>().iterator();
     if (blockName.equals(SachleitendeVerfuegung.BLOCKNAME_SLV_ALL_VERSIONS))
@@ -1047,7 +1045,7 @@ public class TextDocumentController
    */
   synchronized public void insertMailMergeFieldAtCursorPosition(String fieldId)
   {
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
     insertMailMergeField(fieldId, model.getViewCursor());
   }
 
@@ -1059,7 +1057,7 @@ public class TextDocumentController
    */
   private void insertMailMergeField(String fieldId, XTextRange range)
   {
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
 
     if (fieldId == null || fieldId.length() == 0 || range == null) return;
     try
@@ -1108,7 +1106,7 @@ public class TextDocumentController
    */
   public synchronized void insertNextDatasetFieldAtCursorPosition()
   {
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
     insertNextDatasetField(model.getViewCursor());
   }
 
@@ -1118,7 +1116,7 @@ public class TextDocumentController
    */
   private void insertNextDatasetField(XTextRange range)
   {
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
 
     try
     {
@@ -1154,7 +1152,7 @@ public class TextDocumentController
    */
   public synchronized void setMailmergeConfig(ConfigThingy conf)
   {
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
 
     model.setMailmergeConf(new ConfigThingy("Seriendruck"));
     for (Iterator<ConfigThingy> iter = conf.iterator(); iter.hasNext();)
@@ -1329,7 +1327,7 @@ public class TextDocumentController
   {
     if (formFields == null) return;
 
-    if (simulationResult == null) model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    if (simulationResult == null) model.updateLastTouchedByVersionInfo();
 
     for (FormField field : formFields)
       try
@@ -1560,7 +1558,7 @@ public class TextDocumentController
   {
     if (simulationResult == null)
     {
-      model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+      model.updateLastTouchedByVersionInfo();
       if (value == null)
         model.getFormFieldValues().remove(fieldId);
       else
@@ -1611,7 +1609,7 @@ public class TextDocumentController
    */
   private void storeCurrentFormDescription()
   {
-    model.updateLastTouchedByVersionInfo(WollMuxSingleton.getVersion(), Utils.getOOoVersion());
+    model.updateLastTouchedByVersionInfo();
 
     ConfigThingy conf = model.getFormDescription();
     try

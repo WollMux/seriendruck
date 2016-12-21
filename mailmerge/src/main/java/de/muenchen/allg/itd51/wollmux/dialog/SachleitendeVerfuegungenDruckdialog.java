@@ -67,7 +67,7 @@ import javax.swing.event.ChangeListener;
 
 import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.SachleitendeVerfuegung;
-import de.muenchen.allg.itd51.wollmux.SachleitendeVerfuegung.Verfuegungspunkt;
+import de.muenchen.allg.itd51.wollmux.Verfuegungspunkt;
 import de.muenchen.allg.itd51.wollmux.WollMuxSingleton;
 import de.muenchen.allg.itd51.wollmux.core.db.DatasourceJoiner;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
@@ -235,7 +235,7 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * Vector of Verfuegungspunkt, der die Beschreibungen der Verfügungspunkte enthält.
    */
-  private Vector<Verfuegungspunkt> verfuegungspunkte;
+  private List<Verfuegungspunkt> verfuegungspunkte;
 
   /**
    * Nach jedem Aufruf von printAll oder printElement enthält diese Methode die
@@ -269,7 +269,7 @@ public class SachleitendeVerfuegungenDruckdialog
    *           Schlüssel fehlt.
    */
   public SachleitendeVerfuegungenDruckdialog(ConfigThingy conf,
-      Vector<Verfuegungspunkt> verfuegungspunkte, ActionListener dialogEndListener)
+      List<Verfuegungspunkt> verfuegungspunkte, ActionListener dialogEndListener)
       throws ConfigurationErrorException
   {
     this.verfuegungspunkte = verfuegungspunkte;

@@ -1,5 +1,6 @@
 package de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,6 +36,11 @@ public class UIElement
   private boolean visible = true;
 
   private boolean enabled = true;
+
+  /**
+   * Enthält die Hintergrundfarbe des Beschreibungsfeldes im Druckdialog
+   */
+  public static final Color DESC_COLOR = new Color(0xffffc8);
 
   /**
    * Erzeugt ein UIElement, das über die Hauptkomponente compo dargestellt werden,
@@ -149,8 +155,8 @@ public class UIElement
         tf.setEditable(false);
         tf.setFocusable(false);
         DimAdjust.fixedSize(tf);
-        tf.setBackground(MailMergeParams.DESC_COLOR);
-        tf.setBorder(new LineBorder(MailMergeParams.DESC_COLOR, 4));
+        tf.setBackground(UIElement.DESC_COLOR);
+        tf.setBorder(new LineBorder(UIElement.DESC_COLOR, 4));
         mmp.descriptionFields.add(tf);
         return new UIElement(tf, group);
       }
@@ -184,7 +190,7 @@ public class UIElement
       case filenametemplatechooser:
       {
         // liefert einen filenamen *ohne* endung
-        String name = mmp.mmc.getDefaultFilename();
+        String name = mmp.getMMC().getDefaultFilename();
         JTextField textField = new JTextField(name);
         TextWithDatafieldTagsUIElement el =
           new TextWithDatafieldTagsUIElement(textField, textField,

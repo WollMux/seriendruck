@@ -31,7 +31,7 @@ import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.gui.SubmitArgument;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 import de.muenchen.allg.itd51.wollmux.email.EMailSender;
-import de.muenchen.allg.itd51.wollmux.print.PrintModels;
+import de.muenchen.allg.itd51.wollmux.print.model.PrintModels;
 
 public class MailMergeControllerImpl implements MailMergeController
 {
@@ -157,7 +157,9 @@ public class MailMergeControllerImpl implements MailMergeController
     {
       case ALL:
         for (int i = 0; i < data.size(); ++i)
+        {
           selected.add(i);
+        }
         break;
       case INDIVIDUAL:
         IndexSelection indexSelection =
@@ -179,7 +181,9 @@ public class MailMergeControllerImpl implements MailMergeController
           indexSelection.setRangeEnd(t);
         }
         for (int i = indexSelection.getRangeStart(); i <= indexSelection.getRangeEnd(); ++i)
+         {
           selected.add(i - 1); // wir zählen ab 0, anders als rangeStart/End
+        }
         break;
     }
 
@@ -219,7 +223,9 @@ public class MailMergeControllerImpl implements MailMergeController
     try
     {
       for (String printFunctionName : usePrintFunctions)
+      {
         pmod.usePrintFunction(printFunctionName);
+      }
     }
     catch (NoSuchMethodException e)
     {
@@ -233,6 +239,11 @@ public class MailMergeControllerImpl implements MailMergeController
       return;
     }
 
+    doPrint(pmod);
+  }
+
+  private void doPrint(final XPrintModel pmod)
+  {
     // Drucken im Hintergrund, damit der EDT nicht blockiert.
     new Thread()
     {
@@ -310,7 +321,7 @@ public class MailMergeControllerImpl implements MailMergeController
     else
       try
       {
-        tmpOutDir = File.createTempFile(MailMergeNew.TEMP_MAIL_DIR_PREFIX, null);
+        tmpOutDir = File.createTempFile(TEMP_MAIL_DIR_PREFIX, null);
         tmpOutDir.delete();
         tmpOutDir.mkdir();
         try
@@ -328,9 +339,9 @@ public class MailMergeControllerImpl implements MailMergeController
       }
     if (tmpOutDir == null)
     {
-      ModalDialogs.showInfoModal(MailMergeNew.MAIL_ERROR_MESSAGE_TITLE, L.m(
+      ModalDialogs.showInfoModal(MAIL_ERROR_MESSAGE_TITLE, L.m(
         "Das temporäre Verzeichnis %1 konnte nicht angelegt werden.",
-        MailMergeNew.TEMP_MAIL_DIR_PREFIX));
+        TEMP_MAIL_DIR_PREFIX));
       pmod.cancel();
       return;
     }
@@ -338,7 +349,7 @@ public class MailMergeControllerImpl implements MailMergeController
     String from = pmod.getProp(PROP_EMAIL_FROM, "").toString();
     if (!MailMergeNew.isMailAddress(from))
     {
-      ModalDialogs.showInfoModal(MailMergeNew.MAIL_ERROR_MESSAGE_TITLE, L.m(
+      ModalDialogs.showInfoModal(MAIL_ERROR_MESSAGE_TITLE, L.m(
         "Die Absenderadresse '%1' ist ungültig.", from));
       pmod.cancel();
       return;
@@ -358,7 +369,7 @@ public class MailMergeControllerImpl implements MailMergeController
           null,
           L.m(
             "Die Empfängeradresse '%1' ist ungültig!\n\nDiesen Datensatz überspringen und fortsetzen?",
-            to), MailMergeNew.MAIL_ERROR_MESSAGE_TITLE, JOptionPane.OK_CANCEL_OPTION);
+            to), MAIL_ERROR_MESSAGE_TITLE, JOptionPane.OK_CANCEL_OPTION);
       if (res == JOptionPane.CANCEL_OPTION) pmod.cancel();
       return;
     }
@@ -384,7 +395,7 @@ public class MailMergeControllerImpl implements MailMergeController
     {
       Logger.error(e);
       ModalDialogs.showInfoModal(
-        MailMergeNew.MAIL_ERROR_MESSAGE_TITLE,
+        MAIL_ERROR_MESSAGE_TITLE,
         L.m("Es konnten keine Angaben zum Mailserver gefunden werden - eventuell ist die WollMux-Konfiguration nicht vollständig."));
       pmod.cancel();
       return;
@@ -392,7 +403,7 @@ public class MailMergeControllerImpl implements MailMergeController
     catch (MessagingException e)
     {
       Logger.error(e);
-      ModalDialogs.showInfoModal(MailMergeNew.MAIL_ERROR_MESSAGE_TITLE,
+      ModalDialogs.showInfoModal(MAIL_ERROR_MESSAGE_TITLE,
         L.m("Der Versand der E-Mail ist fehlgeschlagen."));
       pmod.cancel();
       return;

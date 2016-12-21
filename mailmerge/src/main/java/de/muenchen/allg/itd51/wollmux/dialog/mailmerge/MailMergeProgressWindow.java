@@ -1,4 +1,4 @@
-package de.muenchen.allg.itd51.wollmux.print;
+package de.muenchen.allg.itd51.wollmux.dialog.mailmerge;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -12,7 +12,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.dialog.Common;
 
-class MailMergeProgressWindow
+public class MailMergeProgressWindow
 {
   private JFrame myFrame;
 
@@ -22,7 +22,7 @@ class MailMergeProgressWindow
 
   private int maxcount;
 
-  MailMergeProgressWindow(final int maxcount)
+  public MailMergeProgressWindow(final int maxcount)
   {
     this.maxcount = maxcount;
     try

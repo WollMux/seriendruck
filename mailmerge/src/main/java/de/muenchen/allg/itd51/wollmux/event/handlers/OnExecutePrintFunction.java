@@ -6,7 +6,7 @@ import de.muenchen.allg.itd51.wollmux.SachleitendeVerfuegung;
 import de.muenchen.allg.itd51.wollmux.WollMuxFehlerException;
 import de.muenchen.allg.itd51.wollmux.XPrintModel;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
-import de.muenchen.allg.itd51.wollmux.print.PrintModels;
+import de.muenchen.allg.itd51.wollmux.print.model.PrintModels;
 
 /**
  * Erzeugt ein neues WollMuxEvent das signaisiert, dass die Druckfunktion

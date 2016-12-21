@@ -38,7 +38,6 @@
  */
 package de.muenchen.allg.itd51.wollmux.dialog.mailmerge;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.net.URL;
@@ -97,17 +96,10 @@ public class MailMergeParams
   public static final String TAG_DATENSATZNUMMER = "#DS";
 
   /**
-   * Enthält die Hintergrundfarbe des Beschreibungsfeldes im Druckdialog
-   */
-  public static final Color DESC_COLOR = new Color(0xffffc8);
-
-  /**
    * Enthält den {@link MailMergeController}, der Infos zum aktuellen
    * Seriendruckkontext liefern kann und den eigentlichen Seriendruck ausführen kann.
    */
-  public MailMergeController mmc;
-  
-  //
+  private MailMergeController mmc;
   
   public MailMergeController getMMC() {
     return mmc;
@@ -126,11 +118,6 @@ public class MailMergeParams
   public String getDefaultEmailFrom()
   {
     return defaultEmailFrom;
-  }
-
-  public void setDefaultEmailFrom(String defaultEmailFrom)
-  {
-    this.defaultEmailFrom = defaultEmailFrom;
   }
 
   public String getCurrentActionType()
@@ -168,19 +155,9 @@ public class MailMergeParams
     return sections;
   }
 
-  public void setSections(ArrayList<Section> sections)
-  {
-    this.sections = sections;
-  }
-
   public JDialog getDialog()
   {
     return dialog;
-  }
-
-  public void setDialog(JDialog dialog)
-  {
-    this.dialog = dialog;
   }
 
   public Boolean getIgnoreDocPrintFuncs()
@@ -188,29 +165,14 @@ public class MailMergeParams
     return ignoreDocPrintFuncs;
   }
 
-  public void setIgnoreDocPrintFuncs(Boolean ignoreDocPrintFuncs)
-  {
-    this.ignoreDocPrintFuncs = ignoreDocPrintFuncs;
-  }
-
   public List<String> getUsePrintFunctions()
   {
     return usePrintFunctions;
   }
 
-  public void setUsePrintFunctions(List<String> usePrintFunctions)
-  {
-    this.usePrintFunctions = usePrintFunctions;
-  }
-
   public DruckerController getDruckerController()
   {
     return druckerController;
-  }
-
-  public void setDruckerController(DruckerController druckerController)
-  {
-    this.druckerController = druckerController;
   }
 
   /**
@@ -385,19 +347,15 @@ public class MailMergeParams
       final MailMergeController mmc, ConfigThingy dialogConf, String defaultEmailFrom)
   {
     this.mmc = mmc;
-    this.setDefaultEmailFrom(defaultEmailFrom);
+    this.defaultEmailFrom = defaultEmailFrom;
 
     // erzeugt ein model für den Druckerauswahldialog falls noch keine existiert
     if (druckerModel == null) {
       druckerModel = new DruckerModel();
     }
        
-    if(getDialog() != null && getDialog().getParent() == parent) {
-      // erzeugt einen controller für den Druckerauswahldialog falls noch keiner existiert
-      if (getDruckerController() == null) {  
-        setDruckerController(new DruckerController(druckerModel, (JFrame)getDialog().getOwner(), this));
-      }      
-    } else {
+    if(getDialog() == null || getDialog().getParent() != parent)
+    {
       String title = L.m("Seriendruck");
       try
       {
@@ -408,12 +366,9 @@ public class MailMergeParams
       //set JDialog to Modeless type so that it remains visible when changing focus between opened 
       //calc and writer document. Drawback: when this Dialog is open, the "Seriendruck" bar is 
       //active too.
-      setDialog(new JDialog(parent, title, false));
-      getDialog().setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-      // erzeugt einen controller für den Druckerauswahldialog falls noch keiner existiert
-      if (getDruckerController() == null) {  
-        setDruckerController(new DruckerController(druckerModel, (JFrame)getDialog().getOwner(), this));
-      }      
+      dialog = new JDialog(parent, title, false);
+      dialog.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+
       try
       {
         rules = dialogConf.get("Regeln");
@@ -433,10 +388,18 @@ public class MailMergeParams
 
       Box vbox = Box.createVerticalBox();
       vbox.setBorder(new EmptyBorder(8, 5, 10, 5));
-      getDialog().add(vbox);
+      dialog.add(vbox);
 
-      for (ConfigThingy sectionConf : fensterConf) 
-        getSections().add(new Section(sectionConf, vbox, this)); 
+      druckerController = new DruckerController(druckerModel, (JFrame)dialog.getOwner(), this);
+
+      for (ConfigThingy sectionConf : fensterConf)
+      {
+        getSections().add(new Section(sectionConf, vbox, this));
+      } 
+    }
+    
+    if (druckerController == null) {  
+      druckerController = new DruckerController(druckerModel, (JFrame)getDialog().getOwner(), this);
     }
     
     updateView();
@@ -547,7 +510,7 @@ public class MailMergeParams
 
           case IGNORE_DOC_PRINTFUNCTIONS:
             hadIgnoreDocPrintFunctions = true;
-            setIgnoreDocPrintFuncs(Boolean.parseBoolean(key.toString()));
+            ignoreDocPrintFuncs = Boolean.parseBoolean(key.toString());
             break;
 
           case ON_ACTION_TYPE:
@@ -564,7 +527,9 @@ public class MailMergeParams
       // implizite Voreinstellung für IGNORE_DOC_PRINTFUNCTIONS, falls nicht in Regel
       // gesetzt:
       if (hadUsePrintFunctions && !hadIgnoreDocPrintFunctions)
-        setIgnoreDocPrintFuncs(null);
+      {
+        ignoreDocPrintFuncs = null;
+      }
     }
   }
 

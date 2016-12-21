@@ -41,8 +41,8 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +50,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -64,10 +67,22 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import com.sun.star.awt.XTopWindow;
+import com.sun.star.beans.IllegalTypeException;
+import com.sun.star.beans.NotRemoveableException;
+import com.sun.star.beans.PropertyAttribute;
+import com.sun.star.beans.PropertyExistException;
 import com.sun.star.beans.PropertyValue;
+import com.sun.star.beans.PropertyVetoException;
+import com.sun.star.beans.UnknownPropertyException;
+import com.sun.star.beans.XPropertyContainer;
+import com.sun.star.beans.XPropertySet;
+import com.sun.star.document.XDocumentPropertiesSupplier;
 import com.sun.star.frame.XFrame;
 import com.sun.star.frame.XStorable;
+import com.sun.star.lang.IllegalArgumentException;
+import com.sun.star.lang.WrappedTargetException;
 import com.sun.star.text.XTextDocument;
+import com.sun.star.uno.UnoRuntime;
 
 import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.core.dialog.DimAdjust;
@@ -93,11 +108,8 @@ import de.muenchen.allg.itd51.wollmux.event.MailMergeEventHandler;
  */
 public class MailMergeNew
 {
-  static final String TEMP_MAIL_DIR_PREFIX = "wollmuxmail";
-
-  static final String MAIL_ERROR_MESSAGE_TITLE =
-    L.m("Fehler beim E-Mail-Versand");
-
+  public static final String PROP_MAILMERGENEW = "mailMergeNew";
+  private static Map<String, MailMergeNew> instances = new ConcurrentHashMap<>();
   /**
    * true gdw wir uns im Vorschau-Modus befinden.
    */
@@ -148,7 +160,7 @@ public class MailMergeNew
   /**
    * Der WindowListener, der an {@link #myFrame} hängt.
    */
-  private MyWindowListener oehrchen;
+  private MyWindowListener windowListener;
 
   /**
    * Falls nicht null wird dieser Listener aufgerufen nachdem der MailMergeNew
@@ -182,7 +194,61 @@ public class MailMergeNew
     this.mailMergeController = new MailMergeControllerImpl(documentController);
     this.documentController = documentController;
     this.abortListener = abortListener;
+    
+    String uuid = UUID.randomUUID().toString();
+    instances.put(uuid, this);
+    
+    XTextDocument doc = documentController.getModel().doc;
+    XDocumentPropertiesSupplier propSupplier = UnoRuntime.queryInterface(XDocumentPropertiesSupplier.class, doc);
+    XPropertyContainer userDefinedProperties = propSupplier.getDocumentProperties().getUserDefinedProperties();
+    XPropertySet props = UNO.XPropertySet(userDefinedProperties);
+    if (!props.getPropertySetInfo().hasPropertyByName(PROP_MAILMERGENEW)) {
+      try
+      {
+        userDefinedProperties.addProperty(PROP_MAILMERGENEW, (short) (PropertyAttribute.TRANSIENT), "None");
+      } catch (IllegalArgumentException | PropertyExistException | IllegalTypeException e)
+      {
+        Logger.error(e);
+      }
+    }
+    
+    try
+    {
+      props.setPropertyValue(PROP_MAILMERGENEW, uuid);
+    } catch (IllegalArgumentException | UnknownPropertyException | PropertyVetoException | WrappedTargetException e)
+    {
+      Logger.error(e);
+    }
+  }
+  
+  public static MailMergeNew getInstance(String uuid)
+  {
+    return instances.get(uuid);
+  }
+  
+  public static void disposeInstance(TextDocumentController documentController)
+  {
+    XTextDocument doc = documentController.getModel().doc;
+    XDocumentPropertiesSupplier propSupplier = UnoRuntime.queryInterface(XDocumentPropertiesSupplier.class, doc);
+    XPropertyContainer userDefinedProperties = propSupplier.getDocumentProperties().getUserDefinedProperties();
+    XPropertySet props = UNO.XPropertySet(userDefinedProperties);
+    if (props.getPropertySetInfo().hasPropertyByName(MailMergeNew.PROP_MAILMERGENEW)) {
+      try
+      {
+        String uuid = (String)props.getPropertyValue(MailMergeNew.PROP_MAILMERGENEW);
+        MailMergeNew mmn = MailMergeNew.getInstance(uuid);
+        mmn.dispose();
+        userDefinedProperties.removeProperty(MailMergeNew.PROP_MAILMERGENEW);
+      } catch (UnknownPropertyException | WrappedTargetException | NotRemoveableException e)
+      {
+        Logger.error(e);
+      }
+    }
 
+  }
+
+  public void run()
+  {
     // GUI im Event-Dispatching Thread erzeugen wg. Thread-Safety.
     try
     {
@@ -223,8 +289,8 @@ public class MailMergeNew
 
     myFrame = new JFrame(L.m("Seriendruck (WollMux)"));
     myFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-    oehrchen = new MyWindowListener();
-    myFrame.addWindowListener(oehrchen);
+    windowListener = new MyWindowListener();
+    myFrame.addWindowListener(windowListener);
 
     // WollMux-Icon für den Seriendruck-Frame
     Common.setWollMuxIcon(myFrame);
@@ -951,60 +1017,41 @@ public class MailMergeNew
    * de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeParams.MailMergeController
    * #getTextDocument()
    */
-  private class MyWindowListener implements WindowListener
+  private class MyWindowListener extends WindowAdapter
   {
-    @Override
-    public void windowOpened(WindowEvent e)
-    {}
-
     @Override
     public void windowClosing(WindowEvent e)
     {
       abort();
     }
-
-    @Override
-    public void windowClosed(WindowEvent e)
-    {}
-
-    @Override
-    public void windowIconified(WindowEvent e)
-    {}
-
-    @Override
-    public void windowDeiconified(WindowEvent e)
-    {}
-
-    @Override
-    public void windowActivated(WindowEvent e)
-    {}
-
-    @Override
-    public void windowDeactivated(WindowEvent e)
-    {}
   }
 
   private void abort()
   {
-    removeCoupledWindow(myFrame);
-    /*
-     * Wegen folgendem Java Bug (WONTFIX)
-     * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4259304 sind die folgenden
-     * 3 Zeilen nötig, damit der MailMerge gc'ed werden kann. Die Befehle sorgen
-     * dafür, dass kein globales Objekt (wie z.B. der Keyboard-Fokus-Manager)
-     * indirekt über den JFrame den MailMerge kennt.
-     */
-    myFrame.removeWindowListener(oehrchen);
-    myFrame.getContentPane().remove(0);
-    myFrame.setJMenuBar(null);
-
-    myFrame.dispose();
-    myFrame = null;
-
-    mailMergeController.close();
-
-    if (abortListener != null)
-      abortListener.actionPerformed(new ActionEvent(this, 0, ""));
+    if (myFrame != null)
+    {
+      removeCoupledWindow(myFrame);
+      /*
+       * Wegen folgendem Java Bug (WONTFIX)
+       * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4259304 sind die folgenden
+       * 3 Zeilen nötig, damit der MailMerge gc'ed werden kann. Die Befehle sorgen
+       * dafür, dass kein globales Objekt (wie z.B. der Keyboard-Fokus-Manager)
+       * indirekt über den JFrame den MailMerge kennt.
+       */
+      myFrame.removeWindowListener(windowListener);
+      myFrame.getContentPane().remove(0);
+      myFrame.setJMenuBar(null);
+  
+      myFrame.dispose();
+      myFrame = null;
+  
+      mailMergeController.close();
+  
+      if (abortListener != null)
+      {
+        abortListener.actionPerformed(new ActionEvent(this, 0, ""));
+      }
+    }
   }
 
   /**

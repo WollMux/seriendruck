@@ -79,6 +79,7 @@ import de.muenchen.allg.itd51.wollmux.core.db.TimeoutException;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
+import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeProgressWindow;
 
 public class MailMerge
 {
@@ -412,11 +413,13 @@ public class MailMerge
       public void actionPerformed(ActionEvent e)
       {
         for (int i = 0; i < list.size(); ++i)
-          (list.get(i)).setSelected(false);
-        int[] sel = myList.getSelectedIndices();
-        for (int i = 0; i < sel.length; ++i)
         {
-          (list.get(sel[i])).setSelected(true);
+          (list.get(i)).setSelected(false);
+        }
+        int[] sel = myList.getSelectedIndices();
+        for (int element : sel)
+        {
+          (list.get(element)).setSelected(true);
         }
         synchronized (result)
         {

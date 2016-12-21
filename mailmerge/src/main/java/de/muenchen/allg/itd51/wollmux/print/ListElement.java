@@ -8,7 +8,7 @@ import de.muenchen.allg.itd51.wollmux.core.db.Dataset;
  * 
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
-class ListElement
+public class ListElement
 {
   private Dataset ds;
 

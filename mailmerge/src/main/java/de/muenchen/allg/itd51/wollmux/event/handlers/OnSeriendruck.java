@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 
 import de.muenchen.allg.itd51.wollmux.WollMuxFehlerException;
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeNew;
-import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
 import de.muenchen.allg.itd51.wollmux.document.TextDocumentController;
 import de.muenchen.allg.itd51.wollmux.event.MailMergeEventHandler;
 
@@ -30,24 +29,20 @@ public class OnSeriendruck extends BasicEvent
   protected void doit() throws WollMuxFehlerException
   {
     // Bestehenden Max in den Vordergrund holen oder neuen Max erzeugen.
-    MailMergeNew mmn = DocumentManager.getDocumentManager().getCurrentMailMergeNew(documentController.getModel().doc);
-    if (mmn != null)
+    MailMergeNew mmn = new MailMergeNew(documentController, new ActionListener()
     {
-      return;
-    }
-    else
-    {
-      mmn = new MailMergeNew(documentController, new ActionListener()
+      @Override
+      public void actionPerformed(ActionEvent actionEvent)
       {
-        @Override
-        public void actionPerformed(ActionEvent actionEvent)
+        if (actionEvent.getSource() instanceof MailMergeNew)
         {
-          if (actionEvent.getSource() instanceof MailMergeNew)
-            MailMergeEventHandler.getInstance().handleMailMergeNewReturned(documentController);
+          ((MailMergeNew)actionEvent.getSource()).dispose();
+          MailMergeEventHandler.getInstance().handleMailMergeNewReturned(documentController);
         }
-      });
-      DocumentManager.getDocumentManager().setCurrentMailMergeNew(documentController.getModel().doc, mmn);
-    }
+      }
+    });
+
+    mmn.run();
   }
 
   @Override

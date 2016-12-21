@@ -44,6 +44,7 @@ import com.sun.star.uno.XInterface;
 import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.GlobalFunctions;
 import de.muenchen.allg.itd51.wollmux.WollMuxFiles;
+import de.muenchen.allg.itd51.wollmux.WollMuxSingleton;
 import de.muenchen.allg.itd51.wollmux.core.HashableComponent;
 import de.muenchen.allg.itd51.wollmux.core.document.AnnotationBasedPersistentDataContainer;
 import de.muenchen.allg.itd51.wollmux.core.document.PersistentDataContainer;
@@ -56,7 +57,7 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeNew;
+import de.muenchen.allg.itd51.wollmux.core.util.Utils;
 
 /**
  * Verwaltet Informationen zu allen offenen OOo-Dokumenten.
@@ -72,8 +73,6 @@ public class DocumentManager
   
   private Map<HashableComponent, Info> info =
     new HashMap<HashableComponent, Info>();
-  
-  private Map<XTextDocument, MailMergeNew> mailMerge = new HashMap<XTextDocument, MailMergeNew>();
   
   /**
    * Enthält alle registrierten XEventListener, die bei Statusänderungen der
@@ -230,28 +229,6 @@ public class DocumentManager
   }
 
   /**
-   * Setzt die Instanz des aktuell geöffneten, zu diesem Dokument gehörenden
-   * MailMergeNew.
-   * 
-   * @param max
-   */
-  synchronized public void setCurrentMailMergeNew(XTextDocument doc, MailMergeNew max)
-  {
-    mailMerge.put(doc, max);
-  }
-
-  /**
-   * Liefert die Instanz des aktuell geöffneten, zu diesem Dokument gehörenden
-   * MailMergeNew zurück, oder null, falls kein FormularMax gestartet wurde.
-   * 
-   * @return
-   */
-  synchronized public MailMergeNew getCurrentMailMergeNew(XTextDocument doc)
-  {
-    return mailMerge.get(doc);
-  }
-
-  /**
    * Liefert das aktuelle TextDocumentModel zum übergebenen XTextDocument doc;
    * existiert zu doc noch kein TextDocumentModel, so wird hier eines erzeugt und das
    * neu erzeugte zurück geliefert.
@@ -369,7 +346,10 @@ public class DocumentManager
     {
       if (documentController == null)
       {
-        documentController = new TextDocumentController(new TextDocumentModel(doc, createPersistentDataContainer(doc)), GlobalFunctions.getInstance().getGlobalFunctions(), GlobalFunctions.getInstance().getFunctionDialogs());
+        documentController = new TextDocumentController(
+            new TextDocumentModel(doc, createPersistentDataContainer(doc), WollMuxSingleton.getVersion(),
+                Utils.getOOoVersion()),
+            GlobalFunctions.getInstance().getGlobalFunctions(), GlobalFunctions.getInstance().getFunctionDialogs());
       }
       return documentController;
     }
@@ -377,7 +357,11 @@ public class DocumentManager
     @Override
     public boolean hasTextDocumentModel()
     {
-      return documentController.getModel() != null;
+      if (documentController != null)
+      {
+        return documentController.getModel() != null;
+      }
+      return false;
     }
 
     @Override
@@ -393,8 +377,6 @@ public class DocumentManager
    */
   public synchronized void dispose(XTextDocument doc)
   {
-    if (mailMerge.containsKey(doc)) mailMerge.get(doc).dispose();
-    mailMerge.remove(doc);
   }
 
   /**

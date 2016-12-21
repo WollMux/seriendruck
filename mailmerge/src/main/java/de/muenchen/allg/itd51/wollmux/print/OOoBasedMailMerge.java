@@ -91,6 +91,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeControllerImpl;
 import de.muenchen.allg.itd51.wollmux.document.DocumentManager;
+import de.muenchen.allg.itd51.wollmux.print.model.PrintModels;
 
 public class OOoBasedMailMerge
 {
@@ -114,6 +115,10 @@ public class OOoBasedMailMerge
 
   static final char OPENSYMBOL_UNCHECKED = 0xE470;
 
+  private XPrintModel pmod;
+
+  private OutputType type;
+
   /**
    * Druckfunktion für den Seriendruck in ein Gesamtdokument mit Hilfe des
    * OpenOffice.org-Seriendrucks.
@@ -122,6 +127,16 @@ public class OOoBasedMailMerge
    */
   public static void oooMailMerge(final XPrintModel pmod, OutputType type)
   {
+    new OOoBasedMailMerge(pmod, type).start();
+  }
+  
+  public OOoBasedMailMerge(final XPrintModel pmod, OutputType type) {
+    this.pmod = pmod;
+    this.type = type;
+    
+  }
+  
+  public void start() {
     PrintModels.setStage(pmod, L.m("Seriendruck vorbereiten"));
 
     // prüfe ob OutputType.toShell von der Office-Version
@@ -135,11 +150,141 @@ public class OOoBasedMailMerge
     File tmpDir = createMailMergeTempdir();
 
     // Datenquelle mit über mailMergeNewSetFormValue simulierten Daten erstellen
+    OOoDataSource ds = createTempDatasource(tmpDir);
+    
+    if (ds == null) {
+      return;
+    }
+
+    XDocumentDataSource dataSource = ds.createXDocumentDatasource();
+
+    String dbName = registerTempDatasouce(dataSource);
+
+    File inputFile =
+      createAndAdjustInputFile(tmpDir, pmod.getTextDocument(), dbName);
+
+    Logger.debug(L.m("Temporäre Datenquelle: %1", dbName));
+    
+    if (pmod.isCanceled()) return;
+
+    Object result = null;
+    
+    try {
+      MailMergeThread thread = null;
+
+      try
+      {
+        PrintModels.setStage(pmod, L.m("Gesamtdokument erzeugen"));
+        ProgressUpdater updater =
+          new ProgressUpdater(pmod, (int) Math.ceil((double) ds.getSize()
+            / countNextSets(pmod.getTextDocument())));
+  
+        String pNameSD = getSelectedPrinterName();
+        
+        thread = runMailMerge(dbName, tmpDir, inputFile, updater, type, pNameSD);
+      }
+      catch (Exception e)
+      {
+        Logger.error(L.m("Fehler beim Starten des OOo-Seriendrucks"), e);
+      }
+  
+      // Warte auf Ende des MailMerge-Threads unter Berücksichtigung von
+      // pmod.isCanceled()
+      while (thread != null && thread.isAlive())
+      {
+        try
+        {
+          thread.join(1000);
+          if (pmod.isCanceled())
+          {
+            thread.cancel();
+            break;
+          }
+        }
+        catch (InterruptedException e)
+        {}
+      }
+      
+      if (pmod.isCanceled() && thread.isAlive())
+      {
+        thread.interrupt();
+        Logger.debug(L.m("Der OOo-Seriendruck wurde abgebrochen"));
+        // aber aufräumen tun wir noch...
+      }
+      
+      result = thread.getResult();
+    } finally {
+      removeTempDatasource(dbName, tmpDir);
+      ds.remove();
+      inputFile.delete();
+    }
+
+    // ... jetzt können wir nach Benutzerabbruch aufhören
+    if (pmod.isCanceled()) return;
+
+    if (type == OutputType.toFile)
+    {
+      openFinishedFile(tmpDir);
+    }
+
+    else if (type == OutputType.toShell)
+    {
+      showFinishedDocument(result);
+    }
+
+    tmpDir.delete();
+  }
+
+  private void showFinishedDocument(Object result)
+  {
+    XTextDocument doc = UNO.XTextDocument(result);
+    if (doc != null && doc.getCurrentController() != null
+      && doc.getCurrentController().getFrame() != null
+      && doc.getCurrentController().getFrame().getContainerWindow() != null)
+    {
+      doc.getCurrentController().getFrame().getContainerWindow().setVisible(
+        true);
+    }
+    else
+    {
+      ModalDialogs.showInfoModal(L.m("WollMux-Seriendruck"),
+        L.m("Das erzeugte Gesamtdokument kann leider nicht angezeigt werden."));
+      pmod.cancel();
+    }
+  }
+
+  private void openFinishedFile(File tmpDir)
+  {
+    // Output-File als Template öffnen und aufräumen
+    File outputFile = new File(tmpDir, "output0.odt");
+    if (outputFile.exists())
+      try
+      {
+        String unoURL =
+          UNO.getParsedUNOUrl(outputFile.toURI().toString()).Complete;
+        Logger.debug(L.m("Öffne erzeugtes Gesamtdokument %1", unoURL));
+        UNO.loadComponentFromURL(unoURL, true, false);
+      }
+      catch (Exception e)
+      {
+        Logger.error(e);
+      }
+    else
+    {
+      ModalDialogs.showInfoModal(L.m("WollMux-Seriendruck"),
+        L.m("Leider konnte kein Gesamtdokument erstellt werden."));
+      pmod.cancel();
+    }
+    outputFile.delete();
+  }
+
+  private OOoDataSource createTempDatasource(File tmpDir)
+  {
     OOoDataSource ds = new CsvBasedOOoDataSource(tmpDir);
     try
     {
       MailMergeControllerImpl.mailMergeNewSetFormValue(pmod, ds);
-      if (pmod.isCanceled()) return;
+      if (pmod.isCanceled()) return null;
       ds.getDataSourceWriter().flushAndClose();
     }
     catch (Exception e)
@@ -154,7 +299,7 @@ public class OOoBasedMailMerge
       }
       Logger.error(
         L.m("OOo-Based-MailMerge: kann Simulationsdatenquelle nicht erzeugen!"), e);
-      return;
+      return null;
     }
     if (ds.getSize() == 0)
     {
@@ -162,121 +307,29 @@ public class OOoBasedMailMerge
         L.m("WollMux-Seriendruck"),
         L.m("Der Seriendruck wurde abgebrochen, da Ihr Druckauftrag keine Datensätze enthält."));
       pmod.cancel();
-      return;
+      return null;
     }
+    return ds;
+  }
 
-    XDocumentDataSource dataSource = ds.createXDocumentDatasource();
-
-    String dbName = registerTempDatasouce(dataSource);
-
-    File inputFile =
-      createAndAdjustInputFile(tmpDir, pmod.getTextDocument(), dbName);
-
-    Logger.debug(L.m("Temporäre Datenquelle: %1", dbName));
-    if (pmod.isCanceled()) return;
-
-    MailMergeThread t = null;
+  private String getSelectedPrinterName()
+  {
+    // Lese ausgewählten Drucker
+    XPrintable xprintSD =
+      UnoRuntime.queryInterface(XPrintable.class, pmod.getTextDocument());
+    String pNameSD;
+    PropertyValue[] printer = null;
+    if (xprintSD != null) printer = xprintSD.getPrinter();
+    UnoProps printerInfo = new UnoProps(printer);
     try
     {
-      PrintModels.setStage(pmod, L.m("Gesamtdokument erzeugen"));
-      ProgressUpdater updater =
-        new ProgressUpdater(pmod, (int) Math.ceil((double) ds.getSize()
-          / countNextSets(pmod.getTextDocument())));
-
-      // Lese ausgewählten Drucker
-      XPrintable xprintSD =
-        UnoRuntime.queryInterface(XPrintable.class, pmod.getTextDocument());
-      String pNameSD;
-      PropertyValue[] printer = null;
-      if (xprintSD != null) printer = xprintSD.getPrinter();
-      UnoProps printerInfo = new UnoProps(printer);
-      try
-      {
-        pNameSD = (String) printerInfo.getPropertyValue("Name");
-      }
-      catch (UnknownPropertyException e)
-      {
-        pNameSD = "unbekannt";
-      }
-      t = runMailMerge(dbName, tmpDir, inputFile, updater, type, pNameSD);
+      pNameSD = (String) printerInfo.getPropertyValue("Name");
     }
-    catch (Exception e)
+    catch (UnknownPropertyException e)
     {
-      Logger.error(L.m("Fehler beim Starten des OOo-Seriendrucks"), e);
+      pNameSD = "unbekannt";
     }
-
-    // Warte auf Ende des MailMerge-Threads unter Berücksichtigung von
-    // pmod.isCanceled()
-    while (t != null && t.isAlive())
-      try
-      {
-        t.join(1000);
-        if (pmod.isCanceled())
-        {
-          t.cancel();
-          break;
-        }
-      }
-      catch (InterruptedException e)
-      {}
-    if (pmod.isCanceled() && t.isAlive())
-    {
-      t.interrupt();
-      Logger.debug(L.m("Der OOo-Seriendruck wurde abgebrochen"));
-      // aber aufräumen tun wir noch...
-    }
-
-    removeTempDatasource(dbName, tmpDir);
-    ds.remove();
-    inputFile.delete();
-
-    // ... jetzt können wir nach Benutzerabbruch aufhören
-    if (pmod.isCanceled()) return;
-
-    if (type == OutputType.toFile)
-    {
-      // Output-File als Template öffnen und aufräumen
-      File outputFile = new File(tmpDir, "output0.odt");
-      if (outputFile.exists())
-        try
-        {
-          String unoURL =
-            UNO.getParsedUNOUrl(outputFile.toURI().toString()).Complete;
-          Logger.debug(L.m("Öffne erzeugtes Gesamtdokument %1", unoURL));
-          UNO.loadComponentFromURL(unoURL, true, false);
-        }
-        catch (Exception e)
-        {
-          Logger.error(e);
-        }
-      else
-      {
-        ModalDialogs.showInfoModal(L.m("WollMux-Seriendruck"),
-          L.m("Leider konnte kein Gesamtdokument erstellt werden."));
-        pmod.cancel();
-      }
-      outputFile.delete();
-    }
-
-    else if (type == OutputType.toShell)
-    {
-      XTextDocument result = UNO.XTextDocument(t.getResult());
-      if (result != null && result.getCurrentController() != null
-        && result.getCurrentController().getFrame() != null
-        && result.getCurrentController().getFrame().getContainerWindow() != null)
-      {
-        result.getCurrentController().getFrame().getContainerWindow().setVisible(
-          true);
-      }
-      else
-      {
-        ModalDialogs.showInfoModal(L.m("WollMux-Seriendruck"),
-          L.m("Das erzeugte Gesamtdokument kann leider nicht angezeigt werden."));
-        pmod.cancel();
-      }
-    }
-
-    tmpDir.delete();
+    return pNameSD;
   }
 
   /**
@@ -287,7 +340,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
-  private static File createAndAdjustInputFile(File tmpDir, XTextDocument origDoc,
+  private File createAndAdjustInputFile(File tmpDir, XTextDocument origDoc,
       String dbName)
   {
     // Aktuelles Dokument speichern als neues input-Dokument
@@ -389,7 +442,7 @@ public class OOoBasedMailMerge
     return inputFile;
   }
 
-  private static void updateTextSections(XTextDocument doc)
+  private void updateTextSections(XTextDocument doc)
   {
     XTextSectionsSupplier tssupp = UNO.XTextSectionsSupplier(doc);
     XNameAccess textSections = tssupp.getTextSections();
@@ -440,7 +493,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
-  private static void removeWollMuxMetadata(XTextDocument doc)
+  private void removeWollMuxMetadata(XTextDocument doc)
   {
     if (doc == null) return;
     PersistentDataContainer c = DocumentManager.createPersistentDataContainer(doc);
@@ -462,7 +515,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  private static void removeHiddenSections(XComponent tmpDoc)
+  private void removeHiddenSections(XComponent tmpDoc)
   {
     XTextSectionsSupplier tss = UNO.XTextSectionsSupplier(tmpDoc);
     if (tss == null) return;
@@ -500,7 +553,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  private static void removeAllBookmarks(XComponent tmpDoc)
+  private void removeAllBookmarks(XComponent tmpDoc)
   {
     if (UNO.XBookmarksSupplier(tmpDoc) != null)
     {
@@ -539,7 +592,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
-  private static void addDatabaseFieldsForInsertFormValueBookmarks(
+  private void addDatabaseFieldsForInsertFormValueBookmarks(
       XTextDocument doc, String dbName)
   {
     DocumentCommands cmds = new DocumentCommands(UNO.XBookmarksSupplier(doc));
@@ -590,7 +643,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
-  static String getSpecialColumnNameForFormField(FormField field)
+  public static String getSpecialColumnNameForFormField(FormField field)
   {
     String trafo = field.getTrafoName();
     String id = field.getId();
@@ -619,7 +672,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
-  private static void adjustDatabaseAndInputUserFields(XComponent tmpDoc,
+  private void adjustDatabaseAndInputUserFields(XComponent tmpDoc,
       String dbName)
   {
     if (UNO.XTextFieldsSupplier(tmpDoc) != null)
@@ -684,7 +737,7 @@ public class OOoBasedMailMerge
    * 
    * @author Ignaz Forster (ITM-I23)
    */
-  private static int countNextSets(XComponent doc)
+  private int countNextSets(XComponent doc)
   {
     int numberOfNextSets = 1;
     if (UNO.XTextFieldsSupplier(doc) != null)
@@ -718,7 +771,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  private static XDependentTextField createDatabaseField(
+  private XDependentTextField createDatabaseField(
       XMultiServiceFactory factory, String dbName, String tableName,
       String columnName) throws Exception, IllegalArgumentException
   {
@@ -740,7 +793,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  private static void removeTempDatasource(String dbName, File tmpDir)
+  private void removeTempDatasource(String dbName, File tmpDir)
   {
     XSingleServiceFactory dbContext =
       UNO.XSingleServiceFactory(UNO.createUNOService("com.sun.star.sdb.DatabaseContext"));
@@ -764,7 +817,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  private static String registerTempDatasouce(XDocumentDataSource dataSource)
+  private String registerTempDatasouce(XDocumentDataSource dataSource)
   {
     // neuen Zufallsnamen für Datenquelle bestimmen
     XSingleServiceFactory dbContext =
@@ -860,7 +913,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  private static MailMergeThread runMailMerge(String dbName, final File outputDir,
+  private MailMergeThread runMailMerge(String dbName, final File outputDir,
       File inputFile, final ProgressUpdater progress, final OutputType type,
       String printerName) throws Exception
   {
@@ -939,7 +992,7 @@ public class OOoBasedMailMerge
    * 
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  public static File createMailMergeTempdir()
+  private File createMailMergeTempdir()
   {
     File sysTmp = new File(System.getProperty("java.io.tmpdir"));
     File tmpDir;
@@ -951,52 +1004,5 @@ public class OOoBasedMailMerge
           + (new Random().nextInt(899) + 100));
     } while (!tmpDir.mkdir());
     return tmpDir;
-  }
-
-  /**
-   * Testmethode
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  public static void main(String[] args)
-  {
-    String pNameSD = "HP1010"; // Drucker Name
-    try
-    {
-      UNO.init();
-
-      File tmpDir = createMailMergeTempdir();
-
-      OOoDataSource ds = new CsvBasedOOoDataSource(tmpDir);
-      XDocumentDataSource dataSource = ds.createXDocumentDatasource();
-
-      String dbName = registerTempDatasouce(dataSource);
-
-      File inputFile =
-        createAndAdjustInputFile(tmpDir,
-          UNO.XTextDocument(UNO.desktop.getCurrentComponent()), dbName);
-
-      System.out.println("Temporäre Datenquelle: " + dbName);
-
-      runMailMerge(dbName, tmpDir, inputFile, null, OutputType.toFile, pNameSD);
-
-      removeTempDatasource(dbName, tmpDir);
-
-      inputFile.delete();
-
-      // Output-File als Template öffnen und aufräumen
-      File outputFile = new File(tmpDir, "output0.odt");
-      UNO.loadComponentFromURL(
-        UNO.getParsedUNOUrl(outputFile.toURI().toString()).Complete, true, false);
-      outputFile.delete();
-      tmpDir.delete();
-
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
-      System.exit(1);
-    }
-    System.exit(0);
   }
 }
