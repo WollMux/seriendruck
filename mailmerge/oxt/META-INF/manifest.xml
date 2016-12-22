@@ -5,4 +5,6 @@
 	<manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-typelibrary;type=RDB" manifest:full-path="mailmerge.rdb"/>
 	<manifest:file-entry manifest:media-type="application/vnd.sun.star.package-bundle-description;locale=de" manifest:full-path="help/component_de.txt"/>
 	<manifest:file-entry manifest:media-type="application/vnd.sun.star.package-bundle-description;locale=en" manifest:full-path="help/component_en.txt"/>
+	<manifest:file-entry manifest:media-type="application/vnd.sun.star.configuration-data" manifest:full-path="Addons.xcu"/>
+	<manifest:file-entry manifest:media-type="application/vnd.sun.star.configuration-data" manifest:full-path="ProtocolHandler.xcu"/>
 </manifest:manifest>
