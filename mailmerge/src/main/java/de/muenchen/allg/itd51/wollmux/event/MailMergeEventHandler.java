@@ -270,7 +270,11 @@ public class MailMergeEventHandler
   public void handleInitialize()
   {
     handle(new OnInitialize());
-    eventBus.unregister(initEventListener);
+    
+    if (initEventListener != null) {
+      eventBus.unregister(initEventListener);
+      initEventListener = null;
+    }
   }
 
   // *******************************************************************************************
