@@ -3,11 +3,11 @@
   <node oor:name="AddonUI">
     <node oor:name="OfficeToolBar">
 
-      <node oor:name="de.muenchen.allg.itd51.wollmux.Seriendruck" oor:op="replace">
+      <node oor:name="de.muenchen.mailmerge.Seriendruck" oor:op="replace">
       
         <node oor:name="m1" oor:op="replace">
           <prop oor:name="URL" oor:type="xs:string">
-            <value>wollmux:Seriendruck</value>
+            <value>mailmerge:Seriendruck</value>
           </prop>
           <prop oor:name="Title" oor:type="xs:string">
             <value>Seriendruck (WollMux)n</value>

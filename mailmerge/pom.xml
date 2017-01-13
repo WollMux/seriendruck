@@ -74,7 +74,7 @@
 									<classpathPrefix>lib/</classpathPrefix>
 								</manifest>
 								<manifestEntries>
-									<RegistrationClassName>de.muenchen.allg.itd51.wollmux.comp.MailMergeComponent</RegistrationClassName>
+									<RegistrationClassName>de.muenchen.mailmerge.comp.MailMergeComponent</RegistrationClassName>
 									<Main-Class>com.sun.star.lib.loader.Loader</Main-Class>
 									<UNO-Type-Path>&lt;&gt;</UNO-Type-Path>
 								</manifestEntries>
@@ -138,11 +138,6 @@
 			<groupId>de.muenchen</groupId>
 			<artifactId>wollmux-core</artifactId>
 			<version>16.11-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>de.muenchen</groupId>
-			<artifactId>wollmux-interfaces</artifactId>
-			<version>15.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>de.muenchen</groupId>
