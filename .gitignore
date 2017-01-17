@@ -10,3 +10,4 @@ bin/
 *.iml
 **/oxt/mailmerge.rdb
 **/oxt/mailmerge.uno.jar
+mailmerge/.classpath

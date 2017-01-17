@@ -112,7 +112,8 @@
 						<phase>package</phase>
 						<configuration>
 							<target>
-								<move file="${project.build.directory}/MailMerge.zip" tofile="${project.build.directory}/MailMerge.oxt" />
+								<move file="${project.build.directory}/MailMerge.zip"
+									tofile="${project.build.directory}/MailMerge.oxt" />
 							</target>
 						</configuration>
 						<goals>
@@ -138,6 +139,11 @@
 			<groupId>de.muenchen</groupId>
 			<artifactId>wollmux-core</artifactId>
 			<version>16.11-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>de.muenchen</groupId>
+			<artifactId>wollmux-interfaces</artifactId>
+			<version>15.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>de.muenchen</groupId>
