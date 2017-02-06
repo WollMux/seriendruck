@@ -3,8 +3,8 @@ bin/
 *~
 **/target
 *.urd
-.project
-.classpath
+**/.project
+**/.classpath
 **/.settings
 **/.idea
 *.iml
