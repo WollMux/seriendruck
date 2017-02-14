@@ -10,4 +10,7 @@ bin/
 *.iml
 **/oxt/mailmerge.rdb
 **/oxt/mailmerge.uno.jar
-mailmerge/.classpath
+debian/lhm-seriendruck**
+debian/*.debhelper.log
+debian/*.substvars
+debian/files
