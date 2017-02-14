@@ -137,7 +137,7 @@ public class DocumentDispatch extends Dispatch
     MailMergeEventHandler.getInstance().handlePrint(getDocumentController(), origDisp, origUrl, props);
   }
 
-  public void dispatch_wollmux_seriendruck(String arg, PropertyValue[] props)
+  public void dispatch_mailmerge_seriendruck(String arg, PropertyValue[] props)
   {
     MailMergeEventHandler.getInstance().handleSeriendruck(getDocumentController(), false);
   }
