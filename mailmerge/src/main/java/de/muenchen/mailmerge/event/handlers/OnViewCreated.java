@@ -17,11 +17,11 @@ import de.muenchen.mailmerge.event.GlobalEventListener;
 import de.muenchen.mailmerge.event.MailMergeEventHandler;
 
 /**
- * Event wird aufgerufen, wenn die Erstellung eines neuen 
+ * Event wird aufgerufen, wenn die Erstellung eines neuen
  * Dokuments abgeschlossen wird.
- * 
+ *
  *  @see GlobalEventListener
- * 
+ *
  */
 public class OnViewCreated extends BasicEvent
 {
@@ -47,6 +47,11 @@ public class OnViewCreated extends BasicEvent
       return;
     }
 
+    if (xTextDoc != null && docInfo == null)
+    {
+      docManager.addTextDocument(xTextDoc);
+    }
+
     if (xTextDoc != null)
     {
       /**
@@ -54,17 +59,12 @@ public class OnViewCreated extends BasicEvent
        */
       MailMergeEventHandler.getInstance().handleRegisterDispatchInterceptor(DocumentManager.getTextDocumentController(xTextDoc));
     }
-    
-    if (xTextDoc != null && docInfo == null)
-    {
-      docManager.addTextDocument(xTextDoc);
-    }
   }
 
   /**
    * Liefert nur dann true zurück, wenn das Dokument mit der
    * MediaDescriptor-Eigenschaft Hidden=true geöffnet wurde.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private boolean isDocumentLoadedHidden(XModel compo)
