@@ -68,7 +68,6 @@ import javax.swing.WindowConstants;
 
 import com.sun.star.awt.XTopWindow;
 import com.sun.star.beans.IllegalTypeException;
-import com.sun.star.beans.NotRemoveableException;
 import com.sun.star.beans.PropertyAttribute;
 import com.sun.star.beans.PropertyExistException;
 import com.sun.star.beans.PropertyValue;
@@ -236,10 +235,12 @@ public class MailMergeNew
       try
       {
         String uuid = (String)props.getPropertyValue(MailMergeNew.PROP_MAILMERGENEW);
-        MailMergeNew mmn = MailMergeNew.getInstance(uuid);
-        mmn.dispose();
-        userDefinedProperties.removeProperty(MailMergeNew.PROP_MAILMERGENEW);
-      } catch (UnknownPropertyException | WrappedTargetException | NotRemoveableException e)
+        if (!uuid.isEmpty()) {
+          MailMergeNew mmn = MailMergeNew.getInstance(uuid);
+          mmn.dispose();
+          props.setPropertyValue(MailMergeNew.PROP_MAILMERGENEW, "");
+        }
+      } catch (UnknownPropertyException | WrappedTargetException | IllegalArgumentException | PropertyVetoException e)
       {
         Logger.error(e);
       }
