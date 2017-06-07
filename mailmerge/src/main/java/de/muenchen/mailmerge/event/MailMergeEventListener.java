@@ -2,6 +2,7 @@ package de.muenchen.mailmerge.event;
 
 import com.google.common.eventbus.Subscribe;
 
+import de.muenchen.mailmerge.event.handlers.OnAbout;
 import de.muenchen.mailmerge.event.handlers.OnAddDocumentEventListener;
 import de.muenchen.mailmerge.event.handlers.OnCloseTextDocument;
 import de.muenchen.mailmerge.event.handlers.OnCollectNonWollMuxFormFieldsViaPrintModel;
@@ -22,12 +23,12 @@ import de.muenchen.mailmerge.event.handlers.WollMuxEvent;
 
 /**
  * Handler für {@link WollMuxEvent}s.
- * 
+ *
  */
 public class MailMergeEventListener
 {
   MailMergeEventListener() {}
-  
+
   @Subscribe
   public void onAddDocumentEventListener(OnAddDocumentEventListener event)
   {
@@ -39,7 +40,7 @@ public class MailMergeEventListener
   {
     event.process();
   }
-  
+
   @Subscribe
   public void onCollectNonWollMuxFormFieldsViaPrintModel(OnCollectNonWollMuxFormFieldsViaPrintModel event)
   {
@@ -57,7 +58,7 @@ public class MailMergeEventListener
   {
     event.process();
   }
-  
+
   @Subscribe
   public void onNotifyDocumentEventListener(OnNotifyDocumentEventListener event)
   {
@@ -93,7 +94,7 @@ public class MailMergeEventListener
   {
     event.process();
   }
-  
+
   @Subscribe
   public void onSetPrintBlocksPropsViaPrintModel(OnSetPrintBlocksPropsViaPrintModel event)
   {
@@ -104,14 +105,14 @@ public class MailMergeEventListener
   public void onSetVisibleState(OnSetVisibleState event)
   {
     event.process();
-  }  
-  
+  }
+
   @Subscribe
   public void onTextDocumentClosed(OnTextDocumentClosed event)
   {
     event.process();
   }
-  
+
   @Subscribe
   public void onCreateDocument(OnCreateDocument event)
   {
@@ -120,6 +121,12 @@ public class MailMergeEventListener
 
   @Subscribe
   public void onViewCreated(OnViewCreated event)
+  {
+    event.process();
+  }
+
+  @Subscribe
+  public void onAbout(OnAbout event)
   {
     event.process();
   }

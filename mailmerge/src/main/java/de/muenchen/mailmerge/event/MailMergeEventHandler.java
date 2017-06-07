@@ -62,8 +62,9 @@ import com.sun.star.text.XTextDocument;
 
 import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
 import de.muenchen.mailmerge.document.DocumentManager;
-import de.muenchen.mailmerge.document.TextDocumentController;
 import de.muenchen.mailmerge.document.DocumentManager.TextDocumentInfo;
+import de.muenchen.mailmerge.document.TextDocumentController;
+import de.muenchen.mailmerge.event.handlers.OnAbout;
 import de.muenchen.mailmerge.event.handlers.OnAddDocumentEventListener;
 import de.muenchen.mailmerge.event.handlers.OnCloseTextDocument;
 import de.muenchen.mailmerge.event.handlers.OnCollectNonWollMuxFormFieldsViaPrintModel;
@@ -480,4 +481,15 @@ public class MailMergeEventHandler
     handle(new OnViewCreated(comp));
   }
 
+  /**
+   * Erzeugt ein neues MailMergeEvent, das einen modalen Dialog anzeigt, der wichtige
+   * Versionsinformationen über den Mailmerge und die Konfiguration enthält.
+   *
+   * Dieses Event wird vom MailMerge-Service ausgelöst, wenn die
+   * MailMerge-url "mailmerge:about" aufgerufen wurde.
+   */
+  public void handleAbout()
+  {
+    handle(new OnAbout());
+  }
 }

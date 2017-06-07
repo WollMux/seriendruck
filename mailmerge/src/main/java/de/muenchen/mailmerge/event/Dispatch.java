@@ -2,11 +2,11 @@
  * Dateiname: Dispatch.java
  * Projekt  : WollMux
  * Funktion : Implementiert XDispatch und kann alle Dispatch-URLs behandeln, die kein DocumentModel erfordern.
- * 
+ *
  * Copyright (c) 2009-2015 Landeshauptstadt München
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the European Union Public Licence (EUPL), 
+ * it under the terms of the European Union Public Licence (EUPL),
  * version 1.0 (or any later version).
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
  * European Union Public Licence for more details.
  *
  * You should have received a copy of the European Union Public Licence
- * along with this program. If not, see 
+ * along with this program. If not, see
  * http://ec.europa.eu/idabc/en/document/7330
  *
  * Änderungshistorie:
@@ -25,15 +25,17 @@
  * -------------------------------------------------------------------
  *
  * @author Matthias Benkmann (D-III-ITD-D101)
- * 
+ *
  */
 package de.muenchen.mailmerge.event;
+
+import com.sun.star.beans.PropertyValue;
 
 /**
  * Implementiert XDispatch und kann alle Dispatch-URLs behandeln, die kein
  * DocumentModel erfordern. Nähere Infos zur Funktionsweise siehe
  * {@link BaseDispatch}.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD-D101)
  */
 public class Dispatch extends BaseDispatch
@@ -50,4 +52,16 @@ public class Dispatch extends BaseDispatch
   public static final String DISP_wmPALVerwalten = "wollmux:PALVerwalten";
 
   public static final String DISP_wmSeriendruck = "mailmerge:Seriendruck";
+
+  public static final String DISP_wmAbout = "mailmerge:About";
+
+  public void dispatch_mailmerge_about(String arg, PropertyValue[] props)
+  {
+    MailMergeEventHandler.getInstance().handleAbout();
+  }
+
+  public boolean status_mailmerge_about()
+  {
+    return true;
+  }
 }

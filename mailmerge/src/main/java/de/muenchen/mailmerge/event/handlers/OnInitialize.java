@@ -19,7 +19,7 @@ import de.muenchen.mailmerge.event.Dispatch;
  * Dieses Event wird als erstes WollMuxEvent bei der Initialisierung des WollMux
  * im WollMuxSingleton erzeugt und übernimmt alle benutzersichtbaren
  * (interaktiven) Initialisierungen.
- * 
+ *
  * @author christoph.lutz TESTED
  */
 public class OnInitialize extends BasicEvent
@@ -33,10 +33,13 @@ public class OnInitialize extends BasicEvent
   private void createMenuItems()
   {
     // "Extras->Seriendruck (WollMux)" erzeugen:
-    List<String> removeButtonsFor = new ArrayList<String>();
+    List<String> removeButtonsFor = new ArrayList<>();
     removeButtonsFor.add(Dispatch.DISP_wmSeriendruck);
+    removeButtonsFor.add(Dispatch.DISP_wmAbout);
     createMenuButton(Dispatch.DISP_wmSeriendruck, L.m("Seriendruck (WollMux)"), ".uno:ToolsMenu",
         ".uno:MailMergeWizard", removeButtonsFor);
+    createMenuButton(Dispatch.DISP_wmAbout, L.m("Info über Seriendruck (WollMux)"), ".uno:HelpMenu",
+        ".uno:About", removeButtonsFor);
   }
 
   /**
@@ -48,26 +51,30 @@ public class OnInitialize extends BasicEvent
    * (v.a. sollte cmdUrl aufgeführt sein, damit nicht der selbe Button doppelt
    * erscheint).
    */
-  private static void createMenuButton(String cmdUrl, String label, String insertIntoMenuUrl,
-      String insertBeforeElementUrl, List<String> removeCmdUrls)
+  private void createMenuButton(String cmdUrl, String label,
+      String insertIntoMenuUrl, String insertBeforeElementUrl,
+      List<String> removeCmdUrls)
   {
     final String settingsUrl = "private:resource/menubar/menubar";
 
     try
     {
       // Menüleiste aus des Moduls com.sun.star.text.TextDocument holen:
-      XModuleUIConfigurationManagerSupplier suppl = UNO.XModuleUIConfigurationManagerSupplier(
-          UNO.createUNOService("com.sun.star.ui.ModuleUIConfigurationManagerSupplier"));
-      XUIConfigurationManager cfgMgr = UNO
-          .XUIConfigurationManager(suppl.getUIConfigurationManager("com.sun.star.text.TextDocument"));
-      XIndexAccess menubar = UNO.XIndexAccess(cfgMgr.getSettings(settingsUrl, true));
+      XModuleUIConfigurationManagerSupplier suppl = UNO
+          .XModuleUIConfigurationManagerSupplier(UNO.createUNOService(
+              "com.sun.star.ui.ModuleUIConfigurationManagerSupplier"));
+      XUIConfigurationManager cfgMgr = UNO.XUIConfigurationManager(
+          suppl.getUIConfigurationManager("com.sun.star.text.TextDocument"));
+      XIndexAccess menubar = UNO
+          .XIndexAccess(cfgMgr.getSettings(settingsUrl, true));
 
       int idx = findElementWithCmdURL(menubar, insertIntoMenuUrl);
       if (idx >= 0)
       {
         UnoProps desc = new UnoProps((PropertyValue[]) menubar.getByIndex(idx));
         // Elemente des .uno:ToolsMenu besorgen:
-        XIndexContainer toolsMenu = UNO.XIndexContainer(desc.getPropertyValue("ItemDescriptorContainer"));
+        XIndexContainer toolsMenu = UNO
+            .XIndexContainer(desc.getPropertyValue("ItemDescriptorContainer"));
 
         // Seriendruck-Button löschen, wenn er bereits vorhanden ist.
         for (String rCmdUrl : removeCmdUrls)
@@ -99,11 +106,11 @@ public class OnInitialize extends BasicEvent
    * Liefert den Index des ersten Menüelements aus dem Menü menu zurück, dessen
    * CommandURL mit cmdUrl identisch ist oder -1, falls kein solches Element
    * gefunden wurde.
-   * 
+   *
    * @return Liefert den Index des ersten Menüelements mit CommandURL cmdUrl
    *         oder -1.
    */
-  private static int findElementWithCmdURL(XIndexAccess menu, String cmdUrl)
+  private int findElementWithCmdURL(XIndexAccess menu, String cmdUrl)
   {
     try
     {
