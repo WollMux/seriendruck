@@ -17,7 +17,7 @@ import de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams;
 /**
  * Beschreibt das {@link UIElement} vom Typ
  * {@link UIElementType#filenametemplatechooser}.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public class TargetDirPickerUIElement extends UIElement
@@ -37,6 +37,7 @@ public class TargetDirPickerUIElement extends UIElement
     {
       private static final long serialVersionUID = -7919862309134895087L;
 
+      @Override
       public void actionPerformed(ActionEvent e)
       {
         final JFileChooser fc = new JFileChooser(targetDirectory.getText());
@@ -52,6 +53,7 @@ public class TargetDirPickerUIElement extends UIElement
     DimAdjust.maxHeightIsPrefMaxWidthUnlimited(hbox);
   }
 
+  @Override
   public void addSubmitArgs(Map<SubmitArgument, Object> args)
       throws InvalidArgumentException
   {

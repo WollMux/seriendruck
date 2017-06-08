@@ -2,7 +2,7 @@
  * Dateiname: ContextMenuMouseListener.java
  * Projekt  : WollMux
  * Funktion : MouseListener um ein Kontextmenü beim rechts mouse Klick zu erzeugen.
- * 
+ *
  * Copyright (c) 2010-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
  * -------------------------------------------------------------------
  *
  * @author Simona Loi (I23)
- * 
+ *
  */
 package de.muenchen.mailmerge.dialog;
 
@@ -47,9 +47,9 @@ import javax.swing.text.JTextComponent;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 
 /**
- * Enthält ein MouseListener für das recht Mouse Klick. Das Mouse listener ist als AWTEventListener implementiert 
+ * Enthält ein MouseListener für das recht Mouse Klick. Das Mouse listener ist als AWTEventListener implementiert
  * um eine globaler event listener zu haben, er reagiert an eine event in alle Komponente.
- * 
+ *
  * @author Simona Loi (I23)
  */
 
@@ -63,11 +63,11 @@ public class ContextMenuMouseListener implements AWTEventListener {
   private Action selectAllAction;
 
   private JTextComponent textComponent;
-  
-  private enum Actions { CUT, COPY, PASTE, SELECT_ALL };
 
   public ContextMenuMouseListener() {
       cutAction = new AbstractAction(L.m("Ausschneiden")) {
+
+        private static final long serialVersionUID = 7763597558983924820L;
 
           @Override
           public void actionPerformed(ActionEvent ae) {
@@ -79,6 +79,8 @@ public class ContextMenuMouseListener implements AWTEventListener {
 
       copyAction = new AbstractAction(L.m("Kopieren")) {
 
+        private static final long serialVersionUID = 66208016629651433L;
+
           @Override
           public void actionPerformed(ActionEvent ae) {
               textComponent.copy();
@@ -88,6 +90,8 @@ public class ContextMenuMouseListener implements AWTEventListener {
       popup.add(copyAction);
 
       pasteAction = new AbstractAction(L.m("Einfügen")) {
+
+        private static final long serialVersionUID = -2823998315189221310L;
 
           @Override
           public void actionPerformed(ActionEvent ae) {
@@ -100,6 +104,8 @@ public class ContextMenuMouseListener implements AWTEventListener {
 
       selectAllAction = new AbstractAction(L.m("Alles markieren")) {
 
+        private static final long serialVersionUID = 4968712384529937155L;
+
           @Override
           public void actionPerformed(ActionEvent ae) {
               textComponent.selectAll();
@@ -107,7 +113,7 @@ public class ContextMenuMouseListener implements AWTEventListener {
       };
 
       popup.add(selectAllAction);
-      
+
       popup.addPopupMenuListener(new PopupMenuListener()
       {
         @Override
@@ -115,13 +121,13 @@ public class ContextMenuMouseListener implements AWTEventListener {
         {
           Common.setIsPopupVisible(true);
         }
-        
+
         @Override
         public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
         {
           Common.setIsPopupVisible(false);
         }
-        
+
         @Override
         public void popupMenuCanceled(PopupMenuEvent e)
         {
@@ -130,7 +136,7 @@ public class ContextMenuMouseListener implements AWTEventListener {
   }
 
   @Override
-  public void eventDispatched(AWTEvent event) {   
+  public void eventDispatched(AWTEvent event) {
       if (event instanceof MouseEvent) {
         MouseEvent  me = (MouseEvent)event;
         if(me.getID() == MouseEvent.MOUSE_CLICKED && me.getModifiers() == InputEvent.BUTTON3_MASK){
@@ -153,7 +159,7 @@ public class ContextMenuMouseListener implements AWTEventListener {
               pasteAction.setEnabled(enabled && editable && pasteAvailable);
               selectAllAction.setEnabled(enabled && nonempty);
 
-              popup.show(me.getComponent(), me.getX(), me.getY());         
+              popup.show(me.getComponent(), me.getX(), me.getY());
         }
       }
   }

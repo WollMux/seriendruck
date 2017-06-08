@@ -24,7 +24,7 @@ public class ReplaceFunction implements Function
     pattern = p;
     this.input = input;
     this.replace = replace;
-    Set<String> paramset = new HashSet<String>();
+    Set<String> paramset = new HashSet<>();
     paramset.addAll(Arrays.asList(input.parameters()));
     paramset.addAll(Arrays.asList(replace.parameters()));
     this.params = paramset.toArray(new String[] {});
@@ -35,7 +35,8 @@ public class ReplaceFunction implements Function
   {
     String str = input.getString(parameters);
     String repStr = replace.getString(parameters);
-    if (str == Function.ERROR || repStr == Function.ERROR) return Function.ERROR;
+    if (str == Function.ERROR || repStr == Function.ERROR)
+      return Function.ERROR;
     return pattern.matcher(str).replaceAll(repStr);
   }
 

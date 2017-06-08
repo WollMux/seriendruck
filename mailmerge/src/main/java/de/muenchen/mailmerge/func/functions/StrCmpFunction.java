@@ -15,7 +15,6 @@ public class StrCmpFunction extends MultiFunction
 {
   public StrCmpFunction(ConfigThingy conf, FunctionLibrary funcLib,
       DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
     super(conf, funcLib, dialogLib, context);
     if (subFunction.size() < 2)
@@ -29,15 +28,18 @@ public class StrCmpFunction extends MultiFunction
     Iterator<Function> iter = subFunction.iterator();
     Function func = iter.next();
     String compare = func.getString(parameters);
-    if (compare == Function.ERROR) return Function.ERROR;
+    if (compare == Function.ERROR)
+      return Function.ERROR;
     int prevCompare = 0;
     while (iter.hasNext())
     {
       func = iter.next();
       String str = func.getString(parameters);
-      if (str == Function.ERROR) return Function.ERROR;
+      if (str == Function.ERROR)
+        return Function.ERROR;
       int res = Integer.signum(compare.compareTo(str));
-      if (res * prevCompare < 0) return "0";
+      if (res * prevCompare < 0)
+        return "0";
       prevCompare += res;
     }
 

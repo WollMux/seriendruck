@@ -49,14 +49,14 @@ public class NumberCompareFunction extends NumberFunction
    * zurückgeliefert. Falls mindestens ein compareTo +1 geliefert hat wird "1"
    * geliefert. Der Fall, dass ein compareTo -1 und ein anderer +1 geliefert hat
    * wird wie bereits oben beschrieben schon früher abgefangen.
-   * 
+   *
    * @throws ConfigurationErrorException
    *           falls nicht mindestens 2 Unterfunktionen in conf enthalten sind.
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public NumberCompareFunction(int cmp1, int cmp2, String result,
       ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
     super(conf, funcLib, dialogLib, context);
     if (subFunction.size() < 2)
@@ -70,7 +70,6 @@ public class NumberCompareFunction extends NumberFunction
   @Override
   protected boolean handleParam(ConfigThingy conf, FunctionLibrary funcLib,
       DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
     if (conf.getName().equals("MARGIN"))
     {
@@ -97,7 +96,8 @@ public class NumberCompareFunction extends NumberFunction
   public void getFunctionDialogReferences(Collection<String> set)
   {
     super.getFunctionDialogReferences(set);
-    if (marginFun != null) marginFun.getFunctionDialogReferences(set);
+    if (marginFun != null)
+      marginFun.getFunctionDialogReferences(set);
   }
 
   @Override
@@ -108,7 +108,8 @@ public class NumberCompareFunction extends NumberFunction
     if (marginFun != null)
     {
       String str = marginFun.getString(parameters);
-      if (str == Function.ERROR) return Function.ERROR;
+      if (str == Function.ERROR)
+        return Function.ERROR;
       try
       {
         margin = makeBigDecimal(str);
@@ -142,8 +143,10 @@ public class NumberCompareFunction extends NumberFunction
     else
       res = compare.compareTo(num);
 
-    if (res == cmp1 || res == cmp2) return "false";
-    if (res * prevCompare < 0) return "0";
+    if (res == cmp1 || res == cmp2)
+      return "false";
+    if (res * prevCompare < 0)
+      return "0";
     prevCompare += res;
 
     return null;
@@ -152,7 +155,8 @@ public class NumberCompareFunction extends NumberFunction
   @Override
   protected String computationResult()
   {
-    if (result != null) return result;
+    if (result != null)
+      return result;
     switch (Integer.signum(prevCompare))
     {
       case 1:

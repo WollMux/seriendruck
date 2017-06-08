@@ -2,7 +2,7 @@
  * Dateiname: TrafoDialogParameters.java
  * Projekt  : WollMux
  * Funktion : Speichert diverse Parameter für den Aufruf von TrafoDialogen.
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.dialog.trafo;
 
@@ -38,7 +38,7 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 
 /**
  * Speichert diverse Parameter für den Aufruf von TrafoDialogen.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
 public class TrafoDialogParameters
@@ -72,6 +72,7 @@ public class TrafoDialogParameters
    */
   public ActionListener closeAction;
 
+  @Override
   public String toString()
   {
     StringBuilder buffy = new StringBuilder();
@@ -94,7 +95,8 @@ public class TrafoDialogParameters
       while (iter.hasNext())
       {
         buffy.append(iter.next());
-        if (iter.hasNext()) buffy.append(", ");
+        if (iter.hasNext())
+          buffy.append(", ");
       }
     }
     return buffy.toString();

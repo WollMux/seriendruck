@@ -2,8 +2,8 @@ package de.muenchen.mailmerge.dialog.mailmerge.gui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -24,7 +24,7 @@ import de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams;
  * Formularinhalte plausibel sind und entsprechend gültige Werte in die
  * Argumentliste aufnehmen oder eine {@link InvalidArgumentException}-Exception
  * werfen.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public class UIElement
@@ -56,10 +56,10 @@ public class UIElement
   /**
    * Passt die Sichtbarkeit abhängig von den aktuell gesetzten Sichtbarkeitsgruppen
    * aus mmp.visibleGroups an.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  public void updateView(HashSet<String> visibleGroups)
+  public void updateView(Set<String> visibleGroups)
   {
     if (group != null)
     {
@@ -72,7 +72,7 @@ public class UIElement
    * Liefert die JComponent dieses UIElements zurück, wobei es sein kann, dass das
    * UIElement aus mehreren JComponents zusammengesetzt ist (in diesem Fall liefert
    * diese Methode nur die oberste JComponent wie z.B. eine HBox zurück).
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public Component getCompo()
@@ -82,7 +82,7 @@ public class UIElement
 
   /**
    * Gibt Auskunft, ob das UIElement aktuell sichtbar ist.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public boolean isVisible()
@@ -92,7 +92,7 @@ public class UIElement
 
   /**
    * Setzt den Aktiviert-Status des UIElements auf enabled.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public void setEnabled(boolean enabled)
@@ -103,7 +103,7 @@ public class UIElement
 
   /**
    * Gibt Auskunft, ob das UIElement aktuell aktiviert ist.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public boolean isEnabled()
@@ -116,10 +116,10 @@ public class UIElement
    * relevanten Benutzereingaben zu der Argumentliste args hinzu, die eine interne
    * Plausibilitätsprüfung bestanden haben. Bei nicht bestandener
    * Plausibilitätsprüfung wird eine {@link InvalidArgumentException} geschmissen.
-   * 
+   *
    * @throws InvalidArgumentException
    *           Bei nicht bestandener Plausibilitätsprüfung
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public void addSubmitArgs(Map<SubmitArgument, Object> args)
@@ -130,28 +130,24 @@ public class UIElement
    * Fabrik-Methode für die Erzeugung aller {@link UIElement}-Objekte. Die erwarteten
    * String-Argumente können (je nach Formularelement) auch null sein, die anderen
    * Typen müssen mit Objekten != null belegt sein.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public static UIElement createUIElement(UIElementType type, String label,
       String labelFrom, String labelTo, UIElementAction action, String value,
       String group, Orientation orient, MailMergeParams mmp, Section section)
   {
+    JTextArea tf;
     switch (type)
     {
       case label:
-      {
         return new UIElement(new JLabel(label), group);
-      }
-  
+
       case radio:
-      {
         return new RadioButtonUIElement(label, action, value, group, mmp);
-      }
-  
+
       case description:
-      {
-        JTextArea tf = new JTextArea(3, 50);
+        tf = new JTextArea(3, 50);
         tf.setEditable(false);
         tf.setFocusable(false);
         DimAdjust.fixedSize(tf);
@@ -159,36 +155,26 @@ public class UIElement
         tf.setBorder(new LineBorder(UIElement.DESC_COLOR, 4));
         mmp.descriptionFields.add(tf);
         return new UIElement(tf, group);
-      }
-  
+
       case fromtoradio:
-      {
         return new FromToRadioUIElement(labelFrom, labelTo, action, value, group,
           mmp);
-      }
-  
+
       case glue:
-      {
         if (orient == Orientation.vertical)
           return new UIElement(Box.createVerticalGlue(), group);
         else
           return new UIElement(Box.createHorizontalGlue(), group);
-      }
-  
+
       case button:
-      {
         JButton button = new JButton(label);
         button.addActionListener(action.createActionListener(value, mmp));
         return new UIElement(button, group);
-      }
-  
+
       case targetdirpicker:
-      {
         return new TargetDirPickerUIElement(label, action, value, group, mmp);
-      }
-  
+
       case filenametemplatechooser:
-      {
         // liefert einen filenamen *ohne* endung
         String name = mmp.getMMC().getDefaultFilename();
         JTextField textField = new JTextField(name);
@@ -199,42 +185,27 @@ public class UIElement
         el.getTextTags().getJTextComponent().setCaretPosition(name.length());
         el.getTextTags().insertTag(MailMergeParams.TAG_DATENSATZNUMMER);
         return el;
-      }
-  
+
       case emailtext:
-      {
-        JTextArea tf =
-          new JTextArea(
-            L.m("Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie ...\n\nMit freundlichen Grüßen\n..."));
+        tf = new JTextArea(L.m(
+          "Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie ...\n\nMit freundlichen Grüßen\n..."));
         JScrollPane sc = new JScrollPane(tf);
-        TextWithDatafieldTagsUIElement el =
-          new TextWithDatafieldTagsUIElement(tf, sc, SubmitArgument.emailText, null,
+        return new TextWithDatafieldTagsUIElement(tf, sc, SubmitArgument.emailText, null,
             group, mmp);
-        return el;
-      }
-  
+
       case emailsubject:
-      {
         return new EMailSubject(label, action, value, group, mmp);
-      }
-  
+
       case emailtofieldname:
-      {
         return new EMailToFieldNameUIElement(label, action, value, group, mmp);
-      }
-  
+
       case emailfrom:
-      {
         return new EMailFromUIElement(label, action, value, group, mmp);
-      }
-  
+
       case printersettings:
-      {
         return new PrinterSettingsUIElement(label, group, mmp);
-      }
-      
+
       case unknown:
-        break;
       default:
         break;
     }

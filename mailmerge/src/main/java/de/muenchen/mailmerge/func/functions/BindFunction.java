@@ -27,16 +27,15 @@ public class BindFunction implements Function
 
   private String[] params;
 
-  private Set<String> functionDialogReferences = new HashSet<String>();
+  private Set<String> functionDialogReferences = new HashSet<>();
 
   public BindFunction(Function func, ConfigThingy conf, FunctionLibrary funcLib,
       DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
     this.func = func;
 
-    Set<String> myParams = new HashSet<String>(Arrays.asList(func.parameters()));
-    Set<String> setFuncParams = new HashSet<String>();
+    Set<String> myParams = new HashSet<>(Arrays.asList(func.parameters()));
+    Set<String> setFuncParams = new HashSet<>();
 
     ConfigThingy sets = conf.query("SET");
     Iterator<ConfigThingy> iter = sets.iterator();
@@ -102,7 +101,8 @@ public class BindFunction implements Function
   {
     TranslatedValues trans = new TranslatedValues(parameters);
     String res = func.getString(trans);
-    if (trans.hasError) return Function.ERROR;
+    if (trans.hasError)
+      return Function.ERROR;
     return res;
   }
 
@@ -111,7 +111,8 @@ public class BindFunction implements Function
   {
     TranslatedValues trans = new TranslatedValues(parameters);
     boolean res = func.getBoolean(trans);
-    if (trans.hasError) return false;
+    if (trans.hasError)
+      return false;
     return res;
   }
 
@@ -142,8 +143,9 @@ public class BindFunction implements Function
        * ausgeführt. Bei externen Funktionen (insbes. Basic-Makros) ist dies nicht
        * wünschenswert.
        */
-      if (mapParamNameToSetFunction.containsKey(id)) return true;
-      return (values.hasValue(id));
+      if (mapParamNameToSetFunction.containsKey(id))
+        return true;
+      return values.hasValue(id);
     }
 
     @Override

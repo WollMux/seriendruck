@@ -3,7 +3,7 @@
  * Projekt  : WollMux
  * Funktion : Diese Klasse enthält eine Fabrik für die Erzeugung eines PrintModels
  *            und die Klassendefinitionen des MasterPrintModels und des SlavePrintModels.
- * 
+ *
  * Copyright (c) 2009-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  * -------------------------------------------------------------------
  *
  * @author Christoph Lutz (D-III-ITD 5.1)
- * 
+ *
  */
 package de.muenchen.mailmerge.print.model;
 
@@ -43,7 +43,7 @@ import de.muenchen.mailmerge.document.TextDocumentController;
  * Hilfe die Verkettung mehrerer PrintFunctions möglich ist. Ein XPrintModel hält
  * alle Daten und Methoden bereit, die beim Drucken aus einer Druckfunktion heraus
  * benötigt werden.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-5.1)
  */
 public class PrintModels
@@ -61,30 +61,30 @@ public class PrintModels
    * TextDocumentModel model repräsentiert. Pro Druckvorgang wird dabei ein neuer
    * PrintModelMaster erzeugt, der ein oder mehrere PrintModelSlaves anspricht und so
    * eine Verkettung mehrerer Druckfunktionen ermöglicht.
-   * 
+   *
    * @param documentController
    *          Das Dokument das gedruckt werden soll
    * @return das neue PrintModel für diesen Druckvorgang
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   public static XPrintModel createPrintModel(TextDocumentController documentController)
   {
     return new MasterPrintModel(documentController);
   }
-  
+
   /**
    * Liefert ein neues zu diesem TextDocumentModel zugehörige XPrintModel für einen
    * Druckvorgang; ist useDocumentPrintFunctions==true, so werden bereits alle im
    * Dokument gesetzten Druckfunktionen per
    * XPrintModel.usePrintFunctionWithArgument(...) hinzugeladen.
-   * 
+   *
    * @param documentController
    *          Das Dokument das gedruckt werden soll
    * @param useDocPrintFunctions
    *          steuert ob das PrintModel mit den im Dokument gesetzten Druckfunktionen
    *          vorbelegt sein soll.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   public static XPrintModel createPrintModel(TextDocumentController documentController, boolean useDocPrintFunctions)
@@ -112,12 +112,13 @@ public class PrintModels
   /**
    * Setzt die Beschreibung des aktuellen Druckbearbeitungsvorgangs für das
    * XPrintModel pmod auf stage
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public static void setStage(XPrintModel pmod, String stage)
   {
-    if (pmod == null) return;
+    if (pmod == null)
+      return;
     try
     {
       pmod.setPropertyValue(STAGE, stage);

@@ -51,18 +51,20 @@ public abstract class BasicEvent implements WollMuxEvent
   {
     Logger.error(t);
     String msg = "";
-    if (t.getMessage() != null) msg += t.getMessage();
+    if (t.getMessage() != null)
+      msg += t.getMessage();
     Throwable c = t.getCause();
     /*
      * Bei RuntimeExceptions keine Benutzersichtbare Meldung, weil
-     * 
+     *
      * 1. der Benutzer damit eh nix anfangen kann
-     * 
+     *
      * 2. dies typischerweise passiert, wenn der Benutzer das Dokument geschlossen
      * hat, bevor der WollMux fertig war. In diesem Fall will er nicht mit einer
      * Meldung belästigt werden.
      */
-    if (c instanceof RuntimeException) return;
+    if (c instanceof RuntimeException)
+      return;
 
     if (c != null)
     {
@@ -79,7 +81,7 @@ public abstract class BasicEvent implements WollMuxEvent
    * oben weitergereicht werden.
    */
   protected void doit() throws WollMuxFehlerException
-  {};
+  {}
 
   /**
    * Diese Methode kann am Ende einer doit()-Methode aufgerufen werden und versucht
@@ -88,7 +90,7 @@ public abstract class BasicEvent implements WollMuxEvent
    * derartige Aufräumaktionen insbesondere nach der Bearbeitung von Events, die
    * viel mit Dokumenten/Cursorn/Uno-Objekten interagieren, wird die Stabilität des
    * WollMux spürbar gesteigert.
-   * 
+   *
    * In der Vergangenheit gab es z.B. sporadische, nicht immer reproduzierbare
    * Abstürze von OOo, die vermutlich in einem fehlerhaften Speichermanagement in
    * der schwer zu durchschauenden Kette JVM->UNO-Proxies->OOo begründet waren.
@@ -110,7 +112,7 @@ public abstract class BasicEvent implements WollMuxEvent
    * Benutzerinteraktionen wie z.B. Mausklicks auf Menüpunkte oder Tastendrücke
    * verarbeitet. Die Verarbeitung findet nicht statt, wenn enabled==false gesetzt
    * ist, ansonsten schon.
-   * 
+   *
    * @param enabled
    */
   static void enableAllOOoWindows(boolean enabled)
@@ -124,7 +126,8 @@ public abstract class BasicEvent implements WollMuxEvent
         {
           XFrame frame = UNO.XFrame(frames.getByIndex(i));
           XWindow contWin = frame.getContainerWindow();
-          if (contWin != null) contWin.setEnable(enabled);
+          if (contWin != null)
+            contWin.setEnable(enabled);
         }
         catch (java.lang.Exception e)
         {

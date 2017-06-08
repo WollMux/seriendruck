@@ -2,7 +2,7 @@
  * Dateiname: FunctionFactory.java
  * Projekt  : WollMux
  * Funktion : Erzeugt Functions aus ConfigThingys.
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,7 +33,7 @@
  * 25.07.2007 | BNK | +DIVIDE/FORMAT
  * 03.08.2007 | BNK | +SUM,MINUS,PRODUCT,DIFF,ABS,SIGN
  * 08.08.2007 | BNK | SELECT-Verhalten im Fehlerfalle entsprechend Doku implementiert
- *                  | +NUMCMP, LE, GE, GT, LT 
+ *                  | +NUMCMP, LE, GE, GT, LT
  * 09.08.2007 | BNK | +ISERROR, ISERRORSTRING, ONERROR (für SELECT)
  * 01.02.2008 | BNK | +LENGTH
  * 07.03.2008 | BNK | [R16048] doppelte Parameter eliminieren
@@ -41,7 +41,7 @@
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.func;
 
@@ -96,7 +96,7 @@ import de.muenchen.mailmerge.func.functions.ValueFunction;
 
 /**
  * Erzeugt Functions aus ConfigThingys.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
 public class FunctionFactory
@@ -108,7 +108,7 @@ public class FunctionFactory
 
   /**
    * Liefert eine Funktion, die immer true liefert.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public static Function alwaysTrueFunction()
@@ -122,7 +122,7 @@ public class FunctionFactory
    * geliefert, die diesem Enkel entspricht. Hat conf mehr als einen Enkel, so
    * wird eine Funktion geliefert, die alle Enkel als Booleans auswertet und
    * UND-verknüpft.
-   * 
+   *
    * @param funcLib
    *          die Funktionsbibliothek anhand derer Referenzen auf Funktionen
    *          aufgelöst werden sollen.
@@ -142,9 +142,9 @@ public class FunctionFactory
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   public static Function parseGrandchildren(ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
-    Vector<Function> andFunction = new Vector<Function>();
+    Vector<Function> andFunction = new Vector<>();
     Iterator<ConfigThingy> iter1 = conf.iterator();
     while (iter1.hasNext())
     {
@@ -172,7 +172,7 @@ public class FunctionFactory
    * Funktion geliefert, die diesem Kind entspricht. Hat conf mehr als ein Kind,
    * so wird eine Funktion geliefert, die alle Kinder als Booleans auswertet und
    * UND-verknüpft.
-   * 
+   *
    * @param funcLib
    *          die Funktionsbibliothek anhand derer Referenzen auf Funktionen
    *          aufgelöst werden sollen.
@@ -192,9 +192,9 @@ public class FunctionFactory
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   public static Function parseChildren(ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
-    Vector<Function> andFunction = new Vector<Function>();
+    Vector<Function> andFunction = new Vector<>();
     Iterator<ConfigThingy> iter = conf.iterator();
     while (iter.hasNext())
     {
@@ -214,7 +214,7 @@ public class FunctionFactory
   /**
    * Liefert ein Function Objekt zu conf, wobei conf selbst schon ein erlaubter
    * Knoten der Funktionsbeschreibung (z,B, "AND" oder "MATCH") sein muss.
-   * 
+   *
    * @param funcLib
    *          die Funktionsbibliothek anhand derer Referenzen auf Funktionen
    *          aufgelöst werden sollen.
@@ -231,11 +231,11 @@ public class FunctionFactory
    * @throws ConfigurationErrorException
    *           falls conf keine korrekte Funktionsbeschreibung ist oder die
    *           Funktion einen context benötigt aber null übergeben wurde.
-   * 
+   *
    *           TESTED
    */
   public static Function parse(ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
     String name = conf.getName();
 
@@ -342,7 +342,7 @@ public class FunctionFactory
   /**
    * Liefert "Text an der Fehlerstelle: " + die ersten 100 Zeichen der
    * Stringdarstellung von conf
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   private static String outputErrorPosition(ConfigThingy conf)
@@ -356,7 +356,7 @@ public class FunctionFactory
   }
 
   private static Function parseBIND(ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
     ConfigThingy funcConf = conf.query("FUNCTION"); // funcConf = <query
                                                     // results> -
@@ -393,7 +393,6 @@ public class FunctionFactory
   }
 
   private static Function parseDIALOG(ConfigThingy conf, DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
     if (conf.count() != 2)
       throw new ConfigurationErrorException(
@@ -426,7 +425,7 @@ public class FunctionFactory
   }
 
   private static Function parseIF(ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
     ConfigThingy thenConf = conf.query("THEN");
     ConfigThingy elseConf = conf.query("ELSE");
@@ -465,7 +464,7 @@ public class FunctionFactory
   }
 
   private static Function parseREPLACE(ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
     if (conf.count() != 3)
       throw new ConfigurationErrorException(
@@ -493,7 +492,7 @@ public class FunctionFactory
   }
 
   private static Function parseSPLIT(ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
     if (conf.count() != 3)
       throw new ConfigurationErrorException(
@@ -535,7 +534,7 @@ public class FunctionFactory
   }
 
   private static Function parseMATCH(ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
     if (conf.count() != 2)
       throw new ConfigurationErrorException(
@@ -570,7 +569,7 @@ public class FunctionFactory
   }
 
   private static Function parseVALUE(ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
     if (conf.count() != 1)
       throw new ConfigurationErrorException(
@@ -593,7 +592,7 @@ public class FunctionFactory
   }
 
   private static Function parseDIVIDE(ConfigThingy conf, FunctionLibrary funcLib, DialogLibrary dialogLib,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
     Function dividendFun = null;
     Function byFun = null;
@@ -707,7 +706,7 @@ public class FunctionFactory
   {
     UNO.init();
 
-    Map<Object, Object> context = new HashMap<Object, Object>();
+    Map<Object, Object> context = new HashMap<>();
     FunctionLibrary funcLib = new FunctionLibrary();
     DialogLibrary dialogLib = new DialogLibrary();
 
@@ -735,7 +734,7 @@ public class FunctionFactory
       @Override
       public Collection<String> getSchema()
       {
-        return new Vector<String>(0);
+        return new Vector<>(0);
       }
     });
 
@@ -888,16 +887,16 @@ public class FunctionFactory
   /**
    * Parst die "Funktionen" Abschnitte aus conf und liefert eine entsprechende
    * FunctionLibrary.
-   * 
+   *
    * @param context
    *          der Kontext in dem die Funktionsdefinitionen ausgewertet werden
    *          sollen (insbesondere DIALOG-Funktionen). ACHTUNG! Hier werden
    *          Werte gespeichert, es ist nicht nur ein Schlüssel.
-   * 
+   *
    * @param baselib
    *          falls nicht-null wird diese als Fallback verlinkt, um Funktionen
    *          zu liefern, die anderweitig nicht gefunden werden.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public static FunctionLibrary parseFunctions(ConfigThingy conf, DialogLibrary dialogLib, Map<Object, Object> context,
@@ -909,18 +908,18 @@ public class FunctionFactory
   /**
    * Parst die Inhalte von conf,query(section) als Funktionsdefinitionen und
    * fügt sie funcs hinzu.
-   * 
+   *
    * @param context
    *          der Kontext in dem die Funktionsdefinitionen ausgewertet werden
    *          sollen (insbesondere DIALOG-Funktionen). ACHTUNG! Hier werden
    *          Werte gespeichert, es ist nicht nur ein Schlüssel.
-   * 
+   *
    * @param baselib
    *          falls nicht-null wird diese als Fallback verlinkt, um Funktionen
    *          zu liefern, die anderweitig nicht gefunden werden.
-   * 
+   *
    * @return funcs
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public static FunctionLibrary parseFunctions(FunctionLibrary funcs, ConfigThingy conf, String section,
@@ -952,7 +951,7 @@ public class FunctionFactory
   public static Map<String, Function> parseTrafos(ConfigThingy trafoConf, String nodeName, FunctionLibrary funcLib,
       DialogLibrary dialogLib, Map<Object, Object> context)
   {
-    Map<String, Function> trafos = new HashMap<String, Function>();
+    Map<String, Function> trafos = new HashMap<>();
     Iterator<ConfigThingy> suIter = trafoConf.query(nodeName, 1).iterator();
     while (suIter.hasNext())
     {

@@ -9,7 +9,6 @@ import de.muenchen.allg.itd51.wollmux.core.functions.Function;
 import de.muenchen.allg.itd51.wollmux.core.functions.FunctionLibrary;
 import de.muenchen.allg.itd51.wollmux.core.functions.Values;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
-import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 
 public class SelectFunction extends MultiFunction
 {
@@ -22,7 +21,6 @@ public class SelectFunction extends MultiFunction
 
   public SelectFunction(ConfigThingy conf, FunctionLibrary funcLib,
       DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
     super(conf, funcLib, dialogLib, context);
   }
@@ -30,7 +28,6 @@ public class SelectFunction extends MultiFunction
   @Override
   protected boolean handleParam(ConfigThingy conf, FunctionLibrary funcLib,
       DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
     if (conf.getName().equals("ONERROR"))
     {
@@ -53,7 +50,8 @@ public class SelectFunction extends MultiFunction
   public void getFunctionDialogReferences(Collection<String> set)
   {
     super.getFunctionDialogReferences(set);
-    if (onErrorFunction != null) onErrorFunction.getFunctionDialogReferences(set);
+    if (onErrorFunction != null)
+      onErrorFunction.getFunctionDialogReferences(set);
   }
 
   @Override
@@ -68,7 +66,8 @@ public class SelectFunction extends MultiFunction
       if (str != Function.ERROR)
       {
         result = str;
-        if (str.length() > 0) break;
+        if (str.length() > 0)
+          break;
       }
       else if (onErrorFunction != null)
       {

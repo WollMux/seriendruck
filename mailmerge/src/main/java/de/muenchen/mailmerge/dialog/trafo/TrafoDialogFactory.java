@@ -2,7 +2,7 @@
  * Dateiname: TrafoDialogFactory.java
  * Projekt  : WollMux
  * Funktion : Erzeugt zu einem Satz von Parametern einen passenden TrafoDialog.
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.dialog.trafo;
 
@@ -37,7 +37,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.L;
 
 /**
  * Erzeugt zu einem Satz von Parametern einen passenden TrafoDialog.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
 public class TrafoDialogFactory
@@ -51,16 +51,16 @@ public class TrafoDialogFactory
   /**
    * Versucht, einen zu params passenden Dialog zu instanziieren und liefert ihn
    * zurück, falls es klappt.
-   * 
+   *
    * @param params
    *          spezifiziert die Informationen, die der Dialog braucht und bestimmt,
    *          was für ein Dialog angezeigt wird. ACHTUNG! Das Objekt darf nach dem
    *          Aufruf dieser Methode nicht mehr verändert werden, da der Dialog es
    *          evtl. permanent speichert und für seine Arbeit verwendet.
-   * 
+   *
    * @throws UnavailableException
    *           wenn kein passender Dialog gefunden wurde.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   public static TrafoDialog createDialog(TrafoDialogParameters params)
@@ -77,7 +77,6 @@ public class TrafoDialogFactory
       }
       catch (Exception x)
       {}
-      ;
     }
 
     throw new UnavailableException(L.m(

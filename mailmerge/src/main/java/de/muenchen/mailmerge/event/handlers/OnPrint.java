@@ -14,7 +14,7 @@ import de.muenchen.mailmerge.event.MailMergeEventHandler;
  * Der Handler für das Drucken eines TextDokuments führt in Abhängigkeit von der
  * Existenz von Serienbrieffeldern und Druckfunktion die entsprechenden Aktionen
  * aus.
- * 
+ *
  * Das Event wird über den DispatchHandler aufgerufen, wenn z.B. über das Menü
  * "Datei->Drucken" oder über die Symbolleiste die dispatch-url .uno:Print bzw.
  * .uno:PrintDefault abgesetzt wurde.
@@ -41,7 +41,7 @@ public class OnPrint extends BasicEvent
   @Override
   protected void doit() throws WollMuxFehlerException
   {
-    boolean hasPrintFunction = documentController.getModel().getPrintFunctions().size() > 0;
+    boolean hasPrintFunction = !documentController.getModel().getPrintFunctions().isEmpty();
 
     if (Workarounds.applyWorkaroundForOOoIssue96281())
     {
@@ -64,7 +64,8 @@ public class OnPrint extends BasicEvent
     else
     {
       // Forward auf Standardfunktion
-      if (origDisp != null) origDisp.dispatch(origUrl, origArgs);
+      if (origDisp != null)
+        origDisp.dispatch(origUrl, origArgs);
     }
   }
 

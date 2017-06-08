@@ -21,12 +21,11 @@ public class IsErrorFunction implements Function
   /**
    * Falls objectCompare == true, wird == Function,ERROR getestet, ansonsten
    * equals(Function,ERROR).
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public IsErrorFunction(boolean objectCompare, ConfigThingy conf,
       FunctionLibrary funcLib, DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
     if (conf.count() != 1)
       throw new ConfigurationErrorException(L.m(

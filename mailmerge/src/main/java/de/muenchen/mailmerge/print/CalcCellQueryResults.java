@@ -18,7 +18,7 @@ class CalcCellQueryResults implements QueryResults
    */
   private Map<String, Integer> mapColumnNameToIndex;
 
-  private List<Dataset> datasets = new ArrayList<Dataset>();
+  private List<Dataset> datasets = new ArrayList<>();
 
   @Override
   public int size()

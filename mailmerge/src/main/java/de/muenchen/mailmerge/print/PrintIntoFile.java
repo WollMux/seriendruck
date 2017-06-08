@@ -2,7 +2,7 @@
  * Dateiname: PrintIntoFile.java
  * Projekt  : WollMux
  * Funktion : "Druck"funktion, die das zu druckende Dokument an ein Ergebnisdokument anhängt.
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,13 +24,13 @@
  * 29.10.2007 | BNK | Erstellung
  * 29.01.2008 | BNK | Fertigstellung
  * 30.01.2008 | BNK | Workaround für Issue 73229
- * 04.05.2011 | ERT | (ERT)[R120366][#6797]In appendToFile wurde das 
+ * 04.05.2011 | ERT | (ERT)[R120366][#6797]In appendToFile wurde das
  *                    Property PageStyleName nicht korrekt ausgelesen.
  * -------------------------------------------------------------------
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.print;
 
@@ -88,7 +88,7 @@ import de.muenchen.mailmerge.Workarounds;
 
 /**
  * "Druck"funktion, die das zu druckende Dokument an ein Ergebnisdokument anhängt.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
 public class PrintIntoFile
@@ -100,7 +100,7 @@ public class PrintIntoFile
 
   /**
    * Hängt den Inhalt von inputDoc an outputDoc an.
-   * 
+   *
    * @param firstAppend
    *          muss auf true gesetzt werden, wenn dies das erste Mal ist, das etwas an
    *          das Gesamtdokument angehängt wird. In diesem Fall werden die Formate
@@ -201,13 +201,12 @@ public class PrintIntoFile
       // UNO.XTextGraphicObjectsSupplier(outputDoc).getGraphicObjects().getElementNames();
       XIndexAccess shapes =
         UNO.XIndexAccess(UNO.XDrawPageSupplier(outputDoc).getDrawPage());
-      Set<HashableComponent> oldShapes =
-        new HashSet<HashableComponent>(shapes.getCount());
+      Set<HashableComponent> oldShapes = new HashSet<>(shapes.getCount());
       int shapeCount = shapes.getCount();
       for (int i = 0; i < shapeCount; ++i)
         oldShapes.add(new HashableComponent(shapes.getByIndex(i)));
 
-      Set<String> oldSections = new HashSet<String>();
+      Set<String> oldSections = new HashSet<>();
       if (startsWithSection)
       {
         String[] sectionNames =
@@ -290,7 +289,7 @@ public class PrintIntoFile
   /**
    * Liefert true gdw der Anfang von range mit dem Anfang einer Section aus doc
    * zusammenfällt, deren Name nicht in oldSections ist.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   private static boolean rangeStartTouchesNewSection(XTextRange range,
@@ -308,7 +307,8 @@ public class PrintIntoFile
         {
           XTextRange sectionRange =
             UNO.XTextContent(sections.getByName(names[i])).getAnchor();
-          if (compare.compareRegionStarts(range, sectionRange) == 0) return true;
+          if (compare.compareRegionStarts(range, sectionRange) == 0)
+            return true;
         }
         catch (Exception x)
         {
@@ -325,7 +325,7 @@ public class PrintIntoFile
   /**
    * Liefert true gdw der Start von doc mit dem Starter einer Section von doc
    * zusammenfällt.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   private static boolean startsWithSection(XTextDocument doc)
@@ -340,7 +340,8 @@ public class PrintIntoFile
       {
         XTextRange range =
           UNO.XTextContent(sections.getByName(names[i])).getAnchor();
-        if (compare.compareRegionStarts(docText, range) == 0) return true;
+        if (compare.compareRegionStarts(docText, range) == 0)
+          return true;
       }
       catch (Exception x)
       {
@@ -356,7 +357,7 @@ public class PrintIntoFile
    * mit einem noch nicht verwendeten Namen und das PageDescName-Property
    * entsprechend geändert, dass es auf das neue Format verweist. Das selbe Format
    * wird jeweils nur einmal kopiert.
-   * 
+   *
    * @param doc
    *          das Dokument in dem der Cursor wandert
    * @param oldPageStyles
@@ -378,8 +379,7 @@ public class PrintIntoFile
       Logger.error(x);
       return;
     }
-    Map<String, String> mapOldPageStyleName2NewPageStyleName =
-      new HashMap<String, String>();
+    Map<String, String> mapOldPageStyleName2NewPageStyleName = new HashMap<>();
     while (true)
     {
       try
@@ -408,18 +408,20 @@ public class PrintIntoFile
       {
         Logger.error(x);
       }
-      if (!cursor.gotoNextParagraph(false)) break;
+      if (!cursor.gotoNextParagraph(false))
+        break;
     }
   }
 
   /**
    * Gibt die OIDs aller Shapes von outputDoc aus.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   private static void dumpOids(XTextDocument outputDoc)
   {
-    if (!WollMuxFiles.isDebugMode()) return;
+    if (!WollMuxFiles.isDebugMode())
+      return;
     XIndexAccess shapes =
       UNO.XIndexAccess(UNO.XDrawPageSupplier(outputDoc).getDrawPage());
     int shapeCount = shapes.getCount();
@@ -430,7 +432,8 @@ public class PrintIntoFile
         Object ob = shapes.getByIndex(i);
         XNamed named = UNO.XNamed(ob);
         String name = "<Unknown>";
-        if (named != null) name = named.getName();
+        if (named != null)
+          name = named.getName();
         Logger.debug2(name + " -> " + UnoRuntime.generateOid(ob));
       }
     }
@@ -443,7 +446,7 @@ public class PrintIntoFile
   /**
    * Ersetzt alle TextFields des Typs PageCount in textFields durch den Wert
    * pageCount.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    * @throws WrappedTargetException
    * @throws NoSuchElementException
@@ -476,7 +479,7 @@ public class PrintIntoFile
    * c,s,s,t,textfield,InputUser durch ihren Stringwert. Diese Ersetzung ist
    * notwendig, da InputUser-Felder als Spezialfelder (z.B. Wenn...Dann...Sonst...)
    * verwendet werden und sie dokumentglobal nur den selben Wert haben können.
-   * 
+   *
    * Felder vom Typ c.s.s.t.textfield.User verwenden ebenfalls einen dokumentglobalen
    * Textfieldmaster, müssen aber nicht durch die textuelle Repräsentation ersetzt
    * werden, da sich mit dem Seriendruck nur die durch WollMux gesetzten
@@ -484,11 +487,11 @@ public class PrintIntoFile
    * User-Felder in ein Dokument eingefügt werden können (Es kann über die OOo-GUI
    * kein User-Feld auf "WM(Function 'Autofunction....')" eingefügt werden, da der
    * Name ein Leerzeichen enthält.
-   * 
+   *
    * Der Fix wurde in der Vergangenheit auf alle Textfelder des Dokuments angewandt,
    * womit aber PageNumber-Felder in Kopf- und Fußzeilen unbrauchbar wurden. Daher
    * gibt es jetzt nur noch eine "Whitelist" von Feldern, die ersetzt werden.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD D.10), Christoph Lutz (D-III-ITD D.10)
    * @throws WrappedTargetException
    * @throws NoSuchElementException
@@ -526,7 +529,7 @@ public class PrintIntoFile
   /**
    * Addiert auf die AnchorPageNo Property aller Objekte aus objects, die nicht (als
    * HashableComponent) in old enthalten sind den Wert pageNumberOffset.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   private static void fixPageAnchoredObjects(XIndexAccess objects,
@@ -540,7 +543,8 @@ public class PrintIntoFile
         Object ob = objects.getByIndex(i);
         XNamed named = UNO.XNamed(ob);
         String name = "<Unknown>";
-        if (named != null) name = named.getName();
+        if (named != null)
+          name = named.getName();
         if (!old.contains(new HashableComponent(ob)))
         {
           if (TextContentAnchorType.AT_PAGE.equals(UNO.getProperty(ob, "AnchorType")))
@@ -583,7 +587,7 @@ public class PrintIntoFile
   /**
    * Speichert inputDoc in einer temporären Datei und liefert eine UNO-taugliche URL
    * zu dieser Datei zurück.
-   * 
+   *
    * @param inputDoc
    *          das zu speichernde Dokument
    * @param dest
@@ -599,7 +603,7 @@ public class PrintIntoFile
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   private static String storeInTemporaryFile(XTextDocument inputDoc, File[] dest)
-      throws IOException, MalformedURLException, com.sun.star.io.IOException
+      throws IOException, com.sun.star.io.IOException
   {
     /**
      * Zuerst inputDoc in eine temporäre Datei schreiben
@@ -653,6 +657,7 @@ public class PrintIntoFile
     final boolean[] done = new boolean[] { false };
     SwingUtilities.invokeAndWait(new Runnable()
     {
+      @Override
       public void run()
       {
         final XTextDocument[] doc = new XTextDocument[] { null };
@@ -662,6 +667,7 @@ public class PrintIntoFile
         myFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         myFrame.addWindowListener(new WindowAdapter()
         {
+          @Override
           public void windowClosing(WindowEvent e)
           {
             try
@@ -682,6 +688,7 @@ public class PrintIntoFile
         JButton button = new JButton("Neues Gesamtdokument");
         button.addActionListener(new ActionListener()
         {
+          @Override
           public void actionPerformed(ActionEvent e)
           {
             if (doc[0] != null)
@@ -709,9 +716,11 @@ public class PrintIntoFile
         button = new JButton("Dokument anhängen");
         button.addActionListener(new ActionListener()
         {
+          @Override
           public void actionPerformed(ActionEvent e)
           {
-            if (doc[0] == null) return;
+            if (doc[0] == null)
+              return;
 
             /*
              * Wenn das aktuelle Vordergrunddok ein Textdokument ist und nicht das
@@ -742,7 +751,8 @@ public class PrintIntoFile
              * Falls wir keinen andere Kandidaten gefunden haben, so will der
              * Benutzer wohl das Gesamtdokument an sich selbst anhängen.
              */
-            if (inputDoc == null) inputDoc = doc[0];
+            if (inputDoc == null)
+              inputDoc = doc[0];
 
             appendToFile(doc[0], inputDoc, firstAppend[0]);
             firstAppend[0] = false;

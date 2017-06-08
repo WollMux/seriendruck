@@ -2,7 +2,7 @@
  * Dateiname: IfThenElseDialog.java
  * Projekt  : WollMux
  * Funktion : Erlaubt die Bearbeitung der Funktion eines Wenn-Dann-Sonst-Feldes.
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.dialog.trafo;
 
@@ -73,7 +73,7 @@ import de.muenchen.allg.itd51.wollmux.core.dialog.TextComponentTags;
 
 /**
  * Erlaubt die Bearbeitung der Funktion eines Wenn-Dann-Sonst-Feldes.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
 public class IfThenElseDialog extends TrafoDialog
@@ -108,7 +108,8 @@ public class IfThenElseDialog extends TrafoDialog
   {
     this.params = params;
     if (!params.isValid || params.conf == null || params.fieldNames == null
-      || params.fieldNames.size() == 0) throw new IllegalArgumentException();
+      || params.fieldNames.isEmpty())
+      throw new IllegalArgumentException();
 
     params.isValid = false; // erst bei Beendigung mit Okay werden sie wieder valid
 
@@ -119,6 +120,7 @@ public class IfThenElseDialog extends TrafoDialog
 
   private class MyRepackActionListener implements ActionListener
   {
+    @Override
     public void actionPerformed(ActionEvent e)
     {
       repack();
@@ -146,6 +148,7 @@ public class IfThenElseDialog extends TrafoDialog
         this.func = func;
       }
 
+      @Override
       public String toString()
       {
         return label;
@@ -227,14 +230,14 @@ public class IfThenElseDialog extends TrafoDialog
      * wobei fieldNames die angebotenen Feldnamen als Strings enthält. Der oberste
      * Knoten von conf ist ein beliebiger Bezeichner (typischwerweise der
      * Funktionsname).
-     * 
+     *
      * @param packNecessary
      *          wird aufgerufen, wannimmer sich im Panelinhalt soviel getan hat, dass
      *          ein erneutes pack() sinnvoll wäre.
-     * 
+     *
      * @throws IllegalArgumentException
      *           falls conf nicht verstanden wird.
-     * 
+     *
      * @author Matthias Benkmann (D-III-ITD D.10) TESTED
      */
     public JIfThenElsePanel(ConfigThingy conf, List<String> fieldNames,
@@ -242,7 +245,8 @@ public class IfThenElseDialog extends TrafoDialog
     {
       this.packNecessary = packNecessary;
 
-      if (conf.count() != 1) throw new IllegalArgumentException();
+      if (conf.count() != 1)
+        throw new IllegalArgumentException();
       try
       {
         conf = conf.getFirstChild();
@@ -306,7 +310,7 @@ public class IfThenElseDialog extends TrafoDialog
     /**
      * Fügt zu guiContainer die GUI-Elemente zum Bearbeiten von conditionalResult
      * hinzu.
-     * 
+     *
      * @param fieldNames
      *          die Namen der Felder, die über einen Button in den Text eingefügt
      *          werden können.
@@ -327,6 +331,7 @@ public class IfThenElseDialog extends TrafoDialog
         new JRadioButton(L.m("Text"), conditionalResult.type == 0);
       textRadioButton.addActionListener(new ActionListener()
       {
+        @Override
         public void actionPerformed(ActionEvent e)
         {
           if (conditionalResult.type != 0)
@@ -355,6 +360,7 @@ public class IfThenElseDialog extends TrafoDialog
         new JRadioButton(L.m("Wenn...Dann...Sonst..."), conditionalResult.type == 1);
       ifThenElseRadioButton.addActionListener(new ActionListener()
       {
+        @Override
         public void actionPerformed(ActionEvent e)
         {
           if (conditionalResult.type != 1)
@@ -399,7 +405,8 @@ public class IfThenElseDialog extends TrafoDialog
               }
 
               guiContainer.revalidate();
-              if (packNecessary != null) packNecessary.actionPerformed(null);
+              if (packNecessary != null)
+                packNecessary.actionPerformed(null);
             }
           }
 
@@ -431,13 +438,13 @@ public class IfThenElseDialog extends TrafoDialog
      * "vergleichswert") numerisch <= LE(VALUE "feld" "vergleichswert") numerisch >=
      * GE(VALUE "feld" "vergleichswert") regulärer A. MATCH(VALUE "feld"
      * "vergleichswert")
-     * 
+     *
      * @throws IllegalArgumentException
      *           falls conf nicht verstanden wird.
      */
     private void parseCondition(ConfigThingy conf, List<String> fieldNames)
     {
-      notSelector = new JComboBox<String>(new String[] {
+      notSelector = new JComboBox<>(new String[] {
         "", L.m("nicht") });
       if (conf.getName().equals("NOT"))
       {
@@ -452,7 +459,7 @@ public class IfThenElseDialog extends TrafoDialog
         notSelector.setSelectedIndex(1);
       }
 
-      testSelector = new JComboBox<TestType>(testTypes);
+      testSelector = new JComboBox<>(testTypes);
       determineTest: while (true)
       {
         for (int i = 0; i < testTypes.length; ++i)
@@ -476,7 +483,7 @@ public class IfThenElseDialog extends TrafoDialog
           {
             String compareConf = conf.getLastChild().toString();
             compareTo = new JTextField(compareConf, 20);
-            fieldSelector = new JComboBox<String>(new Vector<String>(fieldNames));
+            fieldSelector = new JComboBox<>(new Vector<String>(fieldNames));
             fieldSelector.setEditable(false);
             String fieldName = value.toString();
             Iterator<String> iter = fieldNames.iterator();
@@ -510,13 +517,13 @@ public class IfThenElseDialog extends TrafoDialog
 
     /**
      * Initialisiert res anhand von conf (was ein ELSE oder THEN Knoten sein muss).
-     * 
+     *
      * @param fieldNames
      *          die Feldnamen, die in eventuellen Subpanels angeboten werden sollen.
-     * 
+     *
      * @throws IllegalArgumentException
      *           falls conf nicht verstanden wird.
-     * 
+     *
      * @author Matthias Benkmann (D-III-ITD D.10) TESTED
      */
     private void parseThenElse(ConfigThingy conf, ConditionalResult res,
@@ -566,14 +573,15 @@ public class IfThenElseDialog extends TrafoDialog
     /**
      * Liefert ein frisches ConfigThingy, das die von diesem Panel repräsentierte
      * Trafo darstellt. Oberster Knoten ist immer "IF".
-     * 
+     *
      * @author Matthias Benkmann (D-III-ITD D.10) TESTED
      */
     public ConfigThingy getConf()
     {
       ConfigThingy conf = new ConfigThingy("IF");
       ConfigThingy conditionConf = conf;
-      if (notSelector.getSelectedIndex() == 1) conditionConf = conf.add("NOT");
+      if (notSelector.getSelectedIndex() == 1)
+        conditionConf = conf.add("NOT");
 
       TestType test = (TestType) testSelector.getSelectedItem();
       conditionConf = conditionConf.add(test.func);
@@ -583,12 +591,14 @@ public class IfThenElseDialog extends TrafoDialog
       ConfigThingy thenConf = conf.add("THEN");
       if (thenResult.type == 0)
         thenConf.addChild(thenResult.text.getContent(TextComponentTags.CAT_VALUE_SYNTAX));
-      else if (thenResult.type == 1) thenConf.addChild(thenResult.panel.getConf());
+      else if (thenResult.type == 1)
+        thenConf.addChild(thenResult.panel.getConf());
 
       ConfigThingy elseConf = conf.add("ELSE");
       if (elseResult.type == 0)
         elseConf.addChild(elseResult.text.getContent(TextComponentTags.CAT_VALUE_SYNTAX));
-      else if (elseResult.type == 1) elseConf.addChild(elseResult.panel.getConf());
+      else if (elseResult.type == 1)
+        elseConf.addChild(elseResult.panel.getConf());
 
       return conf;
     }
@@ -597,7 +607,7 @@ public class IfThenElseDialog extends TrafoDialog
   /**
    * Aktualisiert {@link #params},conf anhand des aktuellen Dialogzustandes und
    * setzt params,isValid auf true.
-   * 
+   *
    */
   private void updateTrafoConf()
   {
@@ -608,7 +618,7 @@ public class IfThenElseDialog extends TrafoDialog
 
   /**
    * Fügt {@link #ifThenElsePanel} in dialog ein und zeigt ihn an.
-   * 
+   *
    * @param dialog
    * @author Matthias Benkmann (D-III-ITD D.10) TESTED
    */
@@ -632,6 +642,7 @@ public class IfThenElseDialog extends TrafoDialog
     JButton cancel = new JButton(L.m("Abbrechen"));
     cancel.addActionListener(new ActionListener()
     {
+      @Override
       public void actionPerformed(ActionEvent e)
       {
         abort();
@@ -640,6 +651,7 @@ public class IfThenElseDialog extends TrafoDialog
     JButton insert = new JButton(L.m("OK"));
     insert.addActionListener(new ActionListener()
     {
+      @Override
       public void actionPerformed(ActionEvent e)
       {
         updateTrafoConf();
@@ -656,12 +668,13 @@ public class IfThenElseDialog extends TrafoDialog
   /**
    * Führt myDialog.pack() aus (falls myDialog nicht null) und setzt ihn sichtbar in
    * der Mitte des Bildschirms.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD D.10)
    */
   private void repack()
   {
-    if (myDialog == null) return;
+    if (myDialog == null)
+      return;
     myDialog.setVisible(false);
     myDialog.pack();
     int frameWidth = myDialog.getWidth();
@@ -673,6 +686,7 @@ public class IfThenElseDialog extends TrafoDialog
     myDialog.setVisible(true);
   }
 
+  @Override
   public void show(String windowTitle, Dialog owner)
   {
     if (owner == null)
@@ -681,6 +695,7 @@ public class IfThenElseDialog extends TrafoDialog
       show(windowTitle, new JDialog(owner));
   }
 
+  @Override
   public void show(String windowTitle, Frame owner)
   {
     if (owner == null)
@@ -689,6 +704,7 @@ public class IfThenElseDialog extends TrafoDialog
       show(windowTitle, new JDialog(owner));
   }
 
+  @Override
   public TrafoDialogParameters getExitStatus()
   {
     return params;
@@ -717,12 +733,14 @@ public class IfThenElseDialog extends TrafoDialog
       params.closeAction.actionPerformed(new ActionEvent(this, 0, ""));
   }
 
+  @Override
   public void dispose()
   {
     try
     {
       javax.swing.SwingUtilities.invokeLater(new Runnable()
       {
+        @Override
         public void run()
         {
           try
@@ -741,26 +759,33 @@ public class IfThenElseDialog extends TrafoDialog
 
   private class MyWindowListener implements WindowListener
   {
+    @Override
     public void windowOpened(WindowEvent e)
     {}
 
+    @Override
     public void windowClosing(WindowEvent e)
     {
       abort();
     }
 
+    @Override
     public void windowClosed(WindowEvent e)
     {}
 
+    @Override
     public void windowIconified(WindowEvent e)
     {}
 
+    @Override
     public void windowDeiconified(WindowEvent e)
     {}
 
+    @Override
     public void windowActivated(WindowEvent e)
     {}
 
+    @Override
     public void windowDeactivated(WindowEvent e)
     {}
 
@@ -772,7 +797,7 @@ public class IfThenElseDialog extends TrafoDialog
       new ConfigThingy(
         "Func",
         "IF(STRCMP(VALUE \"foo\", \"bar\") THEN(\"Krass, ey!\") ELSE( IF(MATCH(VALUE \"doof\" \"^foo\") THEN \"blarg\" ELSE \"Dusel\")) )");
-    Vector<String> fieldNames = new Vector<String>();
+    Vector<String> fieldNames = new Vector<>();
     fieldNames.add("Du");
     fieldNames.add("bist");
     fieldNames.add("doof");
@@ -781,6 +806,7 @@ public class IfThenElseDialog extends TrafoDialog
     params.fieldNames = fieldNames;
     params.closeAction = new ActionListener()
     {
+      @Override
       public void actionPerformed(ActionEvent e)
       {
         if (params.isValid)

@@ -2,7 +2,7 @@
  * Dateiname: MailMergeParams.java
  * Projekt  : WollMux
  * Funktion : Dialoge zur Bestimmung der Parameter für den wirklichen Merge (z.B. ob in Gesamtdokument oder auf Drucker geschrieben werden soll.)
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,16 +25,16 @@
  * 25.05.2010 | ERT | GUI für PDF-Gesamtdruck
  * 20.12.2010 | ERT | Defaultwerte für Druckdialog von ... bis
  * 08.05.2012 | jub | vorgeschlagener name für den anhang eines serienbrief/emailversands
- *                    kommt ohne endung, da für den nutzer auswahl zwischen pdf/odt 
+ *                    kommt ohne endung, da für den nutzer auswahl zwischen pdf/odt
  *                    möglich ist
  * 23.01.2014 | loi | Für den Seriendruck einen Wollmux Druckerauswahl Dialog eingefugt,
- *                    da der LO Dialog Druckeroptionen zur Auswahl bietet, die im Druck 
- *                    nicht umgesetz werden.                  
+ *                    da der LO Dialog Druckeroptionen zur Auswahl bietet, die im Druck
+ *                    nicht umgesetz werden.
  * -------------------------------------------------------------------
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.dialog.mailmerge;
 
@@ -44,6 +44,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.JDialog;
@@ -67,7 +68,7 @@ import de.muenchen.mailmerge.dialog.mailmerge.gui.UIElementType;
 /**
  * Dialoge zur Bestimmung der Parameter für den wirklichen Merge (z.B. ob in
  * Gesamtdokument oder auf Drucker geschrieben werden soll.)
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
 public class MailMergeParams
@@ -76,7 +77,7 @@ public class MailMergeParams
    * URL der Konfiguration der Fallback-Konfiguration für den Abschnitt
    * Dialoge/Seriendruckdialog, falls dieser Abschnitt nicht in der
    * WollMux-Konfiguration definiert wurde.
-   * 
+   *
    * Dieser Fallback wurde eingebaut, um mit alten WollMux-Standard-Configs
    * kompatibel zu bleiben, sollte nach ausreichend Zeit aber wieder entfernt werden!
    */
@@ -100,19 +101,106 @@ public class MailMergeParams
    * Seriendruckkontext liefern kann und den eigentlichen Seriendruck ausführen kann.
    */
   private MailMergeController mmc;
-  
+
+  /**
+   * Der Dialog, der durch {@link #showDoMailmergeDialog(JFrame, MailMergeNew, List)}
+   * angezeigt wird. Bei jedem Aufruf mit dem gleichen parent Frame wird der selbe
+   * Dialog verwendet, damit die Vorbelegungen erhalten bleiben.
+   */
+  private JDialog dialog = null;
+
+
+  /**
+   * Das Model für den Druckerauswahldialog beim Seriendruck
+   */
+  private DruckerModel druckerModel;
+
+  /**
+   * Der Controller für den Druckerauswahldialog beim Seriendruck
+   */
+  private DruckerController druckerController;
+
+  /**
+   * Enthält den Regeln-Abschnitt aus der Seriendruckdialog-Beschreibung.
+   */
+  private ConfigThingy rules;
+
+  /**
+   * Enthält alle zum aktuellen Zeitpunkt sichtbaren Gruppen, die über das
+   * {@link RuleStatement#SHOW_GROUPS} sichtbar geschaltet wurden.
+   */
+  private HashSet<String> visibleGroups = new HashSet<>();
+
+  /**
+   * Enthält eine Liste aller erzeugter {@link Section}-Objekte in der Reihenfolge
+   * der Seriendruckdialog-Beschreibung.
+   */
+  private ArrayList<Section> sections = new ArrayList<>();
+
+  /**
+   * Enthält den String der im Attribut VALUE zur zuletzt ausgeführten
+   * {@link UIElementAction#setActionType}-Action angegeben war. Beispiel:
+   *
+   * Wird in der GUI das Formularelement '(LABEL "Gesamtdokument erstellen" TYPE
+   * "radio" ACTION "setActionType" VALUE "gesamtdok")' ausgewählt, dann enthält
+   * diese Variable den Wert "gesamtdok".
+   */
+  private String currentActionType = "";
+
+  /**
+   * Enthält den String der im Attribut VALUE zur zuletzt ausgeführten
+   * {@link UIElementAction#setOutput}-Action angegeben war. Beispiel:
+   *
+   * Wird in der GUI das Formularelement '(LABEL "ODT-Datei" TYPE "radio" GROUP "odt"
+   * ACTION "setOutput" VALUE "odt")' ausgewählt, dann enthält diese Variable den
+   * Wert "odt".
+   */
+  private String currentOutput = "";
+
+  /**
+   * Sammelt die JTextComponent-Objekte alle in der Seriendruckdialog-Beschreibung
+   * enthaltenen Formularfelder vom Typ {@link UIElementType#description} auf (das
+   * ist normalerweise immer nur eins, aber es ist niemand daran gehindert, das
+   * Element öfters in den Dialog einzubinden - wenn auch ohne größeren Sinn)
+   */
+  public List<JTextComponent> descriptionFields = new ArrayList<>();
+
+  /**
+   * Enthält die Namen der über das zuletzt ausgeführte
+   * {@link RuleStatement#USE_PRINTFUNCTIONS} -Statement gesetzten PrintFunctions.
+   */
+  private List<String> usePrintFunctions = new ArrayList<>();
+
+  /**
+   * Enthält den Wert des zuletzt ausgeführten
+   * {@link RuleStatement#IGNORE_DOC_PRINTFUNCTIONS}-Statements
+   */
+  private Boolean ignoreDocPrintFuncs;
+
+  /**
+   * Enthält den String, der als Vorbelegung im Formularfeld für das
+   * Absender-Email-Feld gesetzt wird.
+   */
+  private String defaultEmailFrom = "";
+
+  /**
+   * Auf welche Art hat der Benutzer die zu druckenden Datensätze ausgewählt.
+   */
+  private DatasetSelectionType datasetSelectionType = DatasetSelectionType.ALL;
+
+
   public MailMergeController getMMC() {
     return mmc;
   }
 
-  public HashSet<String> getVisibleGroups()
+  public Set<String> getVisibleGroups()
   {
     return visibleGroups;
   }
 
-  public void setVisibleGroups(HashSet<String> visibleGroups)
+  public void setVisibleGroups(Set<String> visibleGroups)
   {
-    this.visibleGroups = visibleGroups;
+    this.visibleGroups = new HashSet<>(visibleGroups);
   }
 
   public String getDefaultEmailFrom()
@@ -150,7 +238,7 @@ public class MailMergeParams
     this.datasetSelectionType = datasetSelectionType;
   }
 
-  public ArrayList<Section> getSections()
+  public List<Section> getSections()
   {
     return sections;
   }
@@ -176,105 +264,18 @@ public class MailMergeParams
   }
 
   /**
-   * Der Dialog, der durch {@link #showDoMailmergeDialog(JFrame, MailMergeNew, List)}
-   * angezeigt wird. Bei jedem Aufruf mit dem gleichen parent Frame wird der selbe
-   * Dialog verwendet, damit die Vorbelegungen erhalten bleiben.
-   */
-  private JDialog dialog = null;
-  
-  
-  /**
-   * Das Model für den Druckerauswahldialog beim Seriendruck
-   */
-  private DruckerModel druckerModel;
-  
-  /**
-   * Der Controller für den Druckerauswahldialog beim Seriendruck
-   */
-  private DruckerController druckerController;
-
-  /**
-   * Enthält den Regeln-Abschnitt aus der Seriendruckdialog-Beschreibung.
-   */
-  private ConfigThingy rules;
-
-  /**
-   * Enthält alle zum aktuellen Zeitpunkt sichtbaren Gruppen, die über das
-   * {@link RuleStatement#SHOW_GROUPS} sichtbar geschaltet wurden.
-   */
-  private HashSet<String> visibleGroups = new HashSet<String>();
-
-  /**
-   * Enthält eine Liste aller erzeugter {@link Section}-Objekte in der Reihenfolge
-   * der Seriendruckdialog-Beschreibung.
-   */
-  private ArrayList<Section> sections = new ArrayList<Section>();
-
-  /**
-   * Enthält den String der im Attribut VALUE zur zuletzt ausgeführten
-   * {@link UIElementAction#setActionType}-Action angegeben war. Beispiel:
-   * 
-   * Wird in der GUI das Formularelement '(LABEL "Gesamtdokument erstellen" TYPE
-   * "radio" ACTION "setActionType" VALUE "gesamtdok")' ausgewählt, dann enthält
-   * diese Variable den Wert "gesamtdok".
-   */
-  private String currentActionType = "";
-
-  /**
-   * Enthält den String der im Attribut VALUE zur zuletzt ausgeführten
-   * {@link UIElementAction#setOutput}-Action angegeben war. Beispiel:
-   * 
-   * Wird in der GUI das Formularelement '(LABEL "ODT-Datei" TYPE "radio" GROUP "odt"
-   * ACTION "setOutput" VALUE "odt")' ausgewählt, dann enthält diese Variable den
-   * Wert "odt".
-   */
-  private String currentOutput = "";
-
-  /**
-   * Sammelt die JTextComponent-Objekte alle in der Seriendruckdialog-Beschreibung
-   * enthaltenen Formularfelder vom Typ {@link UIElementType#description} auf (das
-   * ist normalerweise immer nur eins, aber es ist niemand daran gehindert, das
-   * Element öfters in den Dialog einzubinden - wenn auch ohne größeren Sinn)
-   */
-  public ArrayList<JTextComponent> descriptionFields =
-    new ArrayList<JTextComponent>();
-
-  /**
-   * Enthält die Namen der über das zuletzt ausgeführte
-   * {@link RuleStatement#USE_PRINTFUNCTIONS} -Statement gesetzten PrintFunctions.
-   */
-  private List<String> usePrintFunctions = new ArrayList<String>();
-
-  /**
-   * Enthält den Wert des zuletzt ausgeführten
-   * {@link RuleStatement#IGNORE_DOC_PRINTFUNCTIONS}-Statements
-   */
-  private Boolean ignoreDocPrintFuncs;
-
-  /**
-   * Enthält den String, der als Vorbelegung im Formularfeld für das
-   * Absender-Email-Feld gesetzt wird.
-   */
-  private String defaultEmailFrom = "";
-
-  /**
-   * Auf welche Art hat der Benutzer die zu druckenden Datensätze ausgewählt.
-   */
-  private DatasetSelectionType datasetSelectionType = DatasetSelectionType.ALL;
-
-  /**
    * Zeigt den Dialog an, der die Serienbriefverarbeitung (Direktdruck oder in neues
    * Dokument) anwirft. Bei jedem Aufruf mit dem gleichen parent Frame wird der selbe
    * Dialog verwendet, damit die Vorbelegungen erhalten bleiben.
-   * 
+   *
    * @param parent
    *          Elternfenster für den anzuzeigenden Dialog.
-   * 
+   *
    * @param mmc
    *          Die Methode
    *          {@link MailMergeNew#doMailMerge(de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams.MailMergeType, de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams.DatasetSelectionType)}
    *          wird ausgelöst, wenn der Benutzer den Seriendruck startet.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public void showDoMailmergeDialog(final JFrame parent,
@@ -331,16 +332,16 @@ public class MailMergeParams
    * Zeigt den Dialog an, der die Serienbriefverarbeitung (Direktdruck oder in neues
    * Dokument) anwirft. Bei jedem Aufruf mit dem gleichen parent Frame wird der selbe
    * Dialog verwendet, damit die Vorbelegungen erhalten bleiben.
-   * 
+   *
    * @param parent
    *          Elternfenster für den anzuzeigenden Dialog.
-   * 
+   *
    * @param mmc
    * @param defaultEmailFrom
    *          Die Methode
    *          {@link MailMergeNew#doMailMerge(de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams.MailMergeType, de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams.DatasetSelectionType)}
    *          wird ausgelöst, wenn der Benutzer den Seriendruck startet.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1), Christoph Lutz (D-III-ITD-D101)
    */
   private void showDoMailmergeDialog(final JFrame parent,
@@ -353,7 +354,7 @@ public class MailMergeParams
     if (druckerModel == null) {
       druckerModel = new DruckerModel();
     }
-       
+
     if(getDialog() == null || getDialog().getParent() != parent)
     {
       String title = L.m("Seriendruck");
@@ -363,8 +364,8 @@ public class MailMergeParams
       }
       catch (NodeNotFoundException e1)
       {}
-      //set JDialog to Modeless type so that it remains visible when changing focus between opened 
-      //calc and writer document. Drawback: when this Dialog is open, the "Seriendruck" bar is 
+      //set JDialog to Modeless type so that it remains visible when changing focus between opened
+      //calc and writer document. Drawback: when this Dialog is open, the "Seriendruck" bar is
       //active too.
       dialog = new JDialog(parent, title, false);
       dialog.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
@@ -395,21 +396,21 @@ public class MailMergeParams
       for (ConfigThingy sectionConf : fensterConf)
       {
         getSections().add(new Section(sectionConf, vbox, this));
-      } 
+      }
     }
-    
-    if (druckerController == null) {  
+
+    if (druckerController == null) {
       druckerController = new DruckerController(druckerModel, (JFrame)getDialog().getOwner(), this);
     }
-    
+
     updateView();
     setDialogLocation();
     getDialog().setResizable(false);
     getDialog().setVisible(true);
-  } 
-  
+  }
+
   private void setDialogLocation() {
-    
+
     int frameWidth = getDialog().getWidth();
     int frameHeight = getDialog().getHeight();
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -421,7 +422,7 @@ public class MailMergeParams
   /**
    * Führt dialog.pack() aus wenn die preferredSize des dialogs die aktuelle Größe
    * überschreitet und platziert den Dialog in die Mitte des Bildschirms.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private static void repack(JDialog dialog)
@@ -438,7 +439,7 @@ public class MailMergeParams
    * Führt die im Regeln-Abschnitt angegebenen Regeln aus, passt alle Sichtbarkeiten
    * und Vorbelegungen für Radio-Buttons korrekt an und zeichnet den Dialog bei
    * Bedarf neu.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public void updateView()
@@ -453,7 +454,7 @@ public class MailMergeParams
 
   /**
    * Führt die im Regeln-Abschnitt definierten Regeln aus.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private void processRules()
@@ -465,12 +466,15 @@ public class MailMergeParams
       for (ConfigThingy key : rule)
       {
         RuleStatement statement = RuleStatement.getByname(key.getName());
-        if (statement == RuleStatement.ON_ACTION_TYPE)
-          if (!getCurrentActionType().equals(key.toString())) matches = false;
-        if (statement == RuleStatement.ON_OUTPUT)
-          if (!getCurrentOutput().equals(key.toString())) matches = false;
+        if (statement == RuleStatement.ON_ACTION_TYPE
+            && !getCurrentActionType().equals(key.toString()))
+          matches = false;
+        if (statement == RuleStatement.ON_OUTPUT
+            && !getCurrentOutput().equals(key.toString()))
+          matches = false;
       }
-      if (!matches) continue;
+      if (!matches)
+        continue;
 
       // Regel trifft zu. Jetzt die Befehle bearbeiten
       boolean hadUsePrintFunctions = false;
@@ -496,7 +500,8 @@ public class MailMergeParams
               if (tf instanceof JTextArea)
               {
                 JTextArea ta = (JTextArea) tf;
-                if (ta.getRows() < lines.length) ta.setRows(lines.length);
+                if (ta.getRows() < lines.length)
+                  ta.setRows(lines.length);
               }
             }
             break;
@@ -541,7 +546,7 @@ public class MailMergeParams
    * übergebene reasons-Liste aufgenommen). Die Actions setActionType und setOutput
    * sind z.B. dann nicht ausführbar, wenn in einem zugehörigen Regeln-Abschnitt eine
    * USE_PRINTFUNCTIONS-Anweisung steht, deren Druckfunktionen nicht verfügbar sind.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public boolean isActionAvailableInCurrentContext(UIElementAction action,
@@ -562,8 +567,10 @@ public class MailMergeParams
         {
           String value =
             rule.getString(RuleStatement.ON_ACTION_TYPE.toString(), null);
-          if (!value.equals(actionValue)) continue;
-          if (requiredPrintfunctionsAvailable(rule, reasons)) return true;
+          if (!value.equals(actionValue))
+            continue;
+          if (requiredPrintfunctionsAvailable(rule, reasons))
+            return true;
         }
         return false;
 
@@ -572,14 +579,17 @@ public class MailMergeParams
         for (ConfigThingy rule : myrules)
         {
           String value = rule.getString(RuleStatement.ON_OUTPUT.toString(), null);
-          if (!value.equals(actionValue)) continue;
+          if (!value.equals(actionValue))
+            continue;
           String actionType =
             rule.getString(RuleStatement.ON_ACTION_TYPE.toString(), null);
-          if (actionType == null || !actionType.equals(getCurrentActionType())) continue;
-          if (requiredPrintfunctionsAvailable(rule, reasons)) return true;
+          if (actionType == null || !actionType.equals(getCurrentActionType()))
+            continue;
+          if (requiredPrintfunctionsAvailable(rule, reasons))
+            return true;
         }
         return false;
-        
+
       case abort:
         break;
       case selectRange:
@@ -597,7 +607,7 @@ public class MailMergeParams
    * {@link RuleStatement#USE_PRINTFUNCTIONS} beschriebenen Druckfunktionen
    * ausführbar sind und liefert hängt im Fehlerfall eine textuelle Beschreibung an
    * die übergebene Liste reasons an.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private boolean requiredPrintfunctionsAvailable(ConfigThingy rule,

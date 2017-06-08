@@ -22,11 +22,11 @@ public class FrameController
   {
     this.doc = doc;
   }
-  
+
   /**
    * Liefert den Frame zu diesem TextDocument oder null, wenn der Frame nicht
    * bestimmt werden kann.
-   * 
+   *
    * @return
    */
   public synchronized XFrame getFrame()
@@ -44,7 +44,7 @@ public class FrameController
   /**
    * Setzt das Fensters des TextDokuments auf Sichtbar (visible==true) oder
    * unsichtbar (visible == false).
-   * 
+   *
    * @param visible
    */
   public synchronized void setWindowVisible(boolean visible)
@@ -55,14 +55,14 @@ public class FrameController
       frame.getContainerWindow().setVisible(visible);
     }
   }
-  
+
   /**
    * Diese Methode liest die (optionalen) Attribute X, Y, WIDTH, HEIGHT und ZOOM aus
    * dem übergebenen Konfigurations-Abschnitt settings und setzt die
    * Fenstereinstellungen des Dokuments entsprechend um. Bei den Pärchen X/Y bzw.
    * SIZE/WIDTH müssen jeweils beide Komponenten im Konfigurationsabschnitt angegeben
    * sein.
-   * 
+   *
    * @param settings
    *          der Konfigurationsabschnitt, der X, Y, WIDHT, HEIGHT und ZOOM als
    *          direkte Kinder enthält.
@@ -79,7 +79,10 @@ public class FrameController
     {}
 
     // Insets bestimmen (Rahmenmaße des Windows)
-    int insetLeft = 0, insetTop = 0, insetRight = 0, insetButtom = 0;
+    int insetLeft = 0;
+    int insetTop = 0;
+    int insetRight = 0;
+    int insetButtom = 0;
     if (UNO.XDevice(window) != null)
     {
       DeviceInfo di = UNO.XDevice(window).getInfo();
@@ -116,13 +119,13 @@ public class FrameController
     // Zoom setzen:
     setDocumentZoom(settings);
   }
-  
+
   /**
    * Diese Methode setzt den ZoomTyp bzw. den ZoomValue der Dokumentenansicht des
    * Dokuments auf den neuen Wert den das ConfigThingy conf im Knoten ZOOM angibt,
    * der entwender eine ganzzahliger Prozentwert (ohne "%"-Zeichen") oder einer der
    * Werte "Optimal", "PageWidth", "PageWidthExact" oder "EntirePage" ist.
-   * 
+   *
    * @param zoom
    * @throws ConfigurationErrorException
    */
@@ -141,17 +144,17 @@ public class FrameController
       Logger.error(e);
     }
   }
-  
+
   /**
    * Diese Methode setzt den ZoomTyp bzw. den ZoomValue der Dokumentenansicht des
    * Dokuments auf den neuen Wert zoom, der entwender eine ganzzahliger Prozentwert
    * (ohne "%"-Zeichen") oder einer der Werte "Optimal", "PageWidth",
    * "PageWidthExact" oder "EntirePage" ist.
-   * 
+   *
    * @param zoom
    * @throws ConfigurationErrorException
    */
-  private void setDocumentZoom(String zoom) throws ConfigurationErrorException
+  private void setDocumentZoom(String zoom)
   {
     Short zoomType = null;
     Short zoomValue = null;
@@ -198,7 +201,7 @@ public class FrameController
     else
       throw new ConfigurationErrorException(L.m("Ungültiger ZOOM-Wert '%1'", zoom));
   }
-  
+
   /**
    * Liefert den Titel des Dokuments, wie er im Fenster des Dokuments angezeigt wird,
    * ohne den Zusatz " - OpenOffice.org Writer" oder "NoTitle", wenn der Titel nicht
@@ -212,7 +215,8 @@ public class FrameController
       title = UNO.getProperty(getFrame(), "Title").toString();
       // "Untitled1 - OpenOffice.org Writer" -> cut " - OpenOffice.org Writer"
       int i = title.lastIndexOf(" - ");
-      if (i >= 0) title = title.substring(0, i);
+      if (i >= 0)
+        title = title.substring(0, i);
     }
     catch (java.lang.Exception e)
     {}

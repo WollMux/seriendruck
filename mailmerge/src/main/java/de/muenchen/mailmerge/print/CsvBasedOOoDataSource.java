@@ -16,7 +16,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 /**
  * Implementierung einer {@link OOoDataSource}, die als Backend ein CSV-Datei
  * verwendet.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public class CsvBasedOOoDataSource extends OOoDataSource
@@ -38,7 +38,7 @@ public class CsvBasedOOoDataSource extends OOoDataSource
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @seede.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.OOoDataSource#
    * getDataSourceWriter()
    */
@@ -50,7 +50,7 @@ public class CsvBasedOOoDataSource extends OOoDataSource
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @seede.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.OOoDataSource#
    * createXDocumentDatasource()
    */
@@ -60,14 +60,15 @@ public class CsvBasedOOoDataSource extends OOoDataSource
     XSingleServiceFactory dbContext =
       UNO.XSingleServiceFactory(UNO.createUNOService("com.sun.star.sdb.DatabaseContext"));
     XDocumentDataSource dataSource = null;
-    if (dbContext != null) try
-    {
-      dataSource = UNO.XDocumentDataSource(dbContext.createInstance());
-    }
-    catch (Exception e)
-    {
-      Logger.error(e);
-    }
+    if (dbContext != null)
+      try
+      {
+        dataSource = UNO.XDocumentDataSource(dbContext.createInstance());
+      }
+      catch (Exception e)
+      {
+        Logger.error(e);
+      }
 
     if (dataSource != null)
     {
@@ -87,17 +88,18 @@ public class CsvBasedOOoDataSource extends OOoDataSource
 
       XStorable xStorable = UNO.XStorable(dataSource.getDatabaseDocument());
       XModel model = UNO.XModel(xStorable);
-      URL url = null;
+      URL url;
       File tmpFile = new File(parentDir, OOoBasedMailMerge.DATASOURCE_ODB_FILENAME);
       url = UNO.getParsedUNOUrl(tmpFile.toURI().toString());
-      if (url != null && xStorable != null && model != null) try
-      {
-        xStorable.storeAsURL(url.Complete, model.getArgs());
-      }
-      catch (IOException e)
-      {
-        Logger.error(e);
-      }
+      if (url != null && xStorable != null && model != null)
+        try
+        {
+          xStorable.storeAsURL(url.Complete, model.getArgs());
+        }
+        catch (IOException e)
+        {
+          Logger.error(e);
+        }
     }
     return dataSource;
 
@@ -105,7 +107,7 @@ public class CsvBasedOOoDataSource extends OOoDataSource
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * de.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.OOoDataSource#getSize()
    */
@@ -117,7 +119,7 @@ public class CsvBasedOOoDataSource extends OOoDataSource
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * de.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.OOoDataSource#remove()
    */

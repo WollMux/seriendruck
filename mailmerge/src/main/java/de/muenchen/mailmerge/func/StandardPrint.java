@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011-2015 Landeshauptstadt München
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the European Union Public Licence (EUPL),
  * version 1.0 (or any later version).
@@ -11,7 +11,7 @@
  * European Union Public Licence for more details.
  *
  * You should have received a copy of the European Union Public Licence
- * along with this program. If not, see 
+ * along with this program. If not, see
  * http://ec.europa.eu/idabc/en/document/7330
  *
  *
@@ -20,14 +20,14 @@
  * -------------------------------------------------------------------
  *            |     | Erstellung
  * 08.05.2012 | jub | mailMergeNewToEMail() getrennt in mailMergeNewToODTEMail() und
- *                    mailMergeNewToPDFEMail(): sowohl in der enummeration der 
+ *                    mailMergeNewToPDFEMail(): sowohl in der enummeration der
  *                    druckfunktionen, als auch als mehthoden;
  *                    aufruf von saveToFile() zur unterscheidung mit pdf/odt flage.
  * -------------------------------------------------------------------
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  * @author Christoph Lutz (D-III-ITD-5.1)
- * 
+ *
  */
 package de.muenchen.mailmerge.func;
 
@@ -77,7 +77,7 @@ public class StandardPrint
    * auch wirklich in den benötigten Ausfertigungen gedruckt werden, lädt die
    * Druckfunktion noch das Ausgabemodul "SachleitendeVerfuegungOutput" zur Liste der
    * auszuführenden Druckfunktionen hinzu.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   public static void sachleitendeVerfuegung(XPrintModel pmod)
@@ -116,13 +116,13 @@ public class StandardPrint
    * Ausgabemodul der Sachleitenden Verfügungen: Diese Komfortdruckfunktion druckt
    * die Verfügungspunkte aus, die über die GUI ausgewählt wurden. Dabei wird für
    * jeden Verfügungspunkt die Methode printVerfuegungspunkt(...) ausgeführt.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   @SuppressWarnings("unchecked")
   public static void sachleitendeVerfuegungOutput(XPrintModel pmod)
   {
-    List<VerfuegungspunktInfo> settings = new ArrayList<VerfuegungspunktInfo>();
+    List<VerfuegungspunktInfo> settings = new ArrayList<>();
     try
     {
       settings =
@@ -141,7 +141,8 @@ public class StandardPrint
     short count = 0;
     for (VerfuegungspunktInfo v : settings)
     {
-      if (pmod.isCanceled()) return;
+      if (pmod.isCanceled())
+        return;
       if (v.copyCount > 0)
       {
         SachleitendeVerfuegung.printVerfuegungspunkt(pmod, v.verfPunktNr, v.isDraft,
@@ -156,13 +157,14 @@ public class StandardPrint
    * mit dieser Komfortdruckfuntion habe ich getestet, ob die Parameterübergabe bei
    * Druckfunktionen (arg als ConfigThingy) funktioniert und ob pmod sich über die
    * UNO-Mechanismen korrekt inspizieren lässt.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   public static void myTestPrintFunction(XPrintModel pmod, Object arg)
   {
     ConfigThingy conf = new ConfigThingy("ARG");
-    if (arg != null && arg instanceof ConfigThingy) conf = (ConfigThingy) arg;
+    if (arg != null && arg instanceof ConfigThingy)
+      conf = (ConfigThingy) arg;
 
     new UnoService(pmod).msgboxFeatures();
 
@@ -175,7 +177,7 @@ public class StandardPrint
   /**
    * Druckt das zu pmod gehörende Dokument für jeden Datensatz der aktuell über
    * Bearbeiten/Datenbank austauschen eingestellten Tabelle einmal aus.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   public static void mailMergeWithoutSelection(XPrintModel pmod)
@@ -189,7 +191,7 @@ public class StandardPrint
    * "WollMuxDescription" verwendet. Falls die Spalte "WollMuxSelected" vorhanden ist
    * und "1", "ja" oder "true" enthält, so ist der entsprechende Datensatz in der
    * Auswahlliste bereits vorselektiert.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   public static void mailMergeWithSelection(XPrintModel pmod)
@@ -199,7 +201,7 @@ public class StandardPrint
 
   /**
    * Startet den ultimativen MailMerge für pmod.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public static void superMailMerge(XPrintModel pmod)
@@ -211,7 +213,7 @@ public class StandardPrint
    * PrintFunction, die das jeweils nächste Element der Seriendruckdaten nimmt und
    * die Seriendruckfelder im Dokument entsprechend setzt. Siehe
    * {@link MailMergeControllerImpl#mailMergeNewSetFormValue(XPrintModel)}.
-   * 
+   *
    * @throws Exception
    *           falls was schief geht.
    * @author Matthias Benkmann (D-III-ITD 5.1), Christoph Lutz (D-III-ITD 5.1)
@@ -224,7 +226,7 @@ public class StandardPrint
 
   /**
    * Druckfunktion zum Aufruf des Seriendrucks über den OOo-MailMergeService.
-   * 
+   *
    * @throws Exception
    *           falls was schief geht.
    * @author Christoph Lutz (D-III-ITD-D101)
@@ -246,13 +248,13 @@ public class StandardPrint
       pmod.cancel();
       return;
     }
-    
+
     OOoBasedMailMerge.oooMailMerge(pmod, OOoBasedMailMerge.OutputType.toShell);
   }
 
   /**
    * Druckfunktion zum Aufruf des Seriendrucks über den OOo-MailMergeService.
-   * 
+   *
    * @throws Exception
    *           falls was schief geht.
    * @author Christoph Lutz (D-III-ITD-D101)
@@ -265,7 +267,7 @@ public class StandardPrint
   /**
    * Druckfunktion zum Abspeichern der durch den Seriendruck erzeugten Daten in
    * einzelnen Dateien.
-   * 
+   *
    * @author Ignaz Forster (D-III-ITD-D102)
    * @throws Exception
    */
@@ -275,11 +277,11 @@ public class StandardPrint
     boolean isODT = true;
     MailMergeControllerImpl.saveToFile(pmod, isODT);
   }
-  
+
   /**
    * Druckfunktion zum Abspeichern der durch den Seriendruck erzeugten Daten in
    * einzelnen Dateien.
-   * 
+   *
    * @author Ignaz Forster (D-III-ITD-D102)
    * @throws Exception
    */
@@ -292,9 +294,9 @@ public class StandardPrint
 
   /**
    * <b>DEPRECATED</b>: Druckfunktion zum Versenden der durch den Seriendruck erzeugten odt Dokumente per
-   * E-Mail. Funktion existiert noch für die Kompatibilität zu alten Konfigurationen. Zukünftig werden 
+   * E-Mail. Funktion existiert noch für die Kompatibilität zu alten Konfigurationen. Zukünftig werden
    * <b>"mailMergeNewToODTEMail"</b> bzw. <b>"mailMergeNewToPDFEMail"</b> diese Funktion ersetzen.
-   * 
+   *
    * @author Stefan Ströbl (ITM-B17)
    */
   public static void mailMergeNewToEMail(final XPrintModel pmod)
@@ -303,11 +305,11 @@ public class StandardPrint
     boolean isODT = true;
     MailMergeControllerImpl.sendAsEmail(pmod, isODT);
   }
-  
+
   /**
    * Druckfunktion zum Versenden der durch den Seriendruck erzeugten odt Dokumente per
    * E-Mail
-   * 
+   *
    * @author Ignaz Forster (D-III-ITD-D102)
    */
   public static void mailMergeNewToODTEMail(final XPrintModel pmod)
@@ -315,11 +317,11 @@ public class StandardPrint
     boolean isODT = true;
     MailMergeControllerImpl.sendAsEmail(pmod, isODT);
   }
-  
+
   /**
    * Druckfunktion zum Versenden der durch den Seriendruck erzeugten pdf Dokumente per
    * E-Mail
-   * 
+   *
    * @author judith baur (D-III-ITD-D102)
    */
   public static void mailMergeNewToPDFEMail(final XPrintModel pmod)
@@ -327,12 +329,12 @@ public class StandardPrint
     boolean isODT = false;
     MailMergeControllerImpl.sendAsEmail(pmod, isODT);
   }
-  
+
   /**
    * Hängt das zu pmod gehörige TextDocument an das im Property
    * PrintIntoFile_OutputDocument gespeicherte XTextDocument an. Falls noch kein
    * solches Property existiert, wird ein leeres Dokument angelegt.
-   * 
+   *
    * @throws Exception
    *           falls was schief geht.
    * @author Matthias Benkmann (D-III-ITD 5.1)
@@ -378,14 +380,14 @@ public class StandardPrint
    * Erzeugt abhängig von hidden ein sichtbares oder unsichtbares neues leeres
    * Dokument für {@link PrintIntoFile} und setzt die entsprechenden Properties von
    * pmod, damit das Dokument verwendet wird.
-   * 
+   *
    * @param pmod
    *          Das XPrintModel in dem die Property gesetzt wird
    * @param hidden
    *          wenn hidden==true ist, wird das Dokument unsichtbar erzeugt.
-   * 
+   *
    * @return das erzeugte neue Zieldokument.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
    */
   public static XTextDocument createNewTargetDocument(final XPrintModel pmod,
@@ -403,44 +405,44 @@ public class StandardPrint
    * Enthält alle internen Druckfunktionen dieser Klasse, die als
    * Default-Druckfunktionen verwendet werden, wenn sie nicht sowieso in der
    * Konfiguration definiert sind.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private enum InternalPrintFunction {
     SachleitendeVerfuegung("sachleitendeVerfuegung", 50),
-  
+
     MailMergeNewSetFormValue("mailMergeNewSetFormValue", 75),
-  
+
     SachleitendeVerfuegungOutput("sachleitendeVerfuegungOutput", 150),
-  
+
     MailMergeNewToSingleODT("mailMergeNewToSingleODT", 200),
-    
+
     MailMergeNewToSinglePDF("mailMergeNewToSinglePDF", 200),
-  
+
     MailMergeNewToODTEMail("mailMergeNewToODTEMail", 200),
-    
+
     MailMergeNewToPDFEMail("mailMergeNewToPDFEMail", 200),
-  
+
     OOoMailMergeToPrinter("oooMailMergeToPrinter", 200),
-  
+
     OOoMailMergeToOdtFile("oooMailMergeToOdtFile", 200);
-  
+
     private String intMethodName;
-  
+
     private int order;
-  
+
     InternalPrintFunction(String intMethodName, int order)
     {
       this.intMethodName = intMethodName;
       this.order = order;
     }
-  
+
     /**
      * Erzeugt die interne Druckfunktion
-     * 
+     *
      * @return die neue Druckfunktion oder null, wenn die Funktion nicht definiert
      *         ist.
-     * 
+     *
      * @author Christoph Lutz (D-III-ITD-5.1)
      */
     public PrintFunction createPrintFunction()
@@ -467,7 +469,7 @@ public class StandardPrint
    * Diese Methode fügt der PrintFunctionLibrary funcLib alle in dieser Klasse
    * definierten Druckfunktionen hinzu, wenn sie nicht bereits in funcLib enthalten
    * sind.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public static void addInternalDefaultPrintFunctions(PrintFunctionLibrary funcLib)

@@ -28,9 +28,11 @@ public class SplitFunction implements Function
   public String getString(Values parameters)
   {
     String str = input.getString(parameters);
-    if (str == Function.ERROR) return Function.ERROR;
+    if (str == Function.ERROR)
+      return Function.ERROR;
     String[] a = str.split(regex);
-    if (index < 0 || index >= a.length) return "";
+    if (index < 0 || index >= a.length)
+      return "";
     return a[index];
   }
 

@@ -22,8 +22,10 @@ public class MatchFunction implements Function
   public String getString(Values parameters)
   {
     String str = input.getString(parameters);
-    if (str == Function.ERROR) return Function.ERROR;
-    if (pattern.matcher(str).matches()) return "true";
+    if (str == Function.ERROR)
+      return Function.ERROR;
+    if (pattern.matcher(str).matches())
+      return "true";
     return "false";
   }
 

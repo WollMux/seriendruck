@@ -12,7 +12,7 @@ import de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams;
 
 /**
  * Beschreibt das {@link UIElement} vom Typ {@link UIElementType#emailtofieldname}.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public class EMailToFieldNameUIElement extends UIElement
@@ -34,10 +34,11 @@ public class EMailToFieldNameUIElement extends UIElement
     int mailIdx = 0;
     for (String fname : mmp.getMMC().getColumnNames())
     {
-      if (fname.toLowerCase().contains("mail") && mailIdx == 0) mailIdx = i;
+      if (fname.toLowerCase().contains("mail") && mailIdx == 0)
+        mailIdx = i;
       fnames[i++] = "<" + fname + ">";
     }
-    this.toFieldName = new JComboBox<String>(fnames);
+    this.toFieldName = new JComboBox<>(fnames);
     toFieldName.setSelectedIndex(mailIdx);
     hbox.add(Box.createHorizontalStrut(5));
     hbox.add(toFieldName);
@@ -47,6 +48,7 @@ public class EMailToFieldNameUIElement extends UIElement
     vbox.add(Box.createVerticalStrut(5));
   }
 
+  @Override
   public void addSubmitArgs(Map<SubmitArgument, Object> args)
       throws InvalidArgumentException
   {

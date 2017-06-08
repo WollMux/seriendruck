@@ -27,7 +27,8 @@ public class ValueFunction implements Function
   @Override
   public String getString(Values parameters)
   {
-    if (!parameters.hasValue(params[0])) return Function.ERROR;
+    if (!parameters.hasValue(params[0]))
+      return Function.ERROR;
     return parameters.getString(params[0]);
   }
 

@@ -2,11 +2,11 @@
  * Dateiname: DocumentManager.java
  * Projekt  : WollMux
  * Funktion : Verwaltet Informationen zu allen offenen OOo-Dokumenten
- * 
+ *
  * Copyright (c) 2009-2015 Landeshauptstadt München
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the European Union Public Licence (EUPL), 
+ * it under the terms of the European Union Public Licence (EUPL),
  * version 1.0 (or any later version).
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
  * European Union Public Licence for more details.
  *
  * You should have received a copy of the European Union Public Licence
- * along with this program. If not, see 
+ * along with this program. If not, see
  * http://ec.europa.eu/idabc/en/document/7330
  *
  * Änderungshistorie:
@@ -25,7 +25,7 @@
  * -------------------------------------------------------------------
  *
  * @author Matthias Benkmann (D-III-ITD-D101)
- * 
+ *
  */
 package de.muenchen.mailmerge.document;
 
@@ -61,7 +61,7 @@ import de.muenchen.mailmerge.WollMuxSingleton;
 
 /**
  * Verwaltet Informationen zu allen offenen OOo-Dokumenten.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD-D101)
  */
 public class DocumentManager
@@ -70,26 +70,25 @@ public class DocumentManager
    * Verwaltet Informationen zu allen offenen OOo-Dokumenten.
    */
   private static DocumentManager docManager;
-  
-  private Map<HashableComponent, Info> info =
-    new HashMap<HashableComponent, Info>();
-  
+
+  private Map<HashableComponent, Info> info = new HashMap<>();
+
   /**
    * Enthält alle registrierten XEventListener, die bei Statusänderungen der
    * Dokumentbearbeitung informiert werden.
    */
   private Vector<XEventListener> registeredDocumentEventListener;
-  
+
   private DocumentManager() {
-    registeredDocumentEventListener = new Vector<XEventListener>();
+    registeredDocumentEventListener = new Vector<>();
   }
 
   /**
    * Fügt compo den gemanageten Objekten hinzu, wobei die für Textdokumente
    * relevanten Informationen hinterlegt werden.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
-   * 
+   *
    */
   public synchronized void addTextDocument(XTextDocument compo)
   {
@@ -100,9 +99,9 @@ public class DocumentManager
    * Fügt compo den gemanageten Objekten hinzu, ohne weitere Informationen zu
    * hinterlegen. compo ist also ein Objekt, an dem für den WollMux nur interessant
    * ist, dass es existiert.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
-   * 
+   *
    */
   public synchronized void add(XComponent compo)
   {
@@ -111,12 +110,12 @@ public class DocumentManager
 
   /**
    * Entfernt alle Informationen über compo (falls vorhanden) aus diesem Manager.
-   * 
+   *
    * compo wird hier zur Optimierung nur als Object erwartet (spart einen
    * vorangehenden UNO-Cast auf XComponent).
-   * 
+   *
    * @return die entfernten Informationen oder null falls keine vorhanden.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
    */
   public synchronized Info remove(Object compo)
@@ -127,9 +126,9 @@ public class DocumentManager
   /**
    * Liefert die über dieses Objekt bekannten Informationen oder null, falls das
    * Objekt dem Manager nicht bekannt ist.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
-   * 
+   *
    */
   public synchronized Info getInfo(XComponent compo)
   {
@@ -139,9 +138,9 @@ public class DocumentManager
   /**
    * Fügt infoCollector alle Dokumente hinzu für die das
    * OnWollMuxProcessingFinished-Event bereits verschickt wurde.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
-   * 
+   *
    *         TESTED
    */
   public synchronized void getProcessedDocuments(Collection<XComponent> infoCollector)
@@ -151,7 +150,8 @@ public class DocumentManager
       if (ent.getValue().isProcessingFinished())
       {
         XComponent compo = UNO.XComponent(ent.getKey().getComponent());
-        if (compo != null) infoCollector.add(compo);
+        if (compo != null)
+          infoCollector.add(compo);
       }
     }
   }
@@ -162,7 +162,7 @@ public class DocumentManager
    * vollständig bearbeitet/expandiert wurde). Die Methode ignoriert alle
    * XEventListenener-Instanzen, die bereits registriert wurden.
    * Mehrfachregistrierung der selben Instanz ist also nicht möglich.
-   * 
+   *
    * Achtung: Die Methode darf nicht direkt von einem UNO-Service aufgerufen werden,
    * sondern jeder Aufruf muss über den EventHandler laufen. Deswegen exportiert
    * WollMuxSingleton auch nicht das XEventBroadcaster-Interface.
@@ -171,13 +171,15 @@ public class DocumentManager
   {
     Logger.debug2("DocumentManager::addDocumentEventListener()");
 
-    if (listener == null) return;
+    if (listener == null)
+        return;
 
     Iterator<XEventListener> i = registeredDocumentEventListener.iterator();
     while (i.hasNext())
     {
       XInterface l = UNO.XInterface(i.next());
-      if (UnoRuntime.areSame(l, listener)) return;
+      if (UnoRuntime.areSame(l, listener))
+        return;
     }
     registeredDocumentEventListener.add(listener);
   }
@@ -185,7 +187,7 @@ public class DocumentManager
   /**
    * Diese Methode deregistriert einen XEventListener wenn er bereits registriert
    * war.
-   * 
+   *
    * Achtung: Die Methode darf nicht direkt von einem UNO-Service aufgerufen werden,
    * sondern jeder Aufruf muss über den EventHandler laufen. Deswegen exportiert
    * WollMuxSingleton auch nicht das XEventBroadcaster-Interface.
@@ -197,30 +199,32 @@ public class DocumentManager
     while (i.hasNext())
     {
       XInterface l = UNO.XInterface(i.next());
-      if (UnoRuntime.areSame(l, listener)) i.remove();
+      if (UnoRuntime.areSame(l, listener))
+        i.remove();
     }
   }
-  
+
   /**
    * Setzt in den Informationen zu compo (falls dem DocumentManager bekannt) das Flag
    * das anzeigt, dass das OnWollMuxProcessingFinished-Event für diese Komponente
    * bereits verschickt wurde.
-   * 
+   *
    * @param compo
    * @author Matthias Benkmann (D-III-ITD-D101)
-   * 
+   *
    *         TESTED
    */
   public synchronized void setProcessingFinished(XComponent compo)
   {
     Info nfo = info.get(new HashableComponent(compo));
-    if (nfo != null) nfo.setProcessingFinished();
+    if (nfo != null)
+      nfo.setProcessingFinished();
   }
 
   /**
    * Liefert einen Iterator auf alle registrierten XEventListener-Objekte, die über
    * Änderungen am Status der Dokumentverarbeitung informiert werden sollen.
-   * 
+   *
    * @return Iterator auf alle registrierten XEventListener-Objekte.
    */
   public Iterator<XEventListener> documentEventListenerIterator()
@@ -232,7 +236,7 @@ public class DocumentManager
    * Liefert das aktuelle TextDocumentModel zum übergebenen XTextDocument doc;
    * existiert zu doc noch kein TextDocumentModel, so wird hier eines erzeugt und das
    * neu erzeugte zurück geliefert.
-   * 
+   *
    * @param doc
    *          Das XTextDocument, zu dem das zugehörige TextDocumentModel
    *          zurückgeliefert werden soll.
@@ -246,26 +250,26 @@ public class DocumentManager
       Logger.error(
         L.m("Irgendwer will hier ein TextDocumentModel für ein Objekt was der DocumentManager nicht kennt. Das sollte nicht passieren!"),
         new Exception());
-  
+
       // Wir versuchen trotzdem sinnvoll weiterzumachen.
       getDocumentManager().addTextDocument(doc);
       info = getDocumentManager().getInfo(doc);
     }
-  
+
     return info.getTextDocumentController();
   }
 
   /**
    * Liefert eine Referenz auf den von diesem WollMux verwendeten
    * {@link DocumentManager}.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
    */
   public static DocumentManager getDocumentManager()
   {
     if (docManager == null)
       docManager = new DocumentManager();
-    
+
     return docManager;
   }
 
@@ -280,7 +284,7 @@ public class DocumentManager
     /**
      * Liefert true gdw für das Dokument bereits ein
      * OnWollMuxProcessingFinished-Event an die Listener verschickt wurde.
-     * 
+     *
      * @author Matthias Benkmann (D-III-ITD-D101)
      */
     public boolean isProcessingFinished()
@@ -291,10 +295,10 @@ public class DocumentManager
     /**
      * Liefert das zu diesem Dokument gehörige TextDocumentModel. Falls es noch nicht
      * angelegt wurde, wird es angelegt.
-     * 
+     *
      * @throws UnsupportedOperationException
      *           falls das Dokument kein TextDocument ist.
-     * 
+     *
      * @author Matthias Benkmann (D-III-ITD-D101)
      */
     public TextDocumentController getTextDocumentController()
@@ -305,7 +309,7 @@ public class DocumentManager
     /**
      * Liefert true gdw dieses Dokument ein TextDocumentModel zugeordnet haben kann
      * UND ein solches auch bereits angelegt wurde.
-     * 
+     *
      * @author Matthias Benkmann (D-III-ITD-D101)
      */
     public boolean hasTextDocumentModel()
@@ -316,7 +320,7 @@ public class DocumentManager
     /**
      * Setzt das Flag, das mit {@link #isProcessingFinished()} abgefragt wird auf
      * true.
-     * 
+     *
      * @author Matthias Benkmann (D-III-ITD-D101)
      */
     private void setProcessingFinished()
@@ -370,7 +374,7 @@ public class DocumentManager
       return "TextDocumentInfo - model=" + documentController;
     }
   }
-  
+
   /**
    * Ruft die Dispose-Methoden von allen aktiven, dem TextDocumentModel zugeordneten
    * Dialogen auf und gibt den Speicher des TextDocumentModels frei.
@@ -383,58 +387,58 @@ public class DocumentManager
    * Liefert abhängig von der Konfigurationseinstellung PERSISTENT_DATA_MODE
    * (annotation|transition|rdfReadLegacy|rdf) den dazugehörigen
    * PersistentDataContainer für das Dokument doc.
-   * 
+   *
    * Die folgende Aufstellung zeigt das Verhalten der verschiedenen Einstellungen
    * bezüglich der möglichen Kombinationen von Metadaten in den Ausgangsdokumenten
    * und der Aktualisierung der Metadaten in den Ergebnisdokumenten. Ein "*"
    * symbolisiert dabei, welcher Metadatencontainer jeweils aktuell ist bzw. bei
    * Dokumentänderungen aktualisiert wird.
-   * 
+   *
    * Ausgangsdokument -> bearbeitet durch -> Ergebnisdokument
-   * 
+   *
    * [N*] -> annotation-Mode (WollMux-Alt) -> [N*]
-   * 
+   *
    * [N*] -> transition-Mode -> [N*R*]
-   * 
+   *
    * [N*] -> rdfReadLegacy-Mode -> [R*]
-   * 
+   *
    * [N*] -> rdf-Mode: NICHT UNTERSTÜTZT
-   * 
+   *
    * [N*R*] -> annotation-Mode (WollMux-Alt) -> [N*R]
-   * 
+   *
    * [N*R*] -> transition-Mode -> [N*R*]
-   * 
+   *
    * [N*R*] -> rdfReadLegacy-Mode -> [R*]
-   * 
+   *
    * [N*R*] -> rdf-Mode -> [NR*]
-   * 
+   *
    * [N*R] -> annotation-Mode (WollMux-Alt) -> [N*R]
-   * 
+   *
    * [N*R] -> transition-Mode -> [N*R*]
-   * 
+   *
    * [N*R] -> rdfReadLegacy-Mode -> [R*]
-   * 
+   *
    * [N*R] -> rdf-Mode: NICHT UNTERSTÜTZT
-   * 
+   *
    * [NR*] -> annotation-Mode (WollMux-Alt) : NICHT UNTERSTÜTZT
-   * 
+   *
    * [NR*] -> transition-Mode: NICHT UNTERSTÜTZT
-   * 
+   *
    * [NR*] -> rdfReadLegacy-Mode: NICHT UNTERSTÜTZT
-   * 
+   *
    * [NR*] -> rdf -> [NR*]
-   * 
+   *
    * [R*] -> annotation-Mode (WollMux-Alt): NICHT UNTERSTÜTZT
-   * 
+   *
    * [R*] -> transition-Mode -> [N*R*]
-   * 
+   *
    * [R*] -> rdfReadLegacy-Mode -> [R*]
-   * 
+   *
    * [R*] -> rdf-Mode -> [R*]
-   * 
+   *
    * Agenda: [N]=Dokument mit Notizen; [R]=Dokument mit RDF-Metadaten; [NR]=Dokument
    * mit Notizen und RDF-Metadaten; *=N/R enthält aktuellen Stand;
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
   public static PersistentDataContainer createPersistentDataContainer(
@@ -452,7 +456,7 @@ public class DocumentManager
       Logger.debug(L.m("Attribut %1 nicht gefunden. Verwende Voreinstellung '%2'.",
         PersistentDataContainer.PERSISTENT_DATA_MODE, pdMode));
     }
-  
+
     try
     {
       if (PersistentDataContainer.PERSISTENT_DATA_MODE_TRANSITION.equalsIgnoreCase(pdMode))

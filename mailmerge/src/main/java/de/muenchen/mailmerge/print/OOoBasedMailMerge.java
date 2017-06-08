@@ -2,11 +2,11 @@
  * Dateiname: OOoBasedMailMerge.java
  * Projekt  : WollMux
  * Funktion : Seriendruck über den OOo MailMergeService
- * 
+ *
  * Copyright (c) 2011-2015 Landeshauptstadt München
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the European Union Public Licence (EUPL), 
+ * it under the terms of the European Union Public Licence (EUPL),
  * version 1.0 (or any later version).
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
  * European Union Public Licence for more details.
  *
  * You should have received a copy of the European Union Public Licence
- * along with this program. If not, see 
+ * along with this program. If not, see
  * http://ec.europa.eu/idabc/en/document/7330
  *
  * Änderungshistorie:
@@ -26,7 +26,7 @@
  * -------------------------------------------------------------------
  *
  * @author Christoph Lutz (D-III-ITD-D101)
- * 
+ *
  */
 package de.muenchen.mailmerge.print;
 
@@ -119,23 +119,23 @@ public class OOoBasedMailMerge
 
   private OutputType type;
 
+  public OOoBasedMailMerge(final XPrintModel pmod, OutputType type) {
+    this.pmod = pmod;
+    this.type = type;
+
+  }
+
   /**
    * Druckfunktion für den Seriendruck in ein Gesamtdokument mit Hilfe des
    * OpenOffice.org-Seriendrucks.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD 5.1)
    */
   public static void oooMailMerge(final XPrintModel pmod, OutputType type)
   {
     new OOoBasedMailMerge(pmod, type).start();
   }
-  
-  public OOoBasedMailMerge(final XPrintModel pmod, OutputType type) {
-    this.pmod = pmod;
-    this.type = type;
-    
-  }
-  
+
   public void start() {
     PrintModels.setStage(pmod, L.m("Seriendruck vorbereiten"));
 
@@ -151,7 +151,7 @@ public class OOoBasedMailMerge
 
     // Datenquelle mit über mailMergeNewSetFormValue simulierten Daten erstellen
     OOoDataSource ds = createTempDatasource(tmpDir);
-    
+
     if (ds == null) {
       return;
     }
@@ -164,11 +164,12 @@ public class OOoBasedMailMerge
       createAndAdjustInputFile(tmpDir, pmod.getTextDocument(), dbName);
 
     Logger.debug(L.m("Temporäre Datenquelle: %1", dbName));
-    
-    if (pmod.isCanceled()) return;
+
+    if (pmod.isCanceled())
+      return;
 
     Object result = null;
-    
+
     try {
       MailMergeThread thread = null;
 
@@ -178,16 +179,16 @@ public class OOoBasedMailMerge
         ProgressUpdater updater =
           new ProgressUpdater(pmod, (int) Math.ceil((double) ds.getSize()
             / countNextSets(pmod.getTextDocument())));
-  
+
         String pNameSD = getSelectedPrinterName();
-        
+
         thread = runMailMerge(dbName, tmpDir, inputFile, updater, type, pNameSD);
       }
       catch (Exception e)
       {
         Logger.error(L.m("Fehler beim Starten des OOo-Seriendrucks"), e);
       }
-  
+
       // Warte auf Ende des MailMerge-Threads unter Berücksichtigung von
       // pmod.isCanceled()
       while (thread != null && thread.isAlive())
@@ -204,14 +205,14 @@ public class OOoBasedMailMerge
         catch (InterruptedException e)
         {}
       }
-      
+
       if (pmod.isCanceled() && thread.isAlive())
       {
         thread.interrupt();
         Logger.debug(L.m("Der OOo-Seriendruck wurde abgebrochen"));
         // aber aufräumen tun wir noch...
       }
-      
+
       result = thread.getResult();
     } finally {
       removeTempDatasource(dbName, tmpDir);
@@ -220,7 +221,8 @@ public class OOoBasedMailMerge
     }
 
     // ... jetzt können wir nach Benutzerabbruch aufhören
-    if (pmod.isCanceled()) return;
+    if (pmod.isCanceled())
+      return;
 
     if (type == OutputType.toFile)
     {
@@ -284,7 +286,8 @@ public class OOoBasedMailMerge
     try
     {
       MailMergeControllerImpl.mailMergeNewSetFormValue(pmod, ds);
-      if (pmod.isCanceled()) return null;
+      if (pmod.isCanceled())
+        return null;
       ds.getDataSourceWriter().flushAndClose();
     }
     catch (Exception e)
@@ -319,7 +322,8 @@ public class OOoBasedMailMerge
       UnoRuntime.queryInterface(XPrintable.class, pmod.getTextDocument());
     String pNameSD;
     PropertyValue[] printer = null;
-    if (xprintSD != null) printer = xprintSD.getPrinter();
+    if (xprintSD != null)
+      printer = xprintSD.getPrinter();
     UnoProps printerInfo = new UnoProps(printer);
     try
     {
@@ -337,14 +341,15 @@ public class OOoBasedMailMerge
    * Input-Dokument im Verzeichnis tmpDir und nimmt alle notwendigen Anpassungen vor,
    * damit der Seriendruck über die temporäre Datenbank dbName korrekt und möglichst
    * performant funktioniert, und liefert dieses zurück.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
   private File createAndAdjustInputFile(File tmpDir, XTextDocument origDoc,
       String dbName)
   {
     // Aktuelles Dokument speichern als neues input-Dokument
-    if (origDoc == null) return null;
+    if (origDoc == null)
+      return null;
     File inputFile = new File(tmpDir, "input.odt");
     String url = UNO.getParsedUNOUrl(inputFile.toURI().toString()).Complete;
     XStorable xStorable = UNO.XStorable(origDoc);
@@ -366,7 +371,7 @@ public class OOoBasedMailMerge
     {
       return null;
     }
-    
+
     // Workaround für #16487
     try
     {
@@ -421,23 +426,24 @@ public class OOoBasedMailMerge
     }
 
     boolean closed = false;
-    if (UNO.XCloseable(tmpDoc) != null) do
-    {
-      try
-      {
-        UNO.XCloseable(tmpDoc).close(true);
-        closed = true;
-      }
-      catch (CloseVetoException e)
+    if (UNO.XCloseable(tmpDoc) != null)
+      do
       {
         try
         {
-          Thread.sleep(2000);
+          UNO.XCloseable(tmpDoc).close(true);
+          closed = true;
         }
-        catch (InterruptedException e1)
-        {}
-      }
-    } while (closed == false);
+        catch (CloseVetoException e)
+        {
+          try
+          {
+            Thread.sleep(2000);
+          }
+          catch (InterruptedException e1)
+          {}
+        }
+      } while (!closed);
 
     return inputFile;
   }
@@ -465,16 +471,16 @@ public class OOoBasedMailMerge
             UnoRuntime.queryInterface(XTextSection.class,
               textSections.getByName(sectionName));
           XPropertySet ps = UNO.XPropertySet(section);
-          
+
           XTextRange range = section.getAnchor();
           UNO.setPropertyToDefault(range, "CharHidden");
-          
-          List<String> conditions = new ArrayList<String>();
+
+          List<String> conditions = new ArrayList<>();
           for (String groupName : groupNames)
           {
             conditions.add(String.format("([%s] != \"true\")", COLUMN_PREFIX_TEXTSECTION + groupName));
           }
-          
+
           String condition = StringUtils.join(conditions, " or ");
           ps.setPropertyValue("Condition", condition);
         }
@@ -490,54 +496,18 @@ public class OOoBasedMailMerge
    * Entfernt alle Metadaten des WollMux aus dem Dokument doc die nicht reine
    * Infodaten des WollMux sind (wie z.B. WollMuxVersion, OOoVersion) um
    * sicherzustellen, dass der WollMux das Gesamtdokument nicht interpretiert.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
   private void removeWollMuxMetadata(XTextDocument doc)
   {
-    if (doc == null) return;
+    if (doc == null)
+      return;
     PersistentDataContainer c = DocumentManager.createPersistentDataContainer(doc);
     for (DataID dataId : DataID.values())
-      if (!dataId.isInfodata()) c.removeData(dataId);
+      if (!dataId.isInfodata())
+        c.removeData(dataId);
     c.flush();
-  }
-
-  /**
-   * Hebt alle unsichtbaren TextSections (Bereiche) in Dokument tmpDoc auf, wobei bei
-   * auch der Inhalt entfernt wird. Das Entfernen der unsichtbaren Bereiche dient zur
-   * Verbesserung der Performance, das Löschen der Bereichsinhalte ist notwendig,
-   * damit das erzeugte Gesamtdokument korrekt dargestellt wird (hier habe ich wilde
-   * Textverschiebungen beobachtet, die so vermieden werden sollen).
-   * 
-   * Bereiche sind auch ein möglicher Auslöser von allen möglichen falsch gesetzten
-   * Seitenumbrüchen (siehe z.B. Issue:
-   * http://openoffice.org/bugzilla/show_bug.cgi?id=73229)
-   * 
-   * @author Christoph Lutz (D-III-ITD-D101)
-   */
-  private void removeHiddenSections(XComponent tmpDoc)
-  {
-    XTextSectionsSupplier tss = UNO.XTextSectionsSupplier(tmpDoc);
-    if (tss == null) return;
-
-    for (String name : tss.getTextSections().getElementNames())
-    {
-      try
-      {
-        XTextSection section =
-          UNO.XTextSection(tss.getTextSections().getByName(name));
-        if (Boolean.FALSE.equals(UNO.getProperty(section, "IsVisible")))
-        {
-          // Inhalt der Section löschen und Section aufheben:
-          section.getAnchor().setString("");
-          section.getAnchor().getText().removeTextContent(section);
-        }
-      }
-      catch (Exception e)
-      {
-        Logger.error(e);
-      }
-    }
   }
 
   /**
@@ -545,12 +515,12 @@ public class OOoBasedMailMerge
    * Seriendruck in der Komplexität O(n^2) und werden hier in dieser Methode alle aus
    * dem Dokument tmpDoc gelöscht. Bookmarks sollten im Ergebnisdokument sowieso
    * nicht mehr benötigt werden und sind damit aus meiner Sicht überflüssig.
-   * 
+   *
    * Sollte irgendjemand irgendwann zu der Meinung kommen, dass die Bookmarks im
    * Dokument bleiben müssen, so müssen zumindest die Bookmarks von
    * WollMux-Dokumentkommandos gelöscht werden, damit sie nicht noch einmal durch den
    * WollMux bearbeitet werden.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private void removeAllBookmarks(XComponent tmpDoc)
@@ -574,14 +544,15 @@ public class OOoBasedMailMerge
           Logger.error(e);
         }
 
-        if (bookmark != null) try
-        {
-          bookmark.getAnchor().getText().removeTextContent(bookmark);
-        }
-        catch (NoSuchElementException e1)
-        {
-          Logger.error(e1);
-        }
+        if (bookmark != null)
+          try
+          {
+            bookmark.getAnchor().getText().removeTextContent(bookmark);
+          }
+          catch (NoSuchElementException e1)
+          {
+            Logger.error(e1);
+          }
       }
     }
   }
@@ -589,7 +560,7 @@ public class OOoBasedMailMerge
   /**
    * Fügt dem Dokument doc für alle enthaltenen insertFormValue-Bookmarks zugehörige
    * OOo-Seriendruckfelder mit Verweis auf die Datenbank dbName hinzu.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
   private void addDatabaseFieldsForInsertFormValueBookmarks(
@@ -598,7 +569,7 @@ public class OOoBasedMailMerge
     DocumentCommands cmds = new DocumentCommands(UNO.XBookmarksSupplier(doc));
     cmds.update();
     HashMap<String, FormField> bookmarkNameToFormField =
-      new HashMap<String, FormField>();
+      new HashMap<>();
     for (DocumentCommand cmd : cmds)
     {
       if (cmd instanceof InsertFormValue)
@@ -606,17 +577,20 @@ public class OOoBasedMailMerge
         InsertFormValue ifvCmd = (InsertFormValue) cmd;
         FormField field =
           FormFieldFactory.createFormField(doc, ifvCmd, bookmarkNameToFormField);
-        if (field == null) continue;
+        if (field == null)
+          continue;
         field.setCommand(ifvCmd);
 
         String columnName = getSpecialColumnNameForFormField(field);
-        if (columnName == null) columnName = ifvCmd.getID();
+        if (columnName == null)
+          columnName = ifvCmd.getID();
         try
         {
           XDependentTextField dbField =
             createDatabaseField(UNO.XMultiServiceFactory(doc), dbName, TABLE_NAME,
               columnName);
-          if (dbField == null) continue;
+          if (dbField == null)
+            continue;
 
           ifvCmd.insertTextContentIntoBookmark(dbField, true);
 
@@ -640,7 +614,7 @@ public class OOoBasedMailMerge
    * wieder ausgelesen werden kann oder null, wenn das Formularfeld über einen
    * primitiven Spaltennamen (der nur aus einer in den setValues gesetzten IDs
    * besteht) gefüllt werden kann.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
   public static String getSpecialColumnNameForFormField(FormField field)
@@ -669,7 +643,7 @@ public class OOoBasedMailMerge
    * Passt bereits enthaltene OOo-Seriendruckfelder und Nächster-Datensatz-Felder in
    * tmpDoc so an, dass sie über die Datenbank dbName befüllt werden und ersetzt
    * InputUser-Felder durch entsprechende OOo-Seriendruckfelder.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
   private void adjustDatabaseAndInputUserFields(XComponent tmpDoc,
@@ -734,7 +708,7 @@ public class OOoBasedMailMerge
   /**
    * Zählt die Anzahl an "Nächster Datensatz"-Feldern zur Berechnung der Gesamtzahl
    * der zu verarbeitenden Dokumente.
-   * 
+   *
    * @author Ignaz Forster (ITM-I23)
    */
   private int countNextSets(XComponent doc)
@@ -762,18 +736,18 @@ public class OOoBasedMailMerge
    * Erzeugt über die Factory factory ein neues OOo-Seriendruckfeld, das auf die
    * Datenbank dbName, die Tabelle tableName und die Spalte columnName verweist und
    * liefert dieses zurück.
-   * 
+   *
    * @throws Exception
    *           Wenn die Factory das Feld nicht erzeugen kann.
    * @throws IllegalArgumentException
    *           Wenn irgendetwas mit den Attributen dbName, tableName oder columnName
    *           nicht stimmt.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private XDependentTextField createDatabaseField(
       XMultiServiceFactory factory, String dbName, String tableName,
-      String columnName) throws Exception, IllegalArgumentException
+      String columnName) throws Exception
   {
     XDependentTextField dbField =
       UNO.XDependentTextField(factory.createInstance("com.sun.star.text.TextField.Database"));
@@ -790,7 +764,7 @@ public class OOoBasedMailMerge
    * Deregistriert die Datenbank dbName aus der Liste der Datenbanken (wie z.B. über
    * Extras->Optionen->Base/Datenbanken einsehbar) und löscht das zugehörige in
    * tmpDir enthaltene .odb-File von der Platte.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private void removeTempDatasource(String dbName, File tmpDir)
@@ -798,14 +772,15 @@ public class OOoBasedMailMerge
     XSingleServiceFactory dbContext =
       UNO.XSingleServiceFactory(UNO.createUNOService("com.sun.star.sdb.DatabaseContext"));
     XNamingService naming = UNO.XNamingService(dbContext);
-    if (naming != null) try
-    {
-      naming.revokeObject(dbName);
-    }
-    catch (Exception e)
-    {
-      Logger.error(e);
-    }
+    if (naming != null)
+      try
+      {
+        naming.revokeObject(dbName);
+      }
+      catch (Exception e)
+      {
+        Logger.error(e);
+      }
     new File(tmpDir, DATASOURCE_ODB_FILENAME).delete();
   }
 
@@ -814,7 +789,7 @@ public class OOoBasedMailMerge
    * Zufallsnamen in OOo (so, dass sie z.B. in der Liste der Datenbanken unter
    * Tools->Extras->Optionen->Base/Datenbanken auftaucht) und gibt den Zufallsnamen
    * zurück.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private String registerTempDatasouce(XDocumentDataSource dataSource)
@@ -824,27 +799,29 @@ public class OOoBasedMailMerge
       UNO.XSingleServiceFactory(UNO.createUNOService("com.sun.star.sdb.DatabaseContext"));
     String name = null;
     XNameAccess nameAccess = UNO.XNameAccess(dbContext);
-    if (nameAccess != null) do
-    {
-      name = TEMP_WOLLMUX_MAILMERGE_PREFIX + new Random().nextInt(100000);
-    } while (nameAccess.hasByName(name));
+    if (nameAccess != null)
+      do
+      {
+        name = TEMP_WOLLMUX_MAILMERGE_PREFIX + new Random().nextInt(100000);
+      } while (nameAccess.hasByName(name));
 
     // Datenquelle registrieren
-    if (name != null && UNO.XNamingService(dbContext) != null) try
-    {
-      UNO.XNamingService(dbContext).registerObject(name, dataSource);
-    }
-    catch (Exception e)
-    {
-      Logger.error(e);
-    }
+    if (name != null && UNO.XNamingService(dbContext) != null)
+      try
+      {
+        UNO.XNamingService(dbContext).registerObject(name, dataSource);
+      }
+      catch (Exception e)
+      {
+        Logger.error(e);
+      }
 
     return name;
   }
 
   /**
    * Steuert den Ausgabetyp beim OOo-Seriendruck.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public static enum OutputType {
@@ -868,13 +845,16 @@ public class OOoBasedMailMerge
         switch (this)
         {
           case toFile:
-            if (f.getName().equals("FILE")) found = f;
+            if (f.getName().equals("FILE"))
+              found = f;
             break;
           case toPrinter:
-            if (f.getName().equals("PRINTER")) found = f;
+            if (f.getName().equals("PRINTER"))
+              found = f;
             break;
           case toShell:
-            if (f.getName().equals("SHELL")) found = f;
+            if (f.getName().equals("SHELL"))
+              found = f;
             break;
         }
       }
@@ -896,7 +876,7 @@ public class OOoBasedMailMerge
   /**
    * Startet die Ausführung des Seriendrucks in ein Gesamtdokument mit dem
    * c.s.s.text.MailMergeService in einem eigenen Thread und liefert diesen zurück.
-   * 
+   *
    * @param dbName
    *          Name der Datenbank, die für den Seriendruck verwendet werden soll.
    * @param outputDir
@@ -910,7 +890,7 @@ public class OOoBasedMailMerge
    *          Drucker fuer den Seriendruck
    * @throws Exception
    *           falls der MailMergeService nicht erzeugt werden kann.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private MailMergeThread runMailMerge(String dbName, final File outputDir,
@@ -933,7 +913,8 @@ public class OOoBasedMailMerge
       @Override
       public void notifyMailMergeEvent(MailMergeEvent arg0)
       {
-        if (progress != null) progress.incrementProgress();
+        if (progress != null)
+          progress.incrementProgress();
         count++;
         Logger.debug2(L.m("OOo-MailMerger: verarbeite Datensatz %1 (%2 ms)", count,
           (System.currentTimeMillis() - start)));
@@ -944,7 +925,7 @@ public class OOoBasedMailMerge
       }
     });
 
-    final ArrayList<NamedValue> mmProps = new ArrayList<NamedValue>();
+    final ArrayList<NamedValue> mmProps = new ArrayList<>();
     mmProps.add(new NamedValue("DataSourceName", dbName));
     mmProps.add(new NamedValue("CommandType", CommandType.TABLE));
     mmProps.add(new NamedValue("Command", TABLE_NAME));
@@ -989,7 +970,7 @@ public class OOoBasedMailMerge
    * "<TEMP_WOLLMUX_MAILMERGE_PREFIX>xxx" (wobei xxx eine garantiert 3-stellige Zahl
    * ist), in dem sämtliche (temporäre) Dateien für den Seriendruck abgelegt werden
    * und liefert dieses zurück.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private File createMailMergeTempdir()

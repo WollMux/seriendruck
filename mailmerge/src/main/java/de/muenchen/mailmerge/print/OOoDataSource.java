@@ -13,7 +13,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 /**
  * Repräsentiert eine (noch nicht registrierte) Datenquelle für OpenOffice.org.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public abstract class OOoDataSource implements SimulationResultsProcessor
@@ -21,36 +21,36 @@ public abstract class OOoDataSource implements SimulationResultsProcessor
   /**
    * Liefert das für die Registrierung der OOo-Datenquelle benötigte
    * {@link XDocumentDataSource}-Objekt zurück.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  abstract public XDocumentDataSource createXDocumentDatasource();
+  public abstract XDocumentDataSource createXDocumentDatasource();
 
   /**
    * Liefert einen {@link DataSourceWriter} zurück, über den Datensätze in die
    * Datenquelle geschrieben werden können.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  abstract public DataSourceWriter getDataSourceWriter();
+  public abstract DataSourceWriter getDataSourceWriter();
 
   /**
    * Liefert die Anzahl der Datensätze der Datenquelle zurück.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  abstract public int getSize();
+  public abstract int getSize();
 
   /**
    * Entfernt die Datenquelle
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  abstract public void remove();
+  public abstract void remove();
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * de.muenchen.allg.itd51.wollmux.SimulationResults.SimulationResultsProcessor
    * #processSimulationResults(de.muenchen.allg.itd51.wollmux.SimulationResults)
@@ -58,14 +58,15 @@ public abstract class OOoDataSource implements SimulationResultsProcessor
   @Override
   public void processSimulationResults(SimulationResults simRes)
   {
-    if (simRes == null) return;
+    if (simRes == null)
+      return;
 
-    HashMap<String, String> data =
-      new HashMap<String, String>(simRes.getFormFieldValues());
+    HashMap<String, String> data = new HashMap<>(simRes.getFormFieldValues());
     for (FormField field : simRes.getFormFields())
     {
       String columnName = OOoBasedMailMerge.getSpecialColumnNameForFormField(field);
-      if (columnName == null) continue;
+      if (columnName == null)
+        continue;
       String content = simRes.getFormFieldContent(field);
 
       // Checkboxen müssen über bestimmte Zeichen der Schriftart OpenSymbol

@@ -5,10 +5,10 @@ package de.muenchen.mailmerge.dialog.mailmerge.gui;
  * Seriendruckdialog-Abschnitts der WollMux-Konfiguration verwendet werden können.
  * Der Seriendruckabschnitt definiert im Vergleich zur FormGUI einige
  * Spezial-Typen, die nur im Kontext dieses Dialogs einen Sinn ergeben.
- * 
+ *
  * Die Methode {@link #getByname(String)} ermöglicht eine Zuordnung von Strings der
  * Konfigurationsdatei auf den entsprechenden enum-Typen.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public enum UIElementType {
@@ -31,7 +31,8 @@ public enum UIElementType {
   {
     for (UIElementType t : UIElementType.values())
     {
-      if (t.toString().equalsIgnoreCase(s)) return t;
+      if (t.toString().equalsIgnoreCase(s))
+        return t;
     }
     return unknown;
   }

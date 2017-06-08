@@ -21,7 +21,7 @@ public class IfFunction implements Function
   public IfFunction(Function ifFunction, Function thenFunction,
       Function elseFunction)
   {
-    Set<String> myparams = new HashSet<String>();
+    Set<String> myparams = new HashSet<>();
     myparams.addAll(Arrays.asList(ifFunction.parameters()));
     myparams.addAll(Arrays.asList(thenFunction.parameters()));
     myparams.addAll(Arrays.asList(elseFunction.parameters()));
@@ -49,7 +49,8 @@ public class IfFunction implements Function
   public String getString(Values parameters)
   {
     String condition = ifFunction.getString(parameters);
-    if (condition == Function.ERROR) return Function.ERROR;
+    if (condition == Function.ERROR)
+      return Function.ERROR;
     if (condition.equalsIgnoreCase("true"))
       return thenFunction.getString(parameters);
     else
@@ -60,7 +61,8 @@ public class IfFunction implements Function
   public boolean getBoolean(Values parameters)
   {
     String condition = ifFunction.getString(parameters);
-    if (condition == Function.ERROR) return false;
+    if (condition == Function.ERROR)
+      return false;
     if (condition.equalsIgnoreCase("true"))
       return thenFunction.getBoolean(parameters);
     else

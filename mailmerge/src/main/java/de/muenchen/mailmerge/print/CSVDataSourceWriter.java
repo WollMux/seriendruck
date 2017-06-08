@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import de.muenchen.allg.itd51.wollmux.core.db.ColumnNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
@@ -17,7 +18,7 @@ import de.muenchen.mailmerge.ModalDialogs;
 /**
  * Implementiert einen DataSourceWriter, der Daten in eine CSV-Datei data.csv in
  * einem frei wählbaren Zielverzeichnis schreibt.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public class CSVDataSourceWriter implements DataSourceWriter
@@ -30,7 +31,7 @@ public class CSVDataSourceWriter implements DataSourceWriter
   /**
    * Sammelt alle über {@link #addDataset(HashMap)} gesetzten Datensätze
    */
-  ArrayList<HashMap<String, String>> datasets;
+  ArrayList<Map<String, String>> datasets;
 
   /**
    * Sammelt die Namen aller über {@link #addDataset(HashMap)} gesetzten Spalten.
@@ -55,13 +56,13 @@ public class CSVDataSourceWriter implements DataSourceWriter
   public CSVDataSourceWriter(File parentDir)
   {
     csvFile = new File(parentDir, OOoBasedMailMerge.TABLE_NAME + ".csv");
-    datasets = new ArrayList<HashMap<String, String>>();
-    columns = new HashSet<String>();
+    datasets = new ArrayList<>();
+    columns = new HashSet<>();
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * de.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.DataSourceWriter#getSize
    * ()
@@ -74,13 +75,13 @@ public class CSVDataSourceWriter implements DataSourceWriter
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * de.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.DataSourceWriter#addDataset
    * (java.util.HashMap)
    */
   @Override
-  public void addDataset(HashMap<String, String> ds) throws Exception
+  public void addDataset(Map<String, String> ds) throws Exception
   {
     datasets.add(ds);
     columns.addAll(ds.keySet());
@@ -88,7 +89,7 @@ public class CSVDataSourceWriter implements DataSourceWriter
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @seede.muenchen.allg.itd51.wollmux.func.OOoBasedMailMerge.DataSourceWriter#
    * flushAndClose()
    */
@@ -100,13 +101,14 @@ public class CSVDataSourceWriter implements DataSourceWriter
     FileOutputStream fos = new FileOutputStream(csvFile);
     PrintStream p = new PrintStream(fos, true, "UTF-8");
     p.print(line(getHeaders()));
-    for (HashMap<String, String> ds : datasets)
+    for (Map<String, String> ds : datasets)
     {
-      ArrayList<String> entries = new ArrayList<String>();
+      ArrayList<String> entries = new ArrayList<>();
       for (String key : getHeaders())
       {
         String val = ds.get(key);
-        if (val == null) val = "";
+        if (val == null)
+          val = "";
         entries.add(val);
       }
       p.print(line(entries));
@@ -118,7 +120,7 @@ public class CSVDataSourceWriter implements DataSourceWriter
    * Überprüft ob die Headerzeilen der Datenquelle gültig sind, dh. keine
    * Zeilenumbrüche enthalten. Wenn Zeilenumbrüche gefunden werden, wird eine
    * entsprechende Meldung angezeigt.
-   * 
+   *
    * @throws ColumnNotFoundException
    *           Falls die Datenquelle in der Headerzeile mindestens 1 Spalte mit
    *           Zeilenumbruch enthält.
@@ -156,7 +158,7 @@ public class CSVDataSourceWriter implements DataSourceWriter
   /**
    * Erzeugt die zu dem durch list repräsentierten Datensatz zugehörige
    * vollständige Textzeile für die csv-Datei.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private String line(List<String> list)
@@ -164,7 +166,8 @@ public class CSVDataSourceWriter implements DataSourceWriter
     StringBuffer buf = new StringBuffer();
     for (String el : list)
     {
-      if (buf.length() != 0) buf.append(",");
+      if (buf.length() != 0)
+        buf.append(",");
       buf.append(literal(el));
     }
     buf.append("\n");
@@ -174,7 +177,7 @@ public class CSVDataSourceWriter implements DataSourceWriter
   /**
    * Erzeugt ein für die csv-Datei gültiges literal aus dem Wert value und
    * übernimmt insbesondere das Escaping der Anführungszeichen.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private String literal(String value)
@@ -186,20 +189,21 @@ public class CSVDataSourceWriter implements DataSourceWriter
   /**
    * Liefert eine alphabetisch sortierte Liste alle Spaltennamen zurück, die jemals
    * über {@link #addDataset(HashMap)} benutzt bzw. gesetzt wurden.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private ArrayList<String> getHeaders()
   {
-    if (headers != null) return headers;
-    headers = new ArrayList<String>(columns);
+    if (headers != null)
+      return headers;
+    headers = new ArrayList<>(columns);
     Collections.sort(headers);
     return headers;
   }
 
   /**
    * Liefert das File-Objekt der csv-Datei zurück, in die geschrieben wird/wurde.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public File getCSVFile()
@@ -209,7 +213,7 @@ public class CSVDataSourceWriter implements DataSourceWriter
 
   /**
    * Liefert den Wert von {@link #adjustPersistentData} zurück.
-   * 
+   *
    * @author Ulrich Kitzinger (GBI I21)
    */
   @Override

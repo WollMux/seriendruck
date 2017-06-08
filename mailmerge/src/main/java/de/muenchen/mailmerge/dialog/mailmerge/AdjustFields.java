@@ -2,7 +2,7 @@
  * Dateiname: AdjustFields.java
  * Projekt  : WollMux
  * Funktion : "Felder anpassen" Dialog der neuen erweiterten Serienbrief-Funktionalitäten
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.dialog.mailmerge;
 
@@ -72,7 +72,7 @@ import de.muenchen.mailmerge.document.commands.DocumentCommandInterpreter;
 
 /**
  * "Felder anpassen" Dialog der neuen erweiterten Serienbrief-Funktionalitäten.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
 class AdjustFields
@@ -81,10 +81,10 @@ class AdjustFields
    * Diese Methode zeigt den Dialog an, mit dem die Felder im Dokument an eine
    * Datenquelle angepasst werden können, die nicht die selben Spalten enthält wie
    * die Datenquelle, für die das Dokument gemacht wurde.
-   * 
+   *
    * @param parent
    *          das Elternfenster des anzuzeigenden Dialogs
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   static void showAdjustFieldsDialog(JFrame parent, final TextDocumentController documentController,
@@ -106,7 +106,7 @@ class AdjustFields
           String fieldId = ent.getKey();
           FieldSubstitution subst = ent.getValue();
           documentController.applyFieldSubstitution(fieldId, subst);
-          
+
           // Datenstrukturen aktualisieren
           documentController.updateDocumentCommands();
           DocumentCommandInterpreter dci = new DocumentCommandInterpreter(documentController);
@@ -121,7 +121,8 @@ class AdjustFields
           for (Iterator<FieldSubstitution.SubstElement> iter = subst.iterator(); iter.hasNext();)
           {
             FieldSubstitution.SubstElement ele = iter.next();
-            if (ele.isField()) documentController.updateFormFields(ele.getValue());
+            if (ele.isField())
+              documentController.updateFormFields(ele.getValue());
           }
 
         }
@@ -136,10 +137,10 @@ class AdjustFields
    * Diese Methode zeigt den Dialog an, mit dem die Spalten der Tabelle ergänzt
    * werden können, wenn es zu Feldern im Dokument keine passenden Spalten in der
    * Tabelle gibt.
-   * 
+   *
    * @param parent
    *          das Elternfenster des anzuzeigenden Dialogs
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   static void showAddMissingColumnsDialog(JFrame parent, TextDocumentController documentController,
@@ -175,7 +176,7 @@ class AdjustFields
    * wird für dieses Feld nur die Eingabe einer 1-zu-1 Zuordnung von Feldern
    * akzeptiert, das andere Zuordnungen für transformierte Felder derzeit nicht
    * unterstützt werden.
-   * 
+   *
    * @param parent
    *          Das Elternfenster dieses Dialogs.
    * @param fieldIDs
@@ -215,15 +216,15 @@ class AdjustFields
       final List<String> fieldNames, final ActionListener submitActionListener,
       boolean ignoreIsTransformed)
   {
-    //set JDialog to Modeless type so that it remains visible when changing focus between opened 
-    //calc and writer document. Drawback: when this Dialog is open, the "Seriendruck" bar is 
+    //set JDialog to Modeless type so that it remains visible when changing focus between opened
+    //calc and writer document. Drawback: when this Dialog is open, the "Seriendruck" bar is
     //active too.
     final JDialog dialog = new JDialog(parent, title, false);
     dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
     final TextComponentTags[] currentField = new TextComponentTags[] { null };
     final HashMap<TextComponentTags, String> mapTextComponentTagsToFieldname =
-      new HashMap<TextComponentTags, String>();
+      new HashMap<>();
 
     Box headers = Box.createHorizontalBox();
     final JButton insertFieldButton =
@@ -233,8 +234,8 @@ class AdjustFields
           @Override
           public Iterator<Action> iterator()
           {
-            List<Action> actions = new Vector<Action>();
-            List<String> columnNames = new Vector<String>(fieldNames);
+            List<Action> actions = new Vector<>();
+            List<String> columnNames = new Vector<>(fieldNames);
 
             Collections.sort(columnNames);
 
@@ -249,7 +250,8 @@ class AdjustFields
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                  if (currentField[0] != null) currentField[0].insertTag(name);
+                  if (currentField[0] != null)
+                    currentField[0].insertTag(name);
                 }
               };
               actions.add(button);
@@ -263,7 +265,7 @@ class AdjustFields
     headers.add(insertFieldButton);
 
     Box itemBox = Box.createVerticalBox();
-    ArrayList<JLabel> labels = new ArrayList<JLabel>();
+    ArrayList<JLabel> labels = new ArrayList<>();
     int maxLabelWidth = 0;
 
     Box hbox = Box.createHorizontalBox();
@@ -280,11 +282,12 @@ class AdjustFields
     DimAdjust.maxHeightIsPrefMaxWidthUnlimited(hbox);
     itemBox.add(hbox);
 
-    HashSet<String> addedFields = new HashSet<String>();
+    HashSet<String> addedFields = new HashSet<>();
     for (int i = 0; i < fieldIDs.length; i++)
     {
       String fieldId = fieldIDs[i].getFieldId();
-      if (addedFields.contains(fieldId)) continue;
+      if (addedFields.contains(fieldId))
+        continue;
       final boolean isTransformed =
         fieldIDs[i].isTransformed() && !ignoreIsTransformed;
       addedFields.add(fieldId);
@@ -303,9 +306,11 @@ class AdjustFields
         @Override
         public boolean isContentValid()
         {
-          if (!isTransformed) return true;
+          if (!isTransformed)
+            return true;
           List<TextComponentTags.ContentElement> c = getContent();
-          if (c.size() == 0) return true;
+          if (c.size() == 0)
+            return true;
           return c.size() == 1 && c.get(0).isTag();
         }
       };
@@ -362,12 +367,13 @@ class AdjustFields
       public void actionPerformed(ActionEvent e)
       {
         final HashMap<String, FieldSubstitution> result =
-          new HashMap<String, FieldSubstitution>();
+          new HashMap<>();
         for (Iterator<TextComponentTags> iter =
           mapTextComponentTagsToFieldname.keySet().iterator(); iter.hasNext();)
         {
           TextComponentTags f = iter.next();
-          if (!f.isContentValid()) continue;
+          if (!f.isContentValid())
+            continue;
           String fieldId = "" + mapTextComponentTagsToFieldname.get(f);
           FieldSubstitution subst = new TextDocumentModel.FieldSubstitution();
           for (TextComponentTags.ContentElement ce : f.getContent())
@@ -382,15 +388,16 @@ class AdjustFields
 
         dialog.dispose();
 
-        if (submitActionListener != null) new Thread()
-        {
-          @Override
-          public void run()
+        if (submitActionListener != null)
+          new Thread()
           {
-            submitActionListener.actionPerformed(new ActionEvent(result, 0,
-              "showSubstitutionDialogReturned"));
-          }
-        }.start();
+            @Override
+            public void run()
+            {
+              submitActionListener.actionPerformed(new ActionEvent(result, 0,
+                "showSubstitutionDialogReturned"));
+            }
+          }.start();
       }
     });
     buttonBox.add(button);

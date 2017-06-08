@@ -2,9 +2,9 @@ package de.muenchen.mailmerge.dialog.mailmerge.gui;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -23,12 +23,12 @@ import de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams;
  * oder Leerstring, so wird die Section mit einer TitledBorder verziert, ansonsten
  * nicht. Radio-Buttons erhalten innerhalb einer Section die selbe ButtonGroup,
  * weshalb für jede neue Gruppe eine neue Section erstellt werden muss.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public class Section
 {
-  List<UIElement> elements = new ArrayList<UIElement>();
+  List<UIElement> elements = new ArrayList<>();
 
   Box contentBox;
 
@@ -38,7 +38,7 @@ public class Section
    * Erzeugt die Section, die über das ConfigThingy section beschrieben ist, in der
    * JComponent parent angezeigt werden soll und im Kontext des
    * MailMergeParams-Objekts mmp gültig ist.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public Section(ConfigThingy section, JComponent parent, MailMergeParams mmp)
@@ -102,7 +102,8 @@ public class Section
         contentBox.add(uiel.getCompo());
         if (uiel instanceof HasRadioElement)
         {
-          if (buttonGroup == null) buttonGroup = new ButtonGroup();
+          if (buttonGroup == null)
+            buttonGroup = new ButtonGroup();
           ((HasRadioElement) uiel).setButtonGroup(buttonGroup);
         }
       }
@@ -115,10 +116,10 @@ public class Section
    * Aktualisiert alle in der Section enthaltenen UIElemente (bezüglich ihrer
    * Sichtbarkeit und Aktiviertheit) und passt ggf. die Voreinstellungen von allen
    * UIElementen an, die {@link HasRadioElement} implementieren.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
-  public void updateView(HashSet<String> visibleGroups)
+  public void updateView(Set<String> visibleGroups)
   {
     visible = false;
     HasRadioElement firstEnabledRadio = null;
@@ -126,15 +127,19 @@ public class Section
     for (UIElement el : elements)
     {
       el.updateView(visibleGroups);
-      if (el.isVisible()) visible = true;
+      if (el.isVisible())
+        visible = true;
 
       // ggf. Voreinstellungen von Radio-Buttons anpassen
-      if (!(el instanceof HasRadioElement)) continue;
+      if (!(el instanceof HasRadioElement))
+        continue;
       HasRadioElement hre = (HasRadioElement) el;
       if (el.isVisible() && el.isEnabled())
       {
-        if (firstEnabledRadio == null) firstEnabledRadio = hre;
-        if (hre.isSelected()) hasEnabledPreset = true;
+        if (firstEnabledRadio == null)
+          firstEnabledRadio = hre;
+        if (hre.isSelected())
+          hasEnabledPreset = true;
       }
     }
 
@@ -149,7 +154,8 @@ public class Section
   {
     for (UIElement el : elements)
     {
-      if (el.isVisible() && el.isEnabled()) el.addSubmitArgs(args);
+      if (el.isVisible() && el.isEnabled())
+        el.addSubmitArgs(args);
     }
   }
 }

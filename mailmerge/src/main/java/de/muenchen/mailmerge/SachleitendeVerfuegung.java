@@ -2,7 +2,7 @@
  * Dateiname: SachleitendeVerfuegung.java
  * Projekt  : WollMux
  * Funktion : Hilfen für Sachleitende Verfügungen.
- * 
+ *
  * Copyright (c) 2009-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@
  * -------------------------------------------------------------------
  *
  * @author Christoph Lutz (D-III-ITD 5.1)
- * 
+ *
  */
 package de.muenchen.mailmerge;
 
@@ -145,7 +145,7 @@ public class SachleitendeVerfuegung
   /**
    * Holt sich aus dem übergebenen Absatz paragraph nur den Breich der römischen
    * Ziffer (+Tab) und formatiert diesen im Zeichenformat WollMuxRoemischeZiffer.
-   * 
+   *
    * @param paragraph
    */
   private static void formatRoemischeZifferOnly(XTextRange paragraph)
@@ -165,7 +165,7 @@ public class SachleitendeVerfuegung
   /**
    * Liefert true, wenn es sich bei dem übergebenen Absatz paragraph um einen als
    * Verfuegungspunkt markierten Absatz handelt.
-   * 
+   *
    * @param paragraph
    *          Das Objekt mit der Property ParaStyleName, die für den Vergleich
    *          herangezogen wird.
@@ -188,7 +188,7 @@ public class SachleitendeVerfuegung
   /**
    * Liefert true, wenn es sich bei dem übergebenen Absatz paragraph um einen als
    * VerfuegungspunktMitZuleitung markierten Absatz handelt.
-   * 
+   *
    * @param paragraph
    *          Das Objekt mit der Property ParaStyleName, die für den Vergleich
    *          herangezogen wird.
@@ -211,7 +211,7 @@ public class SachleitendeVerfuegung
   /**
    * Liefert true, wenn es sich bei dem übergebenen Absatz paragraph um einen als
    * Zuleitungszeile markierten Absatz handelt.
-   * 
+   *
    * @param paragraph
    *          Das Objekt mit der Property ParaStyleName, die für den Vergleich
    *          herangezogen wird.
@@ -235,7 +235,7 @@ public class SachleitendeVerfuegung
    * Liefert true, wenn der übergebene Paragraph paragraph den für Abdrucke typischen
    * String in der Form "Abdruck von I[, II, ...][ und n]" enthält, andernfalls
    * false.
-   * 
+   *
    * @param paragraph
    *          der zu prüfende Paragraph
    * @return
@@ -252,7 +252,7 @@ public class SachleitendeVerfuegung
    * "Abdruck von I[, II, ...][ und n]<suffix>" gefunden wird oder "", wenn der kein
    * Teil gefunden wurde. Das entspricht dem Text, den der Benutzer manuell
    * hinzugefügt hat.
-   * 
+   *
    * @param paragraph
    *          der Paragraph, der den Abdruck-String enthält.
    * @return den suffix des Abdruck-Strings, der überlicherweise vom Benutzer manuell
@@ -265,7 +265,8 @@ public class SachleitendeVerfuegung
       Pattern.compile(
         "[XIV0-9]+\\.\\s*" + copyName + " von " + romanNumbers[0]
           + "(, [XIV0-9]+\\.)*( und [XIV0-9]+\\.)?(.*)").matcher(str);
-    if (m.matches()) return m.group(3);
+    if (m.matches())
+      return m.group(3);
     return "";
   }
 
@@ -277,7 +278,7 @@ public class SachleitendeVerfuegung
    * gesetzt wurde. Ist ein Rahmen mit dem Namen WollMuxVerfuegungspunkt1 vorhanden,
    * der einen als Verfügungpunkt markierten Paragraphen enthält, so wird dieser
    * Paragraph immer (gemäß Konzept) als Verfügungspunkt "I" behandelt.
-   * 
+   *
    * @param doc
    *          Das Dokument, in dem alle Verfügungspunkte angepasst werden sollen.
    */
@@ -288,7 +289,8 @@ public class SachleitendeVerfuegung
     // Zähler für Verfuegungspunktnummer auf 1 initialisieren, wenn ein
     // Verfuegungspunkt1 vorhanden ist.
     int count = 0;
-    if (punkt1 != null) count++;
+    if (punkt1 != null)
+      count++;
 
     // Paragraphen des Texts enumerieren und dabei alle Verfuegungspunkte neu
     // nummerieren. Die Enumeration erfolgt über einen ParagraphCursor, da sich
@@ -299,46 +301,49 @@ public class SachleitendeVerfuegung
     XParagraphCursor cursor =
       UNO.XParagraphCursor(documentController.getModel().doc.getText().createTextCursorByRange(
         documentController.getModel().doc.getText().getStart()));
-    if (cursor != null) do
+    if (cursor != null)
     {
-      // ganzen Paragraphen markieren
-      cursor.gotoEndOfParagraph(true);
-
-      if (isVerfuegungspunkt(cursor))
+      do
       {
-        count++;
+        // ganzen Paragraphen markieren
+        cursor.gotoEndOfParagraph(true);
 
-        if (isAbdruck(cursor))
+        if (isVerfuegungspunkt(cursor))
         {
-          // Behandlung von Paragraphen mit einem "Abdruck"-String
-          String abdruckStr = abdruckString(count) + getAbdruckSuffix(cursor);
-          if (!cursor.getString().equals(abdruckStr))
+          count++;
+
+          if (isAbdruck(cursor))
           {
-            cursor.setString(abdruckStr);
-            formatRoemischeZifferOnly(cursor);
-          }
-        }
-        else
-        {
-          // Behandlung von normalen Verfügungspunkten:
-          String numberStr = romanNumber(count) + "\t";
-          XTextRange zifferOnly = getZifferOnly(cursor, false);
-          if (zifferOnly != null)
-          {
-            // Nummer aktualisieren wenn sie nicht mehr stimmt.
-            if (!zifferOnly.getString().equals(numberStr))
-              zifferOnly.setString(numberStr);
+            // Behandlung von Paragraphen mit einem "Abdruck"-String
+            String abdruckStr = abdruckString(count) + getAbdruckSuffix(cursor);
+            if (!cursor.getString().equals(abdruckStr))
+            {
+              cursor.setString(abdruckStr);
+              formatRoemischeZifferOnly(cursor);
+            }
           }
           else
           {
-            // Nummer neu anlegen, wenn wie noch gar nicht existierte
-            zifferOnly = cursor.getText().createTextCursorByRange(cursor.getStart());
-            zifferOnly.setString(numberStr);
-            formatRoemischeZifferOnly(zifferOnly);
+            // Behandlung von normalen Verfügungspunkten:
+            String numberStr = romanNumber(count) + "\t";
+            XTextRange zifferOnly = getZifferOnly(cursor, false);
+            if (zifferOnly != null)
+            {
+              // Nummer aktualisieren wenn sie nicht mehr stimmt.
+              if (!zifferOnly.getString().equals(numberStr))
+                zifferOnly.setString(numberStr);
+            }
+            else
+            {
+              // Nummer neu anlegen, wenn wie noch gar nicht existierte
+              zifferOnly = cursor.getText().createTextCursorByRange(cursor.getStart());
+              zifferOnly.setString(numberStr);
+              formatRoemischeZifferOnly(zifferOnly);
+            }
           }
         }
-      }
-    } while (cursor.gotoNextParagraph(false));
+      } while (cursor.gotoNextParagraph(false));
+    }
 
     // Verfuegungspunt1 setzen
     if (punkt1 != null)
@@ -346,7 +351,8 @@ public class SachleitendeVerfuegung
       XTextRange zifferOnly = getZifferOnly(punkt1, false);
       if (zifferOnly != null)
       {
-        if (count == 1) zifferOnly.setString("");
+        if (count == 1)
+          zifferOnly.setString("");
       }
       else
       {
@@ -369,7 +375,7 @@ public class SachleitendeVerfuegung
    * darauf folgendem \t-Zeichen) am Beginn eines Absatzes umschließt oder null,
    * falls keine Ziffer gefunden wurde. Bei der Suche nach der Ziffer werden nur die
    * ersten 7 Zeichen des Absatzes geprüft.
-   * 
+   *
    * @param par
    *          die TextRange, die den Paragraphen umschließt, in dessen Anfang nach
    *          der römischen Ziffer gesucht werden soll.
@@ -398,7 +404,8 @@ public class SachleitendeVerfuegung
         // auch eine Ziffer erkennen, die nicht mit \t endet.
         text = cursor.getString() + "\t";
       }
-      if (text.matches(zifferPattern + "$")) return cursor;
+      if (text.matches(zifferPattern + "$"))
+        return cursor;
     }
 
     return null;
@@ -408,7 +415,7 @@ public class SachleitendeVerfuegung
    * Liefert das Textobjekt des TextRahmens WollMuxVerfuegungspunkt1 oder null, falls
    * der Textrahmen nicht existiert. Der gesamte Text innerhalb des Textrahmens wird
    * dabei automatisch mit dem Absatzformat WollMuxVerfuegungspunkt1 vordefiniert.
-   * 
+   *
    * @param doc
    *          das Dokument, in dem sich der TextRahmen WollMuxVerfuegungspunkt1
    *          befindet (oder nicht).
@@ -444,7 +451,7 @@ public class SachleitendeVerfuegung
    * Erzeugt einen String in der Form "i.<tab>Abdruck von I.[, II., ...][ und
    * <i-1>]", der passend zu einem Abdruck mit der Verfügungsnummer number angezeigt
    * werden soll.
-   * 
+   *
    * @param number
    *          Die Nummer des Verfügungspunktes des Abdrucks
    * @return String in der Form "Abdruck von I.[, II., ...][ und <i-1>]" oder
@@ -456,7 +463,8 @@ public class SachleitendeVerfuegung
     String str = romanNumber(number) + "\t" + copyName + " von " + romanNumber(1);
     for (int j = 2; j < (number - 1); ++j)
       str += ", " + romanNumber(j);
-    if (number >= 3) str += " und " + romanNumber(number - 1);
+    if (number >= 3)
+      str += " und " + romanNumber(number - 1);
     return str;
   }
 
@@ -467,7 +475,7 @@ public class SachleitendeVerfuegung
    * "<dezimalzahl(i)>.". Hier kann bei Notwendigkeit natürlich auch ein
    * Berechnungsschema für römische Zahlen implementiert werden, was für die
    * Sachleitenden Verfügungen vermutlich aber nicht erforderlich sein wird.
-   * 
+   *
    * @param i
    *          Die Zahl, zu der eine römische Zahl geliefert werden soll.
    * @return Die römische Zahl, oder "<dezimalzahl(i)>, wenn i-1 nicht in den
@@ -476,7 +484,8 @@ public class SachleitendeVerfuegung
   private static String romanNumber(int i)
   {
     String number = "" + i + ".";
-    if (i > 0 && i <= romanNumbers.length) number = romanNumbers[i - 1];
+    if (i > 0 && i <= romanNumbers.length)
+      number = romanNumbers[i - 1];
     return number;
   }
 
@@ -484,7 +493,7 @@ public class SachleitendeVerfuegung
    * Erzeugt einen Vector mit Elementen vom Typ Verfuegungspunkt, der dem Druckdialog
    * übergeben werden kann und alle für den Druckdialog notwendigen Informationen
    * enthält.
-   * 
+   *
    * @param doc
    *          Das zu scannende Dokument
    * @return Vector of Verfuegungspunkt, der für jeden Verfuegungspunkt im Dokument
@@ -516,31 +525,35 @@ public class SachleitendeVerfuegung
       UNO.XParagraphCursor(doc.getText().createTextCursorByRange(
         doc.getText().getStart()));
 
-    if (cursor != null) do
+    if (cursor != null)
     {
-      // ganzen Paragraphen markieren
-      cursor.gotoEndOfParagraph(true);
-
-      if (isVerfuegungspunkt(cursor))
+      do
       {
-        String heading = cursor.getString();
-        currentVerfpunkt = new Verfuegungspunkt(heading);
-        currentVerfpunkt.setMinNumberOfCopies(1);
-        verfuegungspunkte.add(currentVerfpunkt);
-      }
+        // ganzen Paragraphen markieren
+        cursor.gotoEndOfParagraph(true);
 
-      // Zuleitungszeilen hinzufügen (auch wenn der Paragraph Verfügungspunkt
-      // und Zuleitungszeile zugleich ist)
-      if ((isZuleitungszeile(cursor) || isVerfuegungspunktMitZuleitung(cursor))
-        && currentVerfpunkt != null
-        // ausgeblendete Zeilen ignorieren
-        && Boolean.FALSE.equals(UNO.getProperty(cursor, "CharHidden")))
-      {
-        String zuleit = cursor.getString();
-        // nicht leere Zuleitungszeilen zum Verfügungspunkt hinzufügen.
-        if (!(zuleit.length() == 0)) currentVerfpunkt.addZuleitungszeile(zuleit);
-      }
-    } while (cursor.gotoNextParagraph(false));
+        if (isVerfuegungspunkt(cursor))
+        {
+          String heading = cursor.getString();
+          currentVerfpunkt = new Verfuegungspunkt(heading);
+          currentVerfpunkt.setMinNumberOfCopies(1);
+          verfuegungspunkte.add(currentVerfpunkt);
+        }
+
+        // Zuleitungszeilen hinzufügen (auch wenn der Paragraph Verfügungspunkt
+        // und Zuleitungszeile zugleich ist)
+        if ((isZuleitungszeile(cursor) || isVerfuegungspunktMitZuleitung(cursor))
+          && currentVerfpunkt != null
+          // ausgeblendete Zeilen ignorieren
+          && Boolean.FALSE.equals(UNO.getProperty(cursor, "CharHidden")))
+        {
+          String zuleit = cursor.getString();
+          // nicht leere Zuleitungszeilen zum Verfügungspunkt hinzufügen.
+          if (!(zuleit.length() == 0))
+            currentVerfpunkt.addZuleitungszeile(zuleit);
+        }
+      } while (cursor.gotoNextParagraph(false));
+    }
 
     return verfuegungspunkte;
   }
@@ -549,7 +562,7 @@ public class SachleitendeVerfuegung
    * Zeigt den Druckdialog für Sachleitende Verfügungen an und liefert die dort
    * getroffenen Einstellungen als Liste von VerfuegungspunktInfo-Objekten zurück,
    * oder null, wenn Fehler auftraten oder der Druckvorgang abgebrochen wurde.
-   * 
+   *
    * @param doc
    *          Das Dokument, aus dem die anzuzeigenden Verfügungspunkte ausgelesen
    *          werden.
@@ -624,7 +637,7 @@ public class SachleitendeVerfuegung
   /**
    * Druckt den Verfügungpunkt Nummer verfPunkt aus dem Dokument aus, das im
    * XPrintModel pmod hinterlegt ist.
-   * 
+   *
    * @param pmod
    *          Das PrintModel zu diesem Druckvorgang.
    * @param verfPunkt
@@ -655,39 +668,45 @@ public class SachleitendeVerfuegung
     XTextCursor oldViewCursor = null;
     XTextViewCursorSupplier suppl =
       UNO.XTextViewCursorSupplier(UNO.XModel(pmod.getTextDocument()).getCurrentController());
-    if (suppl != null) vc = suppl.getViewCursor();
-    if (vc != null) oldViewCursor = vc.getText().createTextCursorByRange(vc);
+    if (suppl != null)
+      vc = suppl.getViewCursor();
+    if (vc != null)
+      oldViewCursor = vc.getText().createTextCursorByRange(vc);
 
     // Zähler für Verfuegungspunktnummer auf 1 initialisieren, wenn ein
     // Verfuegungspunkt1 vorhanden ist.
     XTextRange punkt1 = getVerfuegungspunkt1(doc);
     int count = 0;
-    if (punkt1 != null) count++;
+    if (punkt1 != null)
+      count++;
 
     // Auszublendenden Bereich festlegen:
     XTextRange setInvisibleRange = null;
     XParagraphCursor cursor =
       UNO.XParagraphCursor(doc.getText().createTextCursorByRange(
         doc.getText().getStart()));
-    if (cursor != null) do
+    if (cursor != null)
     {
-      cursor.gotoEndOfParagraph(true);
-
-      if (isVerfuegungspunkt(cursor))
+      do
       {
-        // Punkt1 merken
-      if (punkt1 == null) punkt1 = cursor.getText().createTextCursorByRange(cursor);
+        cursor.gotoEndOfParagraph(true);
 
-      count++;
+        if (isVerfuegungspunkt(cursor))
+        {
+          // Punkt1 merken
+          if (punkt1 == null) punkt1 = cursor.getText().createTextCursorByRange(cursor);
 
-      if (count == (verfPunkt + 1))
-      {
-        cursor.collapseToStart();
-        cursor.gotoRange(cursor.getText().getEnd(), true);
-        setInvisibleRange = cursor;
-      }
+          count++;
+
+          if (count == (verfPunkt + 1))
+          {
+            cursor.collapseToStart();
+            cursor.gotoRange(cursor.getText().getEnd(), true);
+            setInvisibleRange = cursor;
+          }
+        }
+      } while (setInvisibleRange == null && cursor.gotoNextParagraph(false));
     }
-  } while (setInvisibleRange == null && cursor.gotoNextParagraph(false));
 
     // Prüfen, welche Textsections im ausgeblendeten Bereich liegen und diese
     // ebenfalls ausblenden (und den alten Stand merken):
@@ -707,7 +726,8 @@ public class SachleitendeVerfuegung
       {}
 
     // ensprechende Verfügungspunkte ausblenden
-    if (setInvisibleRange != null) UNO.hideTextRange(setInvisibleRange, true);
+    if (setInvisibleRange != null)
+      UNO.hideTextRange(setInvisibleRange, true);
 
     // Ein/Ausblenden Druckblöcke (z.B. draftOnly):
     pmod.setPrintBlocksProps(BLOCKNAME_SLV_DRAFT_ONLY, isDraft, false);
@@ -738,7 +758,8 @@ public class SachleitendeVerfuegung
       pmod.printWithProps();
 
     // Ausblendung von Ziffer von Punkt 1 wieder aufheben
-    if (punkt1ZifferOnly != null) UNO.hideTextRange(punkt1ZifferOnly, false);
+    if (punkt1ZifferOnly != null)
+      UNO.hideTextRange(punkt1ZifferOnly, false);
 
     // Sichtbarkeitsgruppen wieder einblenden
     pmod.setGroupVisible(GROUP_ID_SLV_DRAFT_ONLY, true);
@@ -758,20 +779,23 @@ public class SachleitendeVerfuegung
     for (XTextSection section : hidingSections)
     {
       Boolean oldState = sectionOldState.get(section);
-      if (oldState != null) UNO.setProperty(section, "IsVisible", oldState);
+      if (oldState != null)
+        UNO.setProperty(section, "IsVisible", oldState);
     }
 
     // Verfügungspunkte wieder einblenden:
-    if (setInvisibleRange != null) UNO.hideTextRange(setInvisibleRange, false);
+    if (setInvisibleRange != null)
+      UNO.hideTextRange(setInvisibleRange, false);
 
     // ViewCursor wieder herstellen:
-    if (vc != null && oldViewCursor != null) vc.gotoRange(oldViewCursor, false);
+    if (vc != null && oldViewCursor != null)
+      vc.gotoRange(oldViewCursor, false);
   }
 
   /**
    * Diese Methode liefert in eine Liste aller Textsections aus doc, deren Anker an
    * der selben Position oder hinter der Position der TextRange pos liegt.
-   * 
+   *
    * @param doc
    *          Textdokument in dem alle enthaltenen Textsections geprüft werden.
    * @param pos
@@ -779,18 +803,21 @@ public class SachleitendeVerfuegung
    *          sollen.
    * @return eine Liste aller TextSections, die an oder nach pos starten oder eine
    *         leere Liste, wenn es Fehler gab oder keine Textsection gefunden wurde.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private static List<XTextSection> getSectionsFromPosition(XTextDocument doc,
       XTextRange pos)
   {
     Vector<XTextSection> v = new Vector<XTextSection>();
-    if (pos == null) return v;
+    if (pos == null)
+      return v;
     XTextRangeCompare comp = UNO.XTextRangeCompare(pos.getText());
-    if (comp == null) return v;
+    if (comp == null)
+      return v;
     XTextSectionsSupplier suppl = UNO.XTextSectionsSupplier(doc);
-    if (suppl == null) return v;
+    if (suppl == null)
+      return v;
 
     XNameAccess sections = suppl.getTextSections();
     String[] names = sections.getElementNames();
@@ -811,7 +838,8 @@ public class SachleitendeVerfuegung
         try
         {
           int diff = comp.compareRegionStarts(pos, section.getAnchor());
-          if (diff >= 0) v.add(section);
+          if (diff >= 0)
+            v.add(section);
         }
         catch (IllegalArgumentException e)
         {
@@ -827,7 +855,7 @@ public class SachleitendeVerfuegung
    * Erzeugt im Dokument doc ein neues Absatzformat (=ParagraphStyle) mit dem Namen
    * name und dem ParentStyle parentStyleName und liefert das neu erzeugte
    * Absatzformat zurück oder null, falls das Erzeugen nicht funktionierte.
-   * 
+   *
    * @param doc
    *          das Dokument in dem das Absatzformat name erzeugt werden soll.
    * @param name
@@ -861,7 +889,7 @@ public class SachleitendeVerfuegung
 
   /**
    * Liefert den Styles vom Typ type des Dokuments doc.
-   * 
+   *
    * @param doc
    *          Das Dokument, dessen StyleContainer zurückgeliefert werden soll.
    * @param type
@@ -886,9 +914,9 @@ public class SachleitendeVerfuegung
    * Wertet die wollmux,conf-Direktive ABDRUCK_NAME aus und setzt diese entsprechend
    * in der OOo Erweiterung. Ist kein ABDRUCK_NAME gegeben, so wird "Abdruck" als
    * Standardwert gesetzt.
-   * 
+   *
    * @return Kopiebezeichner als String
-   * 
+   *
    * @author Jan Gerrit Möltgen (JanGerrit@burg-borgholz.de), Christoph Lutz
    */
   private static String getCopyName()
@@ -910,9 +938,9 @@ public class SachleitendeVerfuegung
    * Wertet die wollmux,conf-Direktive NUMBERS aus und setzt diese entsprechend in
    * der OOo Erweiterung. Ist kein Wert gegeben, so werden römische Ziffern
    * verwendet.
-   * 
+   *
    * @return Ziffern als String array
-   * 
+   *
    * @author Jan Gerrit Möltgen (JanGerrit@burg-borgholz.de), Christoph Lutz
    */
   private static String[] getNumbers()
@@ -952,12 +980,13 @@ public class SachleitendeVerfuegung
    * Sorgt ohne Verlust von sichtbaren Formatierungseigenschaften dafür, dass alle
    * Formatvorlagen des Dokuments doc, die in Sachleitenden Verfügungen eine
    * besondere Rolle spielen, zukünftig nicht mehr vom WollMux interpretiert werden.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public static void deMuxSLVStyles(XTextDocument doc)
   {
-    if (doc == null) return;
+    if (doc == null)
+      return;
 
     HashMap<String, String> mapOldNameToNewName = new HashMap<String, String>();
     XParagraphCursor cursor =
@@ -983,12 +1012,15 @@ public class SachleitendeVerfuegung
           // Einmalig Style NO<number>_<oldName> erzeugen, der von <oldName> erbt.
           String newName = mapOldNameToNewName.get(oldName);
           XStyle newStyle = null;
-          if (newName == null) do
+          if (newName == null)
           {
-            newName = "NO" + new Random().nextInt(1000) + "_" + oldName;
-            mapOldNameToNewName.put(oldName, newName);
-            newStyle = createParagraphStyle(doc, newName, oldName);
-          } while (newStyle == null);
+            do
+            {
+              newName = "NO" + new Random().nextInt(1000) + "_" + oldName;
+              mapOldNameToNewName.put(oldName, newName);
+              newStyle = createParagraphStyle(doc, newName, oldName);
+            } while (newStyle == null);
+          }
 
           if (oldName != null)
           {
@@ -1008,7 +1040,8 @@ public class SachleitendeVerfuegung
       XNamed frame =
         UNO.XNamed(UNO.XTextFramesSupplier(doc).getTextFrames().getByName(
           FrameNameVerfuegungspunkt1));
-      if (frame != null) frame.setName("NON_" + FrameNameVerfuegungspunkt1);
+      if (frame != null)
+        frame.setName("NON_" + FrameNameVerfuegungspunkt1);
     }
     catch (java.lang.Exception e)
     {}

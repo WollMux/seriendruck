@@ -6,7 +6,6 @@ import de.muenchen.allg.itd51.wollmux.core.functions.ExternalFunction;
 import de.muenchen.allg.itd51.wollmux.core.functions.Function;
 import de.muenchen.allg.itd51.wollmux.core.functions.Values;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
-import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
 import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.WollMuxClassLoader;
@@ -16,7 +15,6 @@ public class ExternalFunctionFunction implements Function
   private ExternalFunction func;
 
   public ExternalFunctionFunction(ConfigThingy conf)
-      throws ConfigurationErrorException
   {
     func = new ExternalFunction(conf, WollMuxClassLoader.getClassLoader());
   }

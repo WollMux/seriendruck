@@ -13,7 +13,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 /**
  * A optional XCancellable mail merge thread.
- * 
+ *
  * @author Jan-Marek Glogowski (ITM-I23)
  */
 class MailMergeThread extends Thread
@@ -62,7 +62,8 @@ class MailMergeThread extends Thread
 
   public synchronized void cancel()
   {
-    if (mailMergeCancellable != null) mailMergeCancellable.cancel();
+    if (mailMergeCancellable != null)
+      mailMergeCancellable.cancel();
   }
 
   public Object getResult()

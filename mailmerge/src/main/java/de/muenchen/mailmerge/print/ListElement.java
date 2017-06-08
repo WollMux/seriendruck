@@ -5,7 +5,7 @@ import de.muenchen.allg.itd51.wollmux.core.db.Dataset;
 /**
  * Wrapper für ein Dataset, um es einerseits in eine JList packen zu können,
  * andererseits auch dafür, den Zustand ausgewählt oder nicht speichern zu können.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
 public class ListElement
@@ -21,7 +21,7 @@ public class ListElement
    * Spalten "WollMuxDescription" und "WollMuxSelected" ausgewertet werden, um den
    * toString() respektive isSelected() Wert zu bestimmen. Falls keine
    * WollMuxDescription vorhanden ist, so wird description verwendet.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public ListElement(Dataset ds, String description)
@@ -31,7 +31,8 @@ public class ListElement
     try
     {
       String des = ds.get("WollMuxDescription");
-      if (des != null && des.length() > 0) this.description = des;
+      if (des != null && des.length() > 0)
+        this.description = des;
     }
     catch (Exception x)
     {}

@@ -1,8 +1,8 @@
-/* 
+/*
  * Dateiname: SachleitendeVerfuegungenDruckdialog.java
  * Projekt  : WollMux
  * Funktion : Implementiert den Dialog zum Drucken von Sachleitenden Verfügungen
- * 
+ *
  * Copyright (c) 2010-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
  * -------------------------------------------------------------------
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
- * 
+ *
  */
 package de.muenchen.mailmerge.dialog;
 
@@ -80,7 +80,7 @@ import de.muenchen.mailmerge.WollMuxSingleton;
  * Diese Klasse baut anhand einer als ConfigThingy übergebenen Dialogbeschreibung
  * einen Dialog zum Drucken von Sachleitenden Verfügungen. Die private-Funktionen
  * dürfen NUR aus dem Event-Dispatching Thread heraus aufgerufen werden.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1), Christoph Lutz (D-III-ITD 5.1)
  */
 public class SachleitendeVerfuegungenDruckdialog
@@ -100,29 +100,30 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * Rand um Textfelder (wird auch für ein paar andere Ränder verwendet) in Pixeln.
    */
-  private final static int TF_BORDER = 4;
+  private static final int TF_BORDER = 4;
 
   /**
    * Rand über und unter einem horizontalen Separator (in Pixeln).
    */
-  private final static int SEP_BORDER = 7;
+  private static final int SEP_BORDER = 7;
 
   /**
    * Rand um Buttons (in Pixeln).
    */
-  private final static int BUTTON_BORDER = 2;
+  private static final int BUTTON_BORDER = 2;
 
   /**
    * Anzahl der Zeichen, nach der der Text der Verfügungspunkte abgeschnitten wird,
    * damit der Dialog nicht platzt.
    */
-  private final static int CONTENT_CUT = 75;
+  private static final int CONTENT_CUT = 75;
 
   /**
    * ActionListener für Buttons mit der ACTION "printElement".
    */
-  private ActionListener actionListener_printElement = new ActionListener()
+  private ActionListener actionListenerPrintElement = new ActionListener()
   {
+    @Override
     public void actionPerformed(ActionEvent e)
     {
       if (e.getSource() instanceof JButton)
@@ -134,8 +135,9 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * ActionListener für Buttons mit der ACTION "printAll".
    */
-  private ActionListener actionListener_printAll = new ActionListener()
+  private ActionListener actionListenerPrintAll = new ActionListener()
   {
+    @Override
     public void actionPerformed(ActionEvent e)
     {
       printOrderAsc = getSelectedPrintOrderAsc();
@@ -147,8 +149,9 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * ActionListener für Buttons mit der ACTION "abort".
    */
-  private ActionListener actionListener_abort = new ActionListener()
+  private ActionListener actionListenerAbort = new ActionListener()
   {
+    @Override
     public void actionPerformed(ActionEvent e)
     {
       abort(CMD_CANCEL);
@@ -160,6 +163,7 @@ public class SachleitendeVerfuegungenDruckdialog
    */
   private ChangeListener spinnerChangeListener = new ChangeListener()
   {
+    @Override
     public void stateChanged(ChangeEvent arg0)
     {
       allElementCountTextField.setText("" + getAllElementCount());
@@ -172,6 +176,7 @@ public class SachleitendeVerfuegungenDruckdialog
    */
   private ItemListener cboxItemListener = new ItemListener()
   {
+    @Override
     public void itemStateChanged(ItemEvent arg0)
     {
       Object source = arg0.getSource();
@@ -179,7 +184,8 @@ public class SachleitendeVerfuegungenDruckdialog
       {
         @SuppressWarnings("unchecked")
         JComboBox<String> cbox = (JComboBox<String>) source;
-        if (cbox.getSelectedIndex() != 0) cbox.setSelectedIndex(0);
+        if (cbox.getSelectedIndex() != 0)
+          cbox.setSelectedIndex(0);
       }
     }
   };
@@ -187,17 +193,12 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * wird getriggert bei windowClosing() Event.
    */
-  private ActionListener closeAction = actionListener_abort;
+  private ActionListener closeAction = actionListenerAbort;
 
   /**
    * Der Rahmen des gesamten Dialogs.
    */
   private JFrame myFrame;
-
-  /**
-   * Das JPanel der obersten Hierarchiestufe.
-   */
-  private JPanel mainPanel;
 
   /**
    * Die Array mit allen comboBoxen, die elementCount beinhalten.
@@ -250,7 +251,7 @@ public class SachleitendeVerfuegungenDruckdialog
 
   /**
    * Erzeugt einen neuen Dialog.
-   * 
+   *
    * @param conf
    *          das ConfigThingy, das den Dialog beschreibt (der Vater des
    *          "Fenster"-Knotens.
@@ -270,11 +271,10 @@ public class SachleitendeVerfuegungenDruckdialog
    */
   public SachleitendeVerfuegungenDruckdialog(ConfigThingy conf,
       List<Verfuegungspunkt> verfuegungspunkte, ActionListener dialogEndListener)
-      throws ConfigurationErrorException
   {
     this.verfuegungspunkte = verfuegungspunkte;
     this.dialogEndListener = dialogEndListener;
-    this.currentSettings = new ArrayList<VerfuegungspunktInfo>();
+    this.currentSettings = new ArrayList<>();
     this.printOrder = new JCheckBox();
 
     ConfigThingy fensterDesc1 = conf.query("Fenster");
@@ -292,6 +292,7 @@ public class SachleitendeVerfuegungenDruckdialog
     {
       javax.swing.SwingUtilities.invokeLater(new Runnable()
       {
+        @Override
         public void run()
         {
           try
@@ -312,7 +313,7 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * Enthält die Einstellungen, die zu einem Verfügungspunkt im Dialog getroffen
    * wurden.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   public static class VerfuegungspunktInfo
@@ -334,6 +335,7 @@ public class SachleitendeVerfuegungenDruckdialog
       this.isOriginal = isOriginal;
     }
 
+    @Override
     public String toString()
     {
       return "VerfuegungspunktInfo(verfPunkt=" + verfPunktNr + ", copyCount="
@@ -355,7 +357,7 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * Liefert die aktuellen in diesem Dialog getroffenen Einstellungen als Liste von
    * VerfuegungspunktInfo-Objekten zurück.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   public List<VerfuegungspunktInfo> getCurrentSettings()
@@ -365,7 +367,7 @@ public class SachleitendeVerfuegungenDruckdialog
 
   /**
    * Erzeugt das GUI.
-   * 
+   *
    * @param fensterDesc
    *          die Spezifikation dieses Dialogs.
    * @author Matthias Benkmann (D-III-ITD 5.1), Christoph Lutz (D-III-ITD 5.1)
@@ -377,7 +379,7 @@ public class SachleitendeVerfuegungenDruckdialog
     int size = verfuegungspunkte.size();
 
     // element
-    elementComboBoxes = new ArrayList<JComboBox<String>>();
+    elementComboBoxes = new ArrayList<>();
     elementCountSpinner = new JSpinner[size];
     printElementButtons = new JButton[size];
 
@@ -387,9 +389,9 @@ public class SachleitendeVerfuegungenDruckdialog
       Vector<String> zuleitungszeilen = verfPunkt.getZuleitungszeilen();
 
       // elementComboBoxes vorbelegen:
-      Vector<String> content = new Vector<String>();
+      Vector<String> content = new Vector<>();
       content.add(cutContent(verfPunkt.getHeading()));
-      if (zuleitungszeilen.size() > 0)
+      if (!zuleitungszeilen.isEmpty())
         content.add(cutContent(L.m("------- Zuleitung an --------")));
       Iterator<String> iter = zuleitungszeilen.iterator();
       while (iter.hasNext())
@@ -431,7 +433,7 @@ public class SachleitendeVerfuegungenDruckdialog
     // WollMux-Icon für das Fenster
     Common.setWollMuxIcon(myFrame);
 
-    mainPanel = new JPanel(new BorderLayout());
+    JPanel mainPanel = new JPanel(new BorderLayout());
     mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     myFrame.getContentPane().add(mainPanel);
 
@@ -482,10 +484,10 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * Wenn value mehr als CONTENT_CUT Zeichen besitzt, dann wird eine gekürzte Form
    * von value zurückgeliefert (mit "..." ergänzt) oder ansonsten value selbst.
-   * 
+   *
    * @param value
    *          der zu kürzende String
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private static String cutContent(String value)
@@ -593,7 +595,8 @@ public class SachleitendeVerfuegungenDruckdialog
             // haben. AUFGABE: ab März 2009 (ein Jahr nach der Änderung) sollten alle
             // Referate die entsprechend angepasste Standard-Config installiert
             // haben. Dann muss dieses 'if' wieder aus dem Code rausfliegen!!!
-            if (!"Seiten".equals(labelText)) compo.add(uiElement, gbcLabel);
+            if (!"Seiten".equals(labelText))
+              compo.add(uiElement, gbcLabel);
           }
 
           else if (type.equals("glue"))
@@ -646,13 +649,14 @@ public class SachleitendeVerfuegungenDruckdialog
             }
 
             else
-              comboBox = new JComboBox<String>();
+              comboBox = new JComboBox<>();
 
             // comboBox.addListSelectionListener(myListSelectionListener);
 
             gbcComboBox.gridx = x;
             gbcComboBox.gridy = y;
-            if (comboBox != null) compo.add(comboBox, gbcComboBox);
+            if (comboBox != null)
+              compo.add(comboBox, gbcComboBox);
           }
 
           else if (type.equals("checkbox"))
@@ -716,7 +720,7 @@ public class SachleitendeVerfuegungenDruckdialog
 
             // Bei printElement-Actions die vordefinierten Buttons verwenden,
             // ansonsten einen neuen erzeugen.
-            JButton button = null;
+            JButton button;
 
             if (action.equalsIgnoreCase("printElement") && verfPunktNr >= 0
               && verfPunktNr < printElementButtons.length)
@@ -734,7 +738,8 @@ public class SachleitendeVerfuegungenDruckdialog
             compo.add(button, gbcButton);
 
             ActionListener actionL = getAction(action);
-            if (actionL != null) button.addActionListener(actionL);
+            if (actionL != null)
+              button.addActionListener(actionL);
 
           }
           else
@@ -767,28 +772,28 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * Übersetzt den Namen einer ACTION in eine Referenz auf das passende
    * actionListener_... Objekt.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1), Christoph Lutz (D-III-ITD 5.1)
    */
   private ActionListener getAction(String action)
   {
     if (action.equals("abort"))
     {
-      return actionListener_abort;
+      return actionListenerAbort;
     }
     if (action.equals("back"))
     {
       // diese Aktion wird nicht mehr unterstützt, verhält sich aber aus Gründen der
       // Abwärtskompatibilität wie abort.
-      return actionListener_abort;
+      return actionListenerAbort;
     }
     else if (action.equals("printElement"))
     {
-      return actionListener_printElement;
+      return actionListenerPrintElement;
     }
     else if (action.equals("printAll"))
     {
-      return actionListener_printAll;
+      return actionListenerPrintAll;
     }
     else if (action.equals("printSettings"))
     {
@@ -798,7 +803,7 @@ public class SachleitendeVerfuegungenDruckdialog
       // die entsprechende Standard-config hoffentlich überall im Einsatz ist.
       return null;
     }
-    else if (action.equals(""))
+    else if (action.isEmpty())
     {
       return null;
     }
@@ -811,7 +816,7 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * Beendet den Dialog und informiert den dialogEndListener (wenn dieser != null
    * ist).
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   private void abort(String cmdStr)
@@ -834,7 +839,7 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * Löscht currentSettings und schreibt für alle Verfügungspunkte entsprechende
    * VerfuegungspunktInfo-Objekte nach currentSettings.
-   * 
+   *
    * @author christoph.lutz
    */
   private void getCurrentSettingsForAllElements()
@@ -849,7 +854,7 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * Bestimmt die Nummer des Verfügungspunktes, dem JButton button zugeordnet ist und
    * schreibt dessen VerfuegungspunktInfo als einziges Element nach currentSettings.
-   * 
+   *
    * @author christoph.lutz
    */
   private void getCurrentSettingsForElement(JButton button)
@@ -868,7 +873,7 @@ public class SachleitendeVerfuegungenDruckdialog
    * Ermittelt die Druckdaten (Verfügungspunkt, Anzahl-Ausfertigungen, ...) zum
    * Verfügungspunkt verfPunkt und liefert sie als VerfuegungspunktInfo-Objekt
    * zurück.
-   * 
+   *
    * @author christoph.lutz
    */
   private VerfuegungspunktInfo getVerfuegungspunktInfo(int verfPunkt)
@@ -894,7 +899,7 @@ public class SachleitendeVerfuegungenDruckdialog
   /**
    * Ein WindowListener, der auf den JFrame registriert wird, damit als Reaktion auf
    * den Schliessen-Knopf auch die ACTION "abort" ausgeführt wird.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   private class MyWindowListener implements WindowListener
@@ -902,26 +907,33 @@ public class SachleitendeVerfuegungenDruckdialog
     public MyWindowListener()
     {}
 
+    @Override
     public void windowActivated(WindowEvent e)
     {}
 
+    @Override
     public void windowClosed(WindowEvent e)
     {}
 
+    @Override
     public void windowClosing(WindowEvent e)
     {
       closeAction.actionPerformed(null);
     }
 
+    @Override
     public void windowDeactivated(WindowEvent e)
     {}
 
+    @Override
     public void windowDeiconified(WindowEvent e)
     {}
 
+    @Override
     public void windowIconified(WindowEvent e)
     {}
 
+    @Override
     public void windowOpened(WindowEvent e)
     {}
   }

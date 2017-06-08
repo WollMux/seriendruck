@@ -61,7 +61,6 @@ public class MailMergeProgressWindow
     {
       Logger.error(x);
     }
-    ;
   }
 
   public void makeProgress()
@@ -85,7 +84,6 @@ public class MailMergeProgressWindow
     {
       Logger.error(x);
     }
-    ;
   }
 
   public void close()
@@ -105,6 +103,5 @@ public class MailMergeProgressWindow
     {
       Logger.error(x);
     }
-    ;
   }
 }

@@ -16,12 +16,12 @@ import de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams;
 public class PrinterSettingsUIElement extends UIElement
 {
   JTextField printerNameField;
-     
+
   public PrinterSettingsUIElement(String label, String group,
       final MailMergeParams mmp)
   {
     super(Box.createHorizontalBox(), group);
-    
+
     Box hbox = (Box) getCompo();
     printerNameField = new JTextField();
     printerNameField.setEditable(false);
@@ -31,11 +31,12 @@ public class PrinterSettingsUIElement extends UIElement
     hbox.add(Box.createHorizontalStrut(5));
     hbox.add(printerNameField);
     hbox.add(Box.createHorizontalStrut(5));
-    
+
     hbox.add(new JButton(new AbstractAction(L.m("Drucker wechseln"))
     {
       private static final long serialVersionUID = 1L;
 
+      @Override
       public void actionPerformed(ActionEvent e)
       {
         mmp.getDruckerController().erzeugeView();

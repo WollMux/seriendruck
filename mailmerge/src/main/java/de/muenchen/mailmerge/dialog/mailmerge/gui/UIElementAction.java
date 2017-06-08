@@ -14,19 +14,21 @@ import de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams;
 /**
  * Beschreibt die möglichen Actions, die auf Formularelemente des
  * Seriendruckabschnitts angewendet werden können und deren Event-Handler.
- * 
+ *
  * Die Methode {@link #getByname(String)} ermöglicht eine Zuordnung von Strings der
  * Konfigurationsdatei auf den entsprechenden enum-Typen.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public enum UIElementAction {
   setActionType() {
+    @Override
     public ActionListener createActionListener(final String value,
         final MailMergeParams mmp)
     {
       return new ActionListener()
       {
+        @Override
         public void actionPerformed(ActionEvent e)
         {
           mmp.setCurrentActionType(value);
@@ -37,11 +39,13 @@ public enum UIElementAction {
   },
 
   setOutput() {
+    @Override
     public ActionListener createActionListener(final String value,
         final MailMergeParams mmp)
     {
       return new ActionListener()
       {
+        @Override
         public void actionPerformed(ActionEvent e)
         {
           mmp.setCurrentOutput(value);
@@ -52,11 +56,13 @@ public enum UIElementAction {
   },
 
   selectAll() {
+    @Override
     public ActionListener createActionListener(final String value,
         final MailMergeParams mmp)
     {
       return new ActionListener()
       {
+        @Override
         public void actionPerformed(ActionEvent e)
         {
           mmp.setDatasetSelectionType(DatasetSelectionType.ALL);
@@ -66,11 +72,13 @@ public enum UIElementAction {
   },
 
   selectRange() {
+    @Override
     public ActionListener createActionListener(final String value,
         final MailMergeParams mmp)
     {
       return new ActionListener()
       {
+        @Override
         public void actionPerformed(ActionEvent e)
         {
           mmp.setDatasetSelectionType(DatasetSelectionType.RANGE);
@@ -80,11 +88,13 @@ public enum UIElementAction {
   },
 
   abort() {
+    @Override
     public ActionListener createActionListener(final String value,
         final MailMergeParams mmp)
     {
       return new ActionListener()
       {
+        @Override
         public void actionPerformed(ActionEvent e)
         {
           mmp.getDialog().dispose();
@@ -94,22 +104,23 @@ public enum UIElementAction {
   },
 
   submit() {
+    @Override
     public ActionListener createActionListener(final String value,
         final MailMergeParams mmp)
     {
       return new ActionListener()
       {
+        @Override
         public void actionPerformed(ActionEvent e)
         {
           try
           {
-            Map<SubmitArgument, Object> args =
-              new HashMap<SubmitArgument, Object>();
+            Map<SubmitArgument, Object> args = new HashMap<>();
             for (Section s : mmp.getSections())
               s.addSubmitArgs(args);
             mmp.getDialog().dispose();
             boolean ignoreDocPrintFuncs = false;
-            if (mmp.getIgnoreDocPrintFuncs() != null && mmp.getIgnoreDocPrintFuncs() == true)
+            if (mmp.getIgnoreDocPrintFuncs() != null && mmp.getIgnoreDocPrintFuncs())
               ignoreDocPrintFuncs = true;
             mmp.getMMC().doMailMerge(mmp.getUsePrintFunctions(), ignoreDocPrintFuncs,
               mmp.getDatasetSelectionType(), args);
@@ -126,6 +137,7 @@ public enum UIElementAction {
   },
 
   unknown() {
+    @Override
     public ActionListener createActionListener(final String value,
         final MailMergeParams mmp)
     {
@@ -137,7 +149,8 @@ public enum UIElementAction {
   {
     for (UIElementAction a : UIElementAction.values())
     {
-      if (a.toString().equalsIgnoreCase(s)) return a;
+      if (a.toString().equalsIgnoreCase(s))
+        return a;
     }
     return unknown;
   }

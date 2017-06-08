@@ -20,9 +20,14 @@ import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommands;
 class InsertFormValueCommandsScanner extends AbstractExecutor
 {
   /**
-   * 
+   *
    */
   private final DocumentCommandInterpreter documentCommandInterpreter;
+
+  private Map<String, FormField> bookmarkNameToFormField = new HashMap<>();
+
+  /** Mapping von IDs zu FormFields */
+  public HashMap<String, List<FormField>> idToFormFields = new HashMap<>();
 
   /**
    * @param documentCommandInterpreter
@@ -32,13 +37,6 @@ class InsertFormValueCommandsScanner extends AbstractExecutor
   {
     this.documentCommandInterpreter = documentCommandInterpreter;
   }
-
-  /** Mapping von IDs zu FormFields */
-  public HashMap<String, List<FormField>> idToFormFields =
-    new HashMap<String, List<FormField>>();
-
-  private Map<String, FormField> bookmarkNameToFormField =
-    new HashMap<String, FormField>();
 
   public int execute(DocumentCommands commands)
   {
@@ -57,7 +55,7 @@ class InsertFormValueCommandsScanner extends AbstractExecutor
     }
     else
     {
-      fields = new LinkedList<FormField>();
+      fields = new LinkedList<>();
       idToFormFields.put(id, fields);
     }
     FormField field =

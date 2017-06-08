@@ -2,7 +2,7 @@
  * Dateiname: Workarounds.java
  * Projekt  : WollMux
  * Funktion : Referenziert alle temporären Workarounds an einer zentralen Stelle
- * 
+ *
  * Copyright (c) 2009-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  *
  * @author Christoph Lutz (D-III-ITD-D101)
  * @version 1.0
- * 
+ *
  */package de.muenchen.mailmerge;
 
 import java.net.URL;
@@ -47,7 +47,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.Utils;
  * Diese Klasse referenziert alle temporären Workarounds, die im WollMux aufgenommen
  * wurden, an einer zentralen Stelle. Sie definiert Methoden, die die Steuerung
  * übernehmen, ob ein Workaround anzuwenden ist oder nicht.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public class Workarounds
@@ -74,7 +74,7 @@ public class Workarounds
    * Issue #73229 betrifft den WollMux-Seriendruck in ein Gesamtdokument und ist
    * aktuell für OOo Later priorisiert - wird also nicht in absehbarer Zeit behoben
    * sein.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public static boolean applyWorkaroundForOOoIssue73229()
@@ -90,7 +90,7 @@ public class Workarounds
    * Issue #102164 betrifft OOo 3.2. Es ist unklar, wann der Workaround entfernt
    * werden kann, da er aufgrund eines Bugs in der Swing-Implementierung von Java 6
    * zurückgeht.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
    */
   public static void applyWorkaroundForOOoIssue102164()
@@ -124,7 +124,7 @@ public class Workarounds
   /**
    * Issue #96281 betrifft OOo 3.1 und 3.2. Ob es in 3.3 gelöst sein wird wissen wir
    * nicht. Seien wir einfach mal pessimistisch.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
    */
   public static boolean applyWorkaroundForOOoIssue96281()
@@ -150,15 +150,15 @@ public class Workarounds
    * Seriendruck-Hauptdokument doc viele der im Issue genannten Elemente (z.B.
    * Rahmen, PageStyles, ...) enthält. Betroffen davon sind alle aktuell bekannten
    * Versionen von OOo, AOO und LO.
-   * 
+   *
    * @param doc
    *         Das Seriendruck-Hauptdokument
-   * 
+   *
    * @return Der Rückgabewert dieser Methode beschreibt, wie viele Datensätze zu doc
    *         ohne Einfrierer von der aktuell genutzen Office-Version verarbeitet
    *         werden können. Der Rückgabewert kann auch null sein, dann soll der der
    *         Workaround nicht angewendet werden.
-   * 
+   *
    * @author Christoph Lutz (CIB software GmbH)
    */
   public static Integer workaroundForTDFIssue89783(XTextDocument doc)
@@ -177,7 +177,8 @@ public class Workarounds
       if (tss != null)
       {
         String[] names = tss.getTextSections().getElementNames();
-        if (names.length > maxCritElements) maxCritElements = names.length;
+        if (names.length > maxCritElements)
+          maxCritElements = names.length;
       }
 
       // zähle DrawPage-Objekte (TextFrames + Pictures + DrawObjects):
@@ -185,7 +186,8 @@ public class Workarounds
       if (dps != null)
       {
         int drawPageElements = dps.getDrawPage().getCount();
-        if (drawPageElements > maxCritElements) maxCritElements = drawPageElements;
+        if (drawPageElements > maxCritElements)
+          maxCritElements = drawPageElements;
       }
 
       // count TextTables
@@ -194,14 +196,15 @@ public class Workarounds
       if (tts != null)
       {
         String[] names = tts.getTextTables().getElementNames();
-        if (names.length > maxCritElements) maxCritElements = names.length;
+        if (names.length > maxCritElements)
+          maxCritElements = names.length;
       }
 
       // Maximalwert des mit 16-Bit adressierbaren Bereichs / maxCritElements - 1
       // (zu Sicherheit)
       return ((1 << 16) / maxCritElements) - 1;
     }
-    
+
     return null;
   }
 

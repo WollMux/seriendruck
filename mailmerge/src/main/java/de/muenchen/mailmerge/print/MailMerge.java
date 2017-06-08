@@ -2,7 +2,7 @@
  * Dateiname: MailMerge.java
  * Projekt  : WollMux
  * Funktion : Druckfunktionen für den Seriendruck.
- * 
+ *
  * Copyright (c) 2010-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@
  * -------------------------------------------------------------------
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
- * 
+ *
  */
 package de.muenchen.mailmerge.print;
 
@@ -97,7 +97,7 @@ public class MailMerge
    * "WollMuxDescription" verwendet. Falls die Spalte "WollMuxSelected" vorhanden ist
    * und "1", "ja" oder "true" enthält, so ist der entsprechende Datensatz in der
    * Auswahlliste bereits vorselektiert.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   public static void mailMerge(XPrintModel pmod, boolean offerSelection)
@@ -135,7 +135,7 @@ public class MailMerge
    * auszudruckenden Datensätze auswählen kann. Dabei sind alle Datensätze, die eine
    * Spalte "WollMuxSelected" haben, die den Wert "true", "ja" oder "1" enthält
    * bereits vorselektiert.
-   * 
+   *
    * @param type
    *          muss {@link CommandType#TABLE} sein.
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
@@ -195,7 +195,7 @@ public class MailMerge
    * aller Datensätze angezeigt bekommt und die auszudruckenden Datensätze auswählen
    * kann. Dabei sind alle Datensätze, die eine Spalte "WollMuxSelected" haben, die
    * den Wert "true", "ja" oder "1" enthält bereits vorselektiert.
-   * 
+   *
    * @param schema
    *          muss die Namen aller Spalten für den MailMerge enthalten.
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
@@ -203,7 +203,7 @@ public class MailMerge
   static void mailMerge(XPrintModel pmod, boolean offerSelection,
       Set<String> schema, QueryResults data)
   {
-    Vector<ListElement> list = new Vector<ListElement>();
+    Vector<ListElement> list = new Vector<>();
     int index = 1;
     for (Dataset dataset : data)
     {
@@ -213,7 +213,8 @@ public class MailMerge
 
     if (offerSelection)
     {
-      if (!selectFromListDialog(list)) return;
+      if (!selectFromListDialog(list))
+        return;
     }
 
     boolean modified = pmod.getDocumentModified(); // Modified-Zustand merken, um
@@ -228,7 +229,8 @@ public class MailMerge
     {
       progress.makeProgress();
       ListElement ele = iter.next();
-      if (offerSelection && !ele.isSelected()) continue;
+      if (offerSelection && !ele.isSelected())
+        continue;
       Iterator<String> colIter = schema.iterator();
       while (colIter.hasNext())
       {
@@ -246,7 +248,8 @@ public class MailMerge
           return;
         }
 
-        if (value != null) pmod.setFormValue(column, value);
+        if (value != null)
+          pmod.setFormValue(column, value);
       }
       pmod.printWithProps();
     }
@@ -260,7 +263,7 @@ public class MailMerge
    * Präsentiert einen Dialog, der den Benutzer aus list (enthält {@link ListElement}
    * s) auswählen lässt. ACHTUNG! Diese Methode kehrt erst zurück nachdem der
    * Benutzer den Dialog geschlossen hat.
-   * 
+   *
    * @return true, gdw der Benutzer mit Okay bestätigt hat.
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
@@ -312,7 +315,7 @@ public class MailMerge
    * Präsentiert einen Dialog, der den Benutzer aus list (enthält {@link ListElement}
    * s) auswählen lässt. ACHTUNG! Diese Methode darf nur im Event Dispatching Thread
    * aufgerufen werden.
-   * 
+   *
    * @param result
    *          ein 2-elementiges Array auf das nur synchronisiert zugegriffen wird.
    *          Das erste Element wird auf false gesetzt, sobald der Dialog geschlossen
@@ -344,12 +347,13 @@ public class MailMerge
     myPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     myFrame.setContentPane(myPanel);
 
-    final JList<ListElement> myList = new JList<ListElement>(list);
+    final JList<ListElement> myList = new JList<>(list);
     myList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     for (int i = 0; i < list.size(); ++i)
     {
       ListElement ele = list.get(i);
-      if (ele.isSelected()) myList.addSelectionInterval(i, i);
+      if (ele.isSelected())
+        myList.addSelectionInterval(i, i);
     }
 
     JScrollPane scrollPane = new JScrollPane(myList);
@@ -446,7 +450,7 @@ public class MailMerge
    * Calc Dokument, dessen Fenstertitel windowTitle ist. Die erste Zeile der
    * Calc-Tabelle wird herangezogen als Spaltennamen. Diese Spaltennamen werden zu
    * schema hinzugefügt.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   static QueryResults getVisibleCalcData(String windowTitle,
@@ -457,7 +461,7 @@ public class MailMerge
     try
     {
       XSpreadsheetDocument foundDoc  = null;
-      
+
       for (XSpreadsheetDocument doc : UnoCollection.getCollection(UNO.desktop.getComponents(), XSpreadsheetDocument.class))
       {
         if (doc != null)
@@ -465,7 +469,7 @@ public class MailMerge
           String title =
             (String) UNO.getProperty(
               UNO.XModel(doc).getCurrentController().getFrame(), "Title");
-          if (windowTitle.equals(title)) 
+          if (windowTitle.equals(title))
           {
             foundDoc = doc;
             break;
@@ -505,7 +509,7 @@ public class MailMerge
             }
           }
 
-          if (columnIndexes.size() > 0 && rowIndexes.size() > 0)
+          if (!columnIndexes.isEmpty() && !rowIndexes.isEmpty())
           {
             XCellRange sheetCellRange = UNO.XCellRange(sheet);
 
@@ -518,7 +522,7 @@ public class MailMerge
              */
             int ymin = rowIndexes.first().intValue();
             Map<String, Integer> mapColumnNameToIndex =
-              new HashMap<String, Integer>();
+              new HashMap<>();
             int idx = 0;
             Iterator<Integer> iter = columnIndexes.iterator();
             while (iter.hasNext())
@@ -575,7 +579,7 @@ public class MailMerge
 
   /**
    * Startet den ultimativen Seriendruck für pmod.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public static void superMailMerge(XPrintModel pmod)

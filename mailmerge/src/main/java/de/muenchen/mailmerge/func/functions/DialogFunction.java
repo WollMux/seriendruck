@@ -6,7 +6,6 @@ import java.util.Map;
 import de.muenchen.allg.itd51.wollmux.core.dialog.Dialog;
 import de.muenchen.allg.itd51.wollmux.core.functions.Function;
 import de.muenchen.allg.itd51.wollmux.core.functions.Values;
-import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 
 public class DialogFunction implements Function
 {
@@ -17,7 +16,7 @@ public class DialogFunction implements Function
   private String dialogName;
 
   public DialogFunction(String dialogName, Dialog dialog, String dataName,
-      Map<Object, Object> context) throws ConfigurationErrorException
+      Map<Object, Object> context)
   {
     this.dialog = dialog.instanceFor(context);
     this.dataName = dataName;
@@ -40,7 +39,8 @@ public class DialogFunction implements Function
   public String getString(Values parameters)
   {
     Object data = dialog.getData(dataName);
-    if (data == null) return Function.ERROR;
+    if (data == null)
+      return Function.ERROR;
     return data.toString();
   }
 

@@ -26,13 +26,13 @@ public class DivideFunction implements Function
 
   /**
    * Wenn divisorFunction null ist wird 1 angenommen.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   public DivideFunction(Function dividendFunction, Function divisorFunction,
       int minScale, int maxScale)
   {
-    Set<String> myparams = new HashSet<String>();
+    Set<String> myparams = new HashSet<>();
     myparams.addAll(Arrays.asList(dividendFunction.parameters()));
     if (divisorFunction != null)
       myparams.addAll(Arrays.asList(divisorFunction.parameters()));
@@ -53,7 +53,8 @@ public class DivideFunction implements Function
   public void getFunctionDialogReferences(Collection<String> set)
   {
     dividendFunction.getFunctionDialogReferences(set);
-    if (divisorFunction != null) divisorFunction.getFunctionDialogReferences(set);
+    if (divisorFunction != null)
+      divisorFunction.getFunctionDialogReferences(set);
   }
 
   @Override
@@ -67,14 +68,16 @@ public class DivideFunction implements Function
     }
     catch (Exception x)
     {}
-    ;
 
     String dividend = dividendFunction.getString(parameters);
-    if (dividend == Function.ERROR) return Function.ERROR;
+    if (dividend == Function.ERROR)
+      return Function.ERROR;
 
     String divisor = "1";
-    if (divisorFunction != null) divisor = divisorFunction.getString(parameters);
-    if (divisor == Function.ERROR) return Function.ERROR;
+    if (divisorFunction != null)
+      divisor = divisorFunction.getString(parameters);
+    if (divisor == Function.ERROR)
+      return Function.ERROR;
 
     /*
      * Falls der Dezimaltrenner nicht '.' ist, ersetzte alle '.' durch etwas, das

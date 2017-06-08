@@ -1,8 +1,8 @@
-/* 
+/*
  * Dateiname: EMailSender.java
  * Projekt  : WollMux
  * Funktion : Teil des E-Mail-Wrappers für javamail
- * 
+ *
  * Copyright (c) 2011-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -59,7 +59,7 @@ public class EMailSender
 
   private Session session;
 
-  static private MailServerSettings mailserver = null;
+  private static MailServerSettings mailserver = null;
 
   public EMailSender()
   {
@@ -94,8 +94,7 @@ public class EMailSender
     ((Multipart) email.getContent()).addBodyPart(messageBodyPart);
   }
 
-  public void sendMessage() throws ConfigurationErrorException,
-      MessagingException
+  public void sendMessage() throws MessagingException
   {
 
     if (mailserver == null)
@@ -123,7 +122,6 @@ public class EMailSender
   }
 
   private MailServerSettings getWollMuxMailServerSettings()
-      throws ConfigurationErrorException
   {
     MailServerSettings mailserver = new MailServerSettings();
     ConfigThingy wollmuxconf = WollMuxFiles.getWollmuxConf();
@@ -166,9 +164,7 @@ public class EMailSender
         JTextField userNameField = new JTextField(username);
         JLabel jPassword = new JLabel(L.m("Passwort"));
         JTextField passwordField = new JPasswordField();
-        String jAuthPrompt =
-          new String(
-            L.m("Bitte geben Sie Benutzername und Passwort für den E-Mail-Server ein."));
+        String jAuthPrompt = L.m("Bitte geben Sie Benutzername und Passwort für den E-Mail-Server ein.");
         Object[] dialogElements = {
           jAuthPrompt, jUserName, userNameField, jPassword, passwordField };
         int dialog =

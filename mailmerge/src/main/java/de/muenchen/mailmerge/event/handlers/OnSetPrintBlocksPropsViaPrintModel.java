@@ -11,10 +11,10 @@ import de.muenchen.mailmerge.document.TextDocumentController;
 /**
  * Diese Methode erzeugt ein neues WollMuxEvent, mit dem die Eigenschaften der
  * Druckblöcke (z.B. allVersions) gesetzt werden können.
- * 
+ *
  * Das Event dient als Hilfe für die Komfortdruckfunktionen und wird vom
  * XPrintModel aufgerufen und mit diesem synchronisiert.
- * 
+ *
  */
 public class OnSetPrintBlocksPropsViaPrintModel extends BasicEvent
 {
@@ -29,7 +29,7 @@ public class OnSetPrintBlocksPropsViaPrintModel extends BasicEvent
   private ActionListener listener;
 
   /**
-   * 
+   *
  * @param blockName
  *          Der Blocktyp dessen Druckblöcke behandelt werden sollen.
  * @param visible
@@ -65,7 +65,8 @@ public class OnSetPrintBlocksPropsViaPrintModel extends BasicEvent
     }
 
     stabilize();
-    if (listener != null) listener.actionPerformed(null);
+    if (listener != null)
+      listener.actionPerformed(null);
   }
 
   @Override

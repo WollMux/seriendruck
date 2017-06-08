@@ -2,7 +2,7 @@
  * Dateiname: GlobalEventListener.java
  * Projekt  : WollMux
  * Funktion : Reagiert auf globale Ereignisse
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,12 +25,12 @@
  * 09.11.2005 | LUT | + Logfile wird jetzt erweitert (append-modus)
  *                    + verwenden des Konfigurationsparameters SENDER_SOURCE
  *                    + Erster Start des wollmux über wm_configured feststellen.
- * 05.12.2005 | BNK | line.separator statt \n     
+ * 05.12.2005 | BNK | line.separator statt \n
  * 13.04.2006 | BNK | .wollmux/ Handling ausgegliedert in WollMuxFiles.
- * 20.04.2006 | LUT | Überarbeitung Code-Kommentare  
+ * 20.04.2006 | LUT | Überarbeitung Code-Kommentare
  * 20.04.2006 | BNK | DEFAULT_CONTEXT ausgegliedert nach WollMuxFiles
- * 21.04.2006 | LUT | + Robusteres Verhalten bei Fehlern während dem Einlesen 
- *                    von Konfigurationsdateien; 
+ * 21.04.2006 | LUT | + Robusteres Verhalten bei Fehlern während dem Einlesen
+ *                    von Konfigurationsdateien;
  *                    + wohldefinierte Datenstrukturen
  *                    + Flag für EventProcessor: acceptEvents
  * 08.05.2006 | LUT | + isDebugMode()
@@ -45,7 +45,7 @@
  * -------------------------------------------------------------------
  *
  * @author Christoph Lutz (D-III-ITD 5.1)
- * 
+ *
  */
 
 package de.muenchen.mailmerge.event;
@@ -65,7 +65,7 @@ import de.muenchen.mailmerge.document.DocumentManager;
  * Verarbeitungsstatus für alle Dokumenttypen (auch nicht-Textdokumente) erfasst
  * wird, damit der WollMux auch für diese Komponenten onWollMuxProcessingFinished
  * liefern kann.
- * 
+ *
  * @author christoph.lutz
  */
 public class GlobalEventListener implements com.sun.star.document.XEventListener
@@ -98,7 +98,8 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
       // reduziert. Es gibt viele Events, die den WollMux überhaupt nicht
       // interessieren, da sollte der WollMux nichts tun (auch ein UNO-Cast kann hier
       // schon unnötig Performance fressen)
-      if (docEvent.Source == null) return;
+      if (docEvent.Source == null)
+        return;
       String event = docEvent.EventName;
 
       switch (event)
@@ -127,12 +128,12 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
    * manchmal im Hintergrund unsichtbare leere Dokumente über die Factory. Bekannt
    * sind folgende Fälle: Beim OOo-Seriendruck über den Seriendruck-Assistent (für
    * jeden Datensatz); Beim Einfügen von Autotexten (z.B. mit "bt<F3>" in OOo).
-   * 
+   *
    * Das Event kommt nicht, wenn ein Dokument von einer Datei geladen oder von einer
    * Vorlage erzeugt wird. Das Event kommt auch dann nicht, wenn eine Vorlagendatei
    * als Standardvorlage für neue Dokumente definiert ist und Datei->Neu verwendet
    * wird.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private void onCreate(Object source)
@@ -150,15 +151,15 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
    * OnViewCreated kommt, wenn ein Dokument seitens OOo vollständig aufgebaut ist.
    * Das Event kommt bei allen Dokumenten, egal ob sie neu erzeugt, geladen, sichtbar
    * oder unsichtbar sind.
-   * 
+   *
    * Da das Event in allen möglichen Fällen kommt, und die Bearbeitung von
    * unsichtbaren Dokumenten durch den WollMux für eine andere stadtinterne Anwendung
    * (JavaComm) notwendig ist, wird in diesem Event die eigentliche Verarbeitung von
    * Dokumenten durch den WollMux angestoßen.
-   * 
+   *
    * Ausgenommen von der Verarbeitung werden temporäre Dokumente des OOo-Seriendrucks
    * und alle gerade erzeugten, unsichtbaren Textdokumente.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private void onViewCreated(Object source)
@@ -175,7 +176,7 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
    * OnUnlaod kommt als letztes Event wenn ein Dokument geschlossen wurde. Wir nutzen
    * dieses Event um den docManager aufzuräumen und angeschlossene Listener zu
    * informieren.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101) TESTED
    */
   private void onUnload(Object source)
@@ -189,7 +190,8 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
      * darf AUF KEINEN FALL info.hasTextDocumentModel() getestet oder
      * info.getTextDocumentModel() aufgerufen werden!
      */
-    if (info != null) MailMergeEventHandler.getInstance().handleTextDocumentClosed(info);
+    if (info != null)
+      MailMergeEventHandler.getInstance().handleTextDocumentClosed(info);
   }
 
   @Override

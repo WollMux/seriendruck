@@ -9,7 +9,6 @@ import de.muenchen.allg.itd51.wollmux.core.functions.Function;
 import de.muenchen.allg.itd51.wollmux.core.functions.FunctionLibrary;
 import de.muenchen.allg.itd51.wollmux.core.functions.Values;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
-import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 
 public class CatFunction extends MultiFunction
 {
@@ -20,7 +19,6 @@ public class CatFunction extends MultiFunction
 
   public CatFunction(ConfigThingy conf, FunctionLibrary funcLib,
       DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
     super(conf, funcLib, dialogLib, context);
   }
@@ -34,7 +32,8 @@ public class CatFunction extends MultiFunction
     {
       Function func = iter.next();
       String str = func.getString(parameters);
-      if (str == Function.ERROR) return Function.ERROR;
+      if (str == Function.ERROR)
+        return Function.ERROR;
       res.append(str);
     }
     return res.toString();

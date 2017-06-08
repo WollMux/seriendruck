@@ -15,7 +15,7 @@ import de.muenchen.mailmerge.event.MailMergeEventHandler;
  * listener==null) oder ein bestimmter registrierter DocumentEventListener (falls
  * listener != null) (XEventListener-Objekte) über Statusänderungen der
  * Dokumentbearbeitung informiert
- * 
+ *
  */
 public class OnNotifyDocumentEventListener extends BasicEvent
 {
@@ -26,7 +26,7 @@ public class OnNotifyDocumentEventListener extends BasicEvent
   private XEventListener listener;
 
   /**
-   * 
+   *
    * @param listener
    *          der zu benachrichtigende XEventListener. Falls null werden alle
    *          registrierten Listener benachrichtig. listener wird auf jeden Fall
@@ -37,7 +37,7 @@ public class OnNotifyDocumentEventListener extends BasicEvent
    * @param source
    *          Das von der Statusänderung betroffene Dokument (üblicherweise eine
    *          XComponent)
-   * 
+   *
    */
   public OnNotifyDocumentEventListener(XEventListener listener, String eventName,
       Object source)
@@ -63,19 +63,20 @@ public class OnNotifyDocumentEventListener extends BasicEvent
       try
       {
         final XEventListener listener = i.next();
-        if (this.listener == null || this.listener == listener) new Thread()
-        {
-          @Override
-          public void run()
+        if (this.listener == null || this.listener == listener)
+          new Thread()
           {
-            try
+            @Override
+            public void run()
             {
-              listener.notifyEvent(eventObject);
+              try
+              {
+                listener.notifyEvent(eventObject);
+              }
+              catch (java.lang.Exception x)
+              {}
             }
-            catch (java.lang.Exception x)
-            {}
-          }
-        }.start();
+          }.start();
       }
       catch (java.lang.Exception e)
       {

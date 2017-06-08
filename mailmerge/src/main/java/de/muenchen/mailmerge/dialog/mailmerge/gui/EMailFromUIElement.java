@@ -12,7 +12,7 @@ import de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams;
 
 /**
  * Beschreibt das {@link UIElement} vom Typ {@link UIElementType#emailfrom}.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public class EMailFromUIElement extends UIElement
@@ -37,6 +37,7 @@ public class EMailFromUIElement extends UIElement
     vbox.add(Box.createVerticalStrut(5));
   }
 
+  @Override
   public void addSubmitArgs(Map<SubmitArgument, Object> args)
       throws InvalidArgumentException
   {

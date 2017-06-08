@@ -5,7 +5,6 @@ import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.beans.XPropertyChangeListener;
 import com.sun.star.beans.XPropertySetInfo;
 import com.sun.star.beans.XVetoableChangeListener;
-import com.sun.star.lang.IllegalArgumentException;
 import com.sun.star.lang.NoSuchMethodException;
 import com.sun.star.lang.WrappedTargetException;
 import com.sun.star.lib.uno.helper.WeakBase;
@@ -25,10 +24,10 @@ import de.muenchen.mailmerge.print.PrintFunction;
  * MasterPrintModel weiterleitet. Das SlavePrintModel kennt seine Position (idx) in
  * der Aufrufkette und sorgt vor allem dafür, dass beim Aufruf von printWithProps()
  * die nächste Druckfunktion der Aufrufkette gestartet wird.
- * 
+ *
  * Das SlavePrintModel ist von WeakBase abgeleitet, damit es in der Druckfunktion
  * mit den UNO-Mitteln inspiziert werden kann.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-5.1)
  */
 class SlavePrintModel extends WeakBase implements XPrintModel,
@@ -47,7 +46,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
   /**
    * Erzeugt ein neues SlavePrintModel, das in der Aufrufkette, die durch das
    * MasterPrintModel master verwaltet wird, an der Stelle idx steht.
-   * 
+   *
    * @param master
    *          Das MasterPrintModel, an das die meisten Anfragen weitergeleitet
    *          werden und das die Aufrufkette der Druckfunktionen verwaltet.
@@ -63,7 +62,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#getTextDocument()
    */
   @Override
@@ -74,7 +73,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#print(short)
    */
   @Override
@@ -88,13 +87,14 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
    * Diese Methode ist die wichtigste Methode im SlavePrintModel, denn sie sorgt
    * dafür, dass beim Aufruf von PrintWithProps die Weiterleitung an die nächste
    * Druckfunktion der Aufrufkette veranlasst wird.
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#printWithProps()
    */
   @Override
   public void printWithProps()
   {
-    if (isCanceled()) return;
+    if (isCanceled())
+      return;
 
     PrintFunction f = master.getPrintFunction(idx + 1);
     if (f != null)
@@ -115,12 +115,13 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
     {
       master.finalPrint();
     }
-    if (stage != null) master.setStage(stage);
+    if (stage != null)
+      master.setStage(stage);
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#setFormValue(java.lang.String,
    * java.lang.String)
    */
@@ -132,7 +133,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#getDocumentModified()
    */
   @Override
@@ -143,7 +144,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#setDocumentModified(boolean)
    */
   @Override
@@ -154,7 +155,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#collectNonWollMuxFormFields()
    */
   @Override
@@ -165,7 +166,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * de.muenchen.allg.itd51.wollmux.XPrintModel#setPrintBlocksProps(java.lang.String
    * , boolean, boolean)
@@ -178,7 +179,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sun.star.beans.XPropertySet#getPropertySetInfo()
    */
   @Override
@@ -189,14 +190,14 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sun.star.beans.XPropertySet#setPropertyValue(java.lang.String,
    * java.lang.Object)
    */
   @Override
   public void setPropertyValue(String key, Object val)
       throws UnknownPropertyException, PropertyVetoException,
-      IllegalArgumentException, WrappedTargetException
+      WrappedTargetException
   {
     if (PrintModels.STAGE.equalsIgnoreCase(key))
     {
@@ -212,7 +213,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sun.star.beans.XPropertySet#getPropertyValue(java.lang.String)
    */
   @Override
@@ -224,7 +225,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#getProp(java.lang.String,
    * java.lang.Object)
    */
@@ -236,7 +237,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sun.star.beans.XPropertySet#addPropertyChangeListener(java.lang.String,
    * com.sun.star.beans.XPropertyChangeListener)
@@ -250,7 +251,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sun.star.beans.XPropertySet#removePropertyChangeListener(java.lang.String,
    * com.sun.star.beans.XPropertyChangeListener)
@@ -265,7 +266,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sun.star.beans.XPropertySet#addVetoableChangeListener(java.lang.String,
    * com.sun.star.beans.XVetoableChangeListener)
@@ -279,7 +280,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sun.star.beans.XPropertySet#removeVetoableChangeListener(java.lang.String,
    * com.sun.star.beans.XVetoableChangeListener)
@@ -296,7 +297,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
    * Der wesentliche Unterschied zur gleichnamigen Methode des Masters ist es, dass
    * nur Druckfunktionen angenommen werden, deren ORDER-Wert höher als der
    * ORDER-Wert der aktuellen Druckfunktion ist.
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#usePrintFunction(java.lang.String)
    */
   @Override
@@ -315,7 +316,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
    * Der wesentliche Unterschied zur gleichnamigen Methode des Masters ist es, dass
    * nur Druckfunktionen angenommen werden, deren ORDER-Wert höher als der
    * ORDER-Wert der aktuellen Druckfunktion ist.
-   * 
+   *
    * @see de.muenchen.mailmerge.print.model.InternalPrintModel#useInternalPrintFunction(de.muenchen.mailmerge.print.PrintFunction)
    */
   @Override
@@ -343,7 +344,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * de.muenchen.allg.itd51.wollmux.XPrintModel#setGroupVisible(java.lang.String,
    * boolean)
@@ -356,7 +357,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#isCanceled()
    */
   @Override
@@ -367,7 +368,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#cancel()
    */
   @Override
@@ -378,7 +379,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * de.muenchen.allg.itd51.wollmux.XPrintModel#setPrintProgressMaxValue(short)
    */
@@ -390,7 +391,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#setPrintProgressValue(short)
    */
   @Override
@@ -401,7 +402,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#setPrintMessage(string)
    */
   @Override

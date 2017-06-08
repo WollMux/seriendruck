@@ -41,7 +41,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 /**
  * Klasse, die den ultimativen Seriendruck realisiert.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
 class SuperMailMerge
@@ -50,7 +50,7 @@ class SuperMailMerge
    * Liste von {@link Runnable}-Objekten, die sequentiell abgearbeitet werden im
    * Nicht-Event-Dispatching-Thread.
    */
-  private List<Runnable> todo = new LinkedList<Runnable>();
+  private List<Runnable> todo = new LinkedList<>();
 
   /**
    * Wird dies auf false gesetzt, so beendet sich {@link #run()}.
@@ -60,12 +60,12 @@ class SuperMailMerge
   /**
    * Die Menge der Namen aller OOo-Datenquellen.
    */
-  private Set<String> datasourceNames = new TreeSet<String>();
+  private Set<String> datasourceNames = new TreeSet<>();
 
   /**
    * Die Menge aller Titel von offenen Calc-Dokument-Fenstern.
    */
-  private Set<String> calcDocumentTitles = new TreeSet<String>();
+  private Set<String> calcDocumentTitles = new TreeSet<>();
 
   /**
    * Die ComboBox in der der Benutzer die OOo-Datenquelle bzw, das Calc-Dokument
@@ -100,18 +100,6 @@ class SuperMailMerge
    */
   private String selectedTable = "";
 
-  /**
-   * Startet den ultimativen MailMerge. ACHTUNG! Diese Methode kehrt erst zurück,
-   * wenn der Ausdruck abgeschlossen oder abgebrochen wurde.
-   * 
-   * @author Matthias Benkmann (D-III-ITD 5.1)
-   */
-  public static void superMailMerge(XPrintModel pmod)
-  {
-    SuperMailMerge merge = new SuperMailMerge(pmod);
-    merge.run();
-  }
-
   private SuperMailMerge(XPrintModel pmod)
   { // TESTED
     this.pmod = pmod;
@@ -135,7 +123,8 @@ class SuperMailMerge
           String title =
             (String) UNO.getProperty(
               UNO.XModel(doc).getCurrentController().getFrame(), "Title");
-          if (title != null) calcDocumentTitles.add(title);
+          if (title != null)
+            calcDocumentTitles.add(title);
         }
       }
       catch (Exception x)
@@ -188,8 +177,20 @@ class SuperMailMerge
   }
 
   /**
+   * Startet den ultimativen MailMerge. ACHTUNG! Diese Methode kehrt erst zurück,
+   * wenn der Ausdruck abgeschlossen oder abgebrochen wurde.
+   *
+   * @author Matthias Benkmann (D-III-ITD 5.1)
+   */
+  public static void superMailMerge(XPrintModel pmod)
+  {
+    SuperMailMerge merge = new SuperMailMerge(pmod);
+    merge.run();
+  }
+
+  /**
    * Arbeitet die {@link #todo}-Liste ab, solange {@link #running}==true.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   private void run()
@@ -217,10 +218,10 @@ class SuperMailMerge
   /**
    * Erstellt die GUI für die Auswahl der Datenquelle/Tabelle für den
    * SuperMailMerge. Darf nur im EDT aufgerufen werden.
-   * 
+   *
    * Diese Methode wird indirekt per Reflection aufgerufen (daher keine
    * "unused"-Warnung)
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   @SuppressWarnings("unused")
@@ -275,7 +276,7 @@ class SuperMailMerge
     Box hbox = Box.createHorizontalBox();
     vbox.add(hbox);
     hbox.add(new JLabel(L.m("Datenquelle")));
-    datasourceSelector = new JComboBox<String>();
+    datasourceSelector = new JComboBox<>();
     hbox.add(Box.createHorizontalStrut(5));
     hbox.add(datasourceSelector);
     int selected = 0;
@@ -290,7 +291,8 @@ class SuperMailMerge
     while (iter.hasNext())
     {
       String dsName = iter.next();
-      if (dsName.equals(selectedDatasource)) selected = idx;
+      if (dsName.equals(selectedDatasource))
+        selected = idx;
       datasourceSelector.addItem(dsName);
       ++idx;
     }
@@ -299,7 +301,8 @@ class SuperMailMerge
     {
       datasourceSelector.setSelectedIndex(selected);
       String newDatasource = (String) datasourceSelector.getSelectedItem();
-      if (newDatasource != null) selectedDatasource = newDatasource;
+      if (newDatasource != null)
+        selectedDatasource = newDatasource;
     }
 
     /*
@@ -330,7 +333,7 @@ class SuperMailMerge
     vbox.add(hbox);
     hbox.add(new JLabel(L.m("Tabelle")));
     hbox.add(Box.createHorizontalStrut(5));
-    tableSelector = new JComboBox<String>();
+    tableSelector = new JComboBox<>();
     hbox.add(tableSelector);
 
     /*
@@ -407,10 +410,10 @@ class SuperMailMerge
   /**
    * Wird im Nicht-EDT aufgerufen und bestimmt die Tabellen der neu ausgewählten
    * Datenquelle und lässt dann im EDT die {@link #tableSelector}-ComboBox updaten.
-   * 
+   *
    * Diese Methode wird indirekt über Reflection aufgerufen (daher keine
    * "unused"-Warnung)
-   * 
+   *
    * @param datasourceAndTableName
    *          das erste Element ist der Name der neu ausgewählten Datenquelle bzw.
    *          des Calc-Dokuments. Das zweite Element ist der Name der vorher
@@ -458,7 +461,8 @@ class SuperMailMerge
         XDataSource ds =
           UNO.XDataSource(UNO.dbContext.getRegisteredObject(datasourceName));
         long lgto = MailMerge.DATABASE_TIMEOUT / 1000;
-        if (lgto < 1) lgto = 1;
+        if (lgto < 1)
+          lgto = 1;
         ds.setLoginTimeout((int) lgto);
         XConnection conn = ds.getConnection("", "");
         XNameAccess tables = UNO.XTablesSupplier(conn).getTables();
@@ -489,7 +493,8 @@ class SuperMailMerge
           int selected = 0;
           for (int i = 0; i < tNames.length; ++i)
           {
-            if (tNames[i].equals(tableName)) selected = i;
+            if (tNames[i].equals(tableName))
+              selected = i;
             tableSelector.addItem(tNames[i]);
           }
           tableSelector.setSelectedIndex(selected);
@@ -507,7 +512,7 @@ class SuperMailMerge
   {
     if (calcDocumentTitles.contains(selectedDatasource))
     {
-      Set<String> schema = new HashSet<String>();
+      Set<String> schema = new HashSet<>();
       QueryResults data =
         MailMerge.getVisibleCalcData(selectedDatasource, selectedTable, schema);
       MailMerge.mailMerge(pmod, offerselection.booleanValue(), schema, data);
@@ -519,7 +524,7 @@ class SuperMailMerge
 
   /**
    * Fügt den Aufruf der public-Methode method zur {@link #todo}-Liste hinzu.
-   * 
+   *
    * @param method
    *          der Name einer public-Methode.
    * @param param
@@ -556,7 +561,6 @@ class SuperMailMerge
             {
               Logger.error(x);
             }
-            ;
           }
         });
         todo.notifyAll();
@@ -570,7 +574,7 @@ class SuperMailMerge
 
   /**
    * Leert die {@link #todo}-Liste.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   private void clearTodo()
@@ -584,7 +588,7 @@ class SuperMailMerge
   /**
    * Löscht die {@link #todo}-Liste und fügt ihr dann einen Befehl zum Setzen von
    * {@link #running} auf false hinzu.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   private void stopRunning()
@@ -606,7 +610,7 @@ class SuperMailMerge
 
   /**
    * Führt die public-Methode "method" im EDT aus (ansynchron).
-   * 
+   *
    * @param method
    *          der Name einer public-Methode
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
@@ -630,7 +634,6 @@ class SuperMailMerge
           {
             Logger.error(x);
           }
-          ;
         }
       });
     }

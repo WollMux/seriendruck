@@ -2,7 +2,7 @@
  * Dateiname: PrintFunctionLibrary.java
  * Projekt  : WollMux
  * Funktion : Eine Bibliothek von benannten Druckfunktionen
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  *
  * @author Christoph Lutz (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.print;
 
@@ -44,7 +44,7 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 /**
  * Eine Bibliothek von benannten PrintFunctions
- * 
+ *
  * @author christoph.lutz
  */
 public class PrintFunctionLibrary
@@ -61,7 +61,7 @@ public class PrintFunctionLibrary
 
   /**
    * Erzeugt eine leere Funktionsbibliothek.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public PrintFunctionLibrary()
@@ -73,19 +73,19 @@ public class PrintFunctionLibrary
    * Erzeugt eine Funktionsbibliothek, die baselib referenziert (nicht kopiert!).
    * baselib wird immer dann befragt, wenn die Funktionsbibliothek selbst keine
    * Funktion des entsprechenden Namens enthält. baselib darf null sein.
-   * 
+   *
    * @param baselib
    */
   public PrintFunctionLibrary(PrintFunctionLibrary baselib)
   {
-    mapIdToFunction = new HashMap<String, PrintFunction>();
+    mapIdToFunction = new HashMap<>();
     this.baselib = baselib;
   }
 
   /**
    * Fügt func dieser Funktionsbibliothek unter dem Namen funcName hinzu. Eine
    * bereits existierende Funktion mit diesem Namen wird dabei ersetzt.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public void add(String funcName, PrintFunction func)
@@ -101,39 +101,41 @@ public class PrintFunctionLibrary
    * diesem Namen bekannt ist. Wurde die Funktionsbibliothek mit einer Referenz auf
    * eine andere Funktionsbibliothek initialisiert, so wird diese befragt, falls die
    * Funktionsbibliothek selbst keine Funktion des entsprechenden Namens kennt.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public PrintFunction get(String funcName)
   {
     PrintFunction func = mapIdToFunction.get(funcName);
-    if (func == null && baselib != null) func = baselib.get(funcName);
+    if (func == null && baselib != null)
+      func = baselib.get(funcName);
     return func;
   }
 
   /**
    * Liefert die Namen aller Funktionen, die über diese Funktionsbibliothek verfügbar
    * sind.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public Set<String> getFunctionNames()
   {
-    Set<String> names = new HashSet<String>(mapIdToFunction.keySet());
-    if (baselib != null) names.addAll(baselib.getFunctionNames());
+    Set<String> names = new HashSet<>(mapIdToFunction.keySet());
+    if (baselib != null)
+      names.addAll(baselib.getFunctionNames());
     return names;
   }
 
   /**
    * Parst die "Druckfunktionen" Abschnitte aus conf und liefert eine entsprechende
    * PrintFunctionLibrary.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD 5.1)
    */
   public static PrintFunctionLibrary parsePrintFunctions(ConfigThingy conf)
   {
     PrintFunctionLibrary funcs = new PrintFunctionLibrary();
-  
+
     conf = conf.query("Druckfunktionen");
     Iterator<ConfigThingy> parentIter = conf.iterator();
     while (parentIter.hasNext())
@@ -156,7 +158,7 @@ public class PrintFunctionLibrary
               L.m("Druckfunktion '%1' enthält keinen Schlüssel EXTERN", name), e);
             continue;
           }
-  
+
           String orderStr = PrintFunctionLibrary.DEFAULT_PRINTFUNCTION_ORDER_VALUE;
           int order;
           try
@@ -181,9 +183,9 @@ public class PrintFunctionLibrary
                 orderStr, name), e);
             continue;
           }
-  
+
           PrintFunction func = new PrintFunction(extConf, name, order);
-  
+
           funcs.add(name, func);
         }
         catch (ConfigurationErrorException e)
@@ -192,7 +194,7 @@ public class PrintFunctionLibrary
         }
       }
     }
-  
+
     return funcs;
   }
 

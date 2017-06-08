@@ -22,7 +22,7 @@ import de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams;
  * {@link TextComponentTags} editieren kann und derzeit für die Elemente vom Typ
  * {@link UIElementType#emailtext} und
  * {@link UIElementType#filenametemplatechooser} verwendet wird.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public class TextWithDatafieldTagsUIElement extends UIElement
@@ -77,6 +77,7 @@ public class TextWithDatafieldTagsUIElement extends UIElement
     this.textTags = textTags;
   }
 
+  @Override
   public void addSubmitArgs(Map<SubmitArgument, Object> args)
       throws InvalidArgumentException
   {
@@ -87,16 +88,17 @@ public class TextWithDatafieldTagsUIElement extends UIElement
 
   /**
    * Erzeugt eine Liste von Actions zum Einfügen von Spezialfeld-Tags in tags.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
    */
   private List<Action> makeSpecialFieldActions(final TextComponentTags tags)
   {
-    List<Action> actions = new Vector<Action>();
+    List<Action> actions = new Vector<>();
     actions.add(new AbstractAction(L.m("Datensatznummer"))
     {
       private static final long serialVersionUID = 2675809156807460816L;
 
+      @Override
       public void actionPerformed(ActionEvent e)
       {
         tags.insertTag(MailMergeParams.TAG_DATENSATZNUMMER);
@@ -106,6 +108,7 @@ public class TextWithDatafieldTagsUIElement extends UIElement
     {
       private static final long serialVersionUID = 3779132684393223573L;
 
+      @Override
       public void actionPerformed(ActionEvent e)
       {
         tags.insertTag(MailMergeParams.TAG_SERIENBRIEFNUMMER);

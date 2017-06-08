@@ -459,7 +459,6 @@ public class WollMuxSingleton
    *           type oder value sind ungültig oder fehlerhaft.
    */
   private static Object getObjectByType(String type, String value)
-      throws IllegalArgumentException
   {
     if (type.equalsIgnoreCase("boolean"))
     {
@@ -498,15 +497,17 @@ public class WollMuxSingleton
   private static void setConfigurationValue(String node, String prop, Object value)
   {
     XChangesBatch updateAccess = UNO.getConfigurationUpdateAccess(node);
-    if (value != null) UNO.setProperty(updateAccess, prop, value);
-    if (updateAccess != null) try
-    {
-      updateAccess.commitChanges();
-    }
-    catch (WrappedTargetException e)
-    {
-      Logger.error(e);
-    }
+    if (value != null)
+      UNO.setProperty(updateAccess, prop, value);
+    if (updateAccess != null)
+      try
+      {
+        updateAccess.commitChanges();
+      }
+      catch (WrappedTargetException e)
+      {
+        Logger.error(e);
+      }
   }
 
   /**

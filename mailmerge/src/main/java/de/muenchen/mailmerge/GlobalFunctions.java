@@ -10,7 +10,7 @@ import de.muenchen.mailmerge.print.PrintFunctionLibrary;
 public class GlobalFunctions
 {
   private static GlobalFunctions instance;
-  
+
   /**
    * Enthält die im Funktionen-Abschnitt der wollmux,conf definierten Funktionen.
    */
@@ -27,14 +27,6 @@ public class GlobalFunctions
    * Enthält die im Funktionen-Abschnitt der wollmux,conf definierten Funktionen.
    */
   private PrintFunctionLibrary globalPrintFunctions;
-  
-  public static GlobalFunctions getInstance()
-  {
-    if (instance == null)
-      instance = new GlobalFunctions();
-    
-    return instance;
-  }
 
   private GlobalFunctions()
   {
@@ -71,12 +63,20 @@ public class GlobalFunctions
     FunctionFactory.parseFunctions(documentActionFunctions,
       WollMuxFiles.getWollmuxConf(), "Dokumentaktionen", null, null);
 
-    
+
   }
-  
+
+  public static GlobalFunctions getInstance()
+  {
+    if (instance == null)
+      instance = new GlobalFunctions();
+
+    return instance;
+  }
+
   /**
    * Liefert die Funktionsbibliothek, die die global definierten Funktionen enthält.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public FunctionLibrary getGlobalFunctions()
@@ -86,7 +86,7 @@ public class GlobalFunctions
 
   /**
    * Liefert die Funktionsbibliothek, die die Dokumentaktionen enthält.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public FunctionLibrary getDocumentActionFunctions()
@@ -97,7 +97,7 @@ public class GlobalFunctions
   /**
    * Liefert die Funktionsbibliothek, die die global definierten Druckfunktionen
    * enthält.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD 5.1)
    */
   public PrintFunctionLibrary getGlobalPrintFunctions()
@@ -108,7 +108,7 @@ public class GlobalFunctions
   /**
    * Liefert die Dialogbibliothek, die die Dialoge enthält, die in Funktionen
    * (Grundfunktion "DIALOG") verwendung finden.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   public DialogLibrary getFunctionDialogs()

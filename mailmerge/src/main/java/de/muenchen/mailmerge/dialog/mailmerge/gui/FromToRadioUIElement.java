@@ -18,7 +18,7 @@ import de.muenchen.mailmerge.dialog.mailmerge.MailMergeParams;
 
 /**
  * Beschreibt das {@link UIElement} vom Typ {@link UIElementType#fromtoradio}.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD-D101)
  */
 public class FromToRadioUIElement extends UIElement implements
@@ -31,6 +31,49 @@ public class FromToRadioUIElement extends UIElement implements
   private JRadioButton fromRadioButton;
 
   private MailMergeParams mmp;
+
+  private DocumentListener rangeDocumentListener = new DocumentListener()
+  {
+    public void update()
+    {
+      fromRadioButton.setSelected(true);
+      mmp.setDatasetSelectionType(DatasetSelectionType.RANGE);
+      try
+      {
+        indexSelection.setRangeStart(Integer.parseInt(start.getText()));
+      }
+      catch (Exception x)
+      {
+        indexSelection.setRangeStart(0);
+      }
+      try
+      {
+        indexSelection.setRangeEnd(Integer.parseInt(end.getText()));
+      }
+      catch (Exception x)
+      {
+        indexSelection.setRangeEnd(0);
+      }
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent e)
+    {
+      update();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e)
+    {
+      update();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e)
+    {
+      update();
+    }
+  };
 
   /**
    * Falls {@link DatasetSelectionType} != {@link DatasetSelectionType#ALL}, so
@@ -63,26 +106,31 @@ public class FromToRadioUIElement extends UIElement implements
     hbox.add(end);
     hbox.add(Box.createHorizontalGlue());
     ActionListener li = action.createActionListener(value, mmp);
-    if (li != null) fromRadioButton.addActionListener(li);
+    if (li != null)
+      fromRadioButton.addActionListener(li);
     DimAdjust.maxHeightIsPrefMaxWidthUnlimited(hbox);
   }
 
+  @Override
   public void setEnabled(boolean enabled)
   {
     super.setEnabled(enabled);
     fromRadioButton.setEnabled(enabled);
   }
 
+  @Override
   public void setButtonGroup(ButtonGroup g)
   {
     g.add(fromRadioButton);
   }
 
+  @Override
   public boolean isSelected()
   {
     return fromRadioButton.isSelected();
   }
 
+  @Override
   public void setSelected(boolean b)
   {
     fromRadioButton.setSelected(b);
@@ -91,46 +139,7 @@ public class FromToRadioUIElement extends UIElement implements
       l.actionPerformed(e);
   }
 
-  private DocumentListener rangeDocumentListener = new DocumentListener()
-  {
-    public void update()
-    {
-      fromRadioButton.setSelected(true);
-      mmp.setDatasetSelectionType(DatasetSelectionType.RANGE);
-      try
-      {
-        indexSelection.setRangeStart(Integer.parseInt(start.getText()));
-      }
-      catch (Exception x)
-      {
-        indexSelection.setRangeStart(0);
-      }
-      try
-      {
-        indexSelection.setRangeEnd(Integer.parseInt(end.getText()));
-      }
-      catch (Exception x)
-      {
-        indexSelection.setRangeEnd(0);
-      }
-    }
-
-    public void insertUpdate(DocumentEvent e)
-    {
-      update();
-    }
-
-    public void removeUpdate(DocumentEvent e)
-    {
-      update();
-    }
-
-    public void changedUpdate(DocumentEvent e)
-    {
-      update();
-    }
-  };
-
+  @Override
   public void addSubmitArgs(java.util.Map<SubmitArgument, Object> args)
       throws InvalidArgumentException
   {

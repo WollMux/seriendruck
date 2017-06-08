@@ -12,7 +12,7 @@ import de.muenchen.mailmerge.event.MailMergeEventHandler;
 /**
  * Erzeugt ein neues WollMuxEvent zum Registrieren des übergebenen XEventListeners
  * und wird vom WollMux-Service aufgerufen.
- * 
+ *
  */
 public class OnAddDocumentEventListener extends BasicEvent
 {
@@ -28,7 +28,7 @@ public class OnAddDocumentEventListener extends BasicEvent
   {
     DocumentManager.getDocumentManager().addDocumentEventListener(listener);
 
-    List<XComponent> processedDocuments = new Vector<XComponent>();
+    List<XComponent> processedDocuments = new Vector<>();
     DocumentManager.getDocumentManager().getProcessedDocuments(processedDocuments);
 
     for (XComponent compo : processedDocuments)

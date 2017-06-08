@@ -13,7 +13,7 @@ public class ModalDialogs
    * Diese Methode erzeugt einen modalen Swing-Dialog zur Anzeige von Informationen
    * und kehrt erst nach Beendigung des Dialogs wieder zurück. Der sichtbare Text
    * wird dabei ab einer Länge von 50 Zeichen automatisch umgebrochen.
-   * 
+   *
    * @param sTitle
    *          Titelzeile des Dialogs
    * @param sMessage
@@ -27,7 +27,7 @@ public class ModalDialogs
   /**
    * Diese Methode erzeugt einen modalen Swing-Dialog zur Anzeige von Informationen
    * und kehrt erst nach Beendigung des Dialogs wieder zurück.
-   * 
+   *
    * @param sTitle
    *          Titelzeile des Dialogs
    * @param sMessage
@@ -46,10 +46,10 @@ public class ModalDialogs
   /**
    * Diese Methode erzeugt einen modalen Swing-Dialog zur Anzeige einer Frage
    * und kehrt erst nach Beendigung des Dialogs wieder zurück. Der sichtbare Text
-   * wird dabei ab einer Länge von 50 Zeichen automatisch umgebrochen. 
+   * wird dabei ab einer Länge von 50 Zeichen automatisch umgebrochen.
    * Wenn die Benutzerin oder der Benutzer "OK" geklickt hat, gibt die Methode
    * true zurück, andernfalls false.
-   * 
+   *
    * @param sTitle
    *          Titelzeile des Dialogs
    * @param sMessage
@@ -66,7 +66,7 @@ public class ModalDialogs
    * und kehrt erst nach Beendigung des Dialogs wieder zurück.
    * Wenn die Benutzerin oder der Benutzer "OK" geklickt hat, gibt die Methode
    * true zurück, andernfalls false.
-   * 
+   *
    * @param sTitle
    *          Titelzeile des Dialogs
    * @param sMessage
@@ -83,9 +83,9 @@ public class ModalDialogs
       javax.swing.JOptionPane.YES_NO_OPTION);
   }
 
-  private static boolean showDialog(java.lang.String sTitle, 
+  private static boolean showDialog(java.lang.String sTitle,
       java.lang.String sMessage, int margin, int messageType, int optionType)
-  {    
+  {
     boolean ret = false;
     try
     {
@@ -107,12 +107,13 @@ public class ModalDialogs
           formattedMessage += word + " ";
           chars += word.length() + 1;
         }
-        if (i != lines.length - 1) formattedMessage += "\n";
+        if (i != lines.length - 1)
+          formattedMessage += "\n";
       }
-  
+
       // infobox ausgeben:
       Common.setLookAndFeelOnce();
-  
+
       JOptionPane pane =
         new JOptionPane(formattedMessage, messageType, optionType);
       JDialog dialog = pane.createDialog(null, sTitle);

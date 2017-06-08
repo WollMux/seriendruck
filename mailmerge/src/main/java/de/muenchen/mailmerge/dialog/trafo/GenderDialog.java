@@ -2,7 +2,7 @@
  * Dateiname: GenderDialog.java
  * Projekt  : WollMux
  * Funktion : Erlaubt die Bearbeitung der Funktion eines Gender-Feldes.
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  *
  * Christoph lutz (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.dialog.trafo;
 
@@ -67,7 +67,7 @@ import de.muenchen.allg.itd51.wollmux.core.dialog.DimAdjust;
 
 /**
  * Erlaubt die Bearbeitung der Funktion eines Gender-Feldes.
- * 
+ *
  * @author Christoph Lutz (D-III-ITD 5.1)
  */
 public class GenderDialog extends TrafoDialog
@@ -92,7 +92,8 @@ public class GenderDialog extends TrafoDialog
   {
     this.params = params;
     if (!params.isValid || params.conf == null || params.fieldNames == null
-      || params.fieldNames.size() == 0) throw new IllegalArgumentException();
+      || params.fieldNames.isEmpty())
+      throw new IllegalArgumentException();
 
     ConfigThingy conf = params.conf;
 
@@ -108,23 +109,29 @@ public class GenderDialog extends TrafoDialog
       String textSonst = null;
       String anredeId = null;
 
-      if (conf.count() != 1) stop();
+      if (conf.count() != 1)
+        stop();
       ConfigThingy bind = conf.getFirstChild();
-      if (!bind.getName().equals("BIND")) stop();
+      if (!bind.getName().equals("BIND"))
+        stop();
 
       ConfigThingy funcs = bind.query("FUNCTION", 1);
-      if (funcs.count() != 1) stop();
+      if (funcs.count() != 1)
+        stop();
       ConfigThingy func = funcs.getLastChild();
-      if (!func.toString().equals("Gender")) stop();
+      if (!func.toString().equals("Gender"))
+        stop();
 
       for (ConfigThingy set : bind)
       {
-        if (!set.getName().equals("SET") || set.count() != 2) continue;
+        if (!set.getName().equals("SET") || set.count() != 2)
+          continue;
         String setKey = set.getFirstChild().toString();
         ConfigThingy value = set.getLastChild();
 
         if (setKey.equals("Anrede") && value.getName().equals("VALUE")
-          && value.count() == 1) anredeId = value.toString();
+          && value.count() == 1)
+          anredeId = value.toString();
         if (setKey.equals("Falls_Anrede_HerrN") && value.count() == 0)
           textHerr = value.getName();
         if (setKey.equals("Falls_Anrede_Frau") && value.count() == 0)
@@ -136,9 +143,9 @@ public class GenderDialog extends TrafoDialog
       if (anredeId == null || textHerr == null || textFrau == null
         || textSonst == null) stop();
 
-      HashSet<String> uniqueFieldNames = new HashSet<String>(params.fieldNames);
+      HashSet<String> uniqueFieldNames = new HashSet<>(params.fieldNames);
       uniqueFieldNames.add(anredeId);
-      List<String> sortedNames = new ArrayList<String>(uniqueFieldNames);
+      List<String> sortedNames = new ArrayList<>(uniqueFieldNames);
       Collections.sort(sortedNames);
 
       buildGUI(anredeId, textHerr, textFrau, textSonst, sortedNames);
@@ -151,19 +158,19 @@ public class GenderDialog extends TrafoDialog
 
   /**
    * Schreiberleichterung für throw new IllegalArgumentException();
-   * 
+   *
    * @throws IllegalArgumentException
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
-  private void stop() throws IllegalArgumentException
+  private void stop()
   {
     throw new IllegalArgumentException();
   }
 
   /**
    * Baut das genderPanel auf.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private void buildGUI(String anredeId, String textHerr, String textFrau,
@@ -180,13 +187,13 @@ public class GenderDialog extends TrafoDialog
     Box hbox;
     JLabel label;
     int maxLabelWidth = 0;
-    List<JLabel> labels = new ArrayList<JLabel>();
+    List<JLabel> labels = new ArrayList<>();
 
     hbox = Box.createHorizontalBox();
     label = new JLabel(L.m("Geschlechtsbestimmendes Feld"));
     label.setFont(label.getFont().deriveFont(Font.PLAIN));
     hbox.add(label);
-    cbAnrede = new JComboBox<String>(new Vector<String>(fieldNames));
+    cbAnrede = new JComboBox<>(new Vector<String>(fieldNames));
     cbAnrede.setSelectedItem(anredeId);
     cbAnrede.setEditable(false);
     hbox.add(Box.createHorizontalGlue());
@@ -244,7 +251,7 @@ public class GenderDialog extends TrafoDialog
    * Fügt der JComponent compo abhängig vom Text ein oder mehrere H-Boxen mit dem
    * Text text hinzu, wobei der Text an Zeilenumbrüchen umgebrochen und linksbündig
    * dargestellt wird.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private void addText(JComponent compo, String text)
@@ -263,9 +270,10 @@ public class GenderDialog extends TrafoDialog
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.dialog.trafo.TrafoDialog#getExitStatus()
    */
+  @Override
   public TrafoDialogParameters getExitStatus()
   {
     return params;
@@ -274,7 +282,7 @@ public class GenderDialog extends TrafoDialog
   /**
    * Aktualisiert {@link #params},conf anhand des aktuellen Dialogzustandes und
    * setzt params,isValid auf true.
-   * 
+   *
    */
   private void updateTrafoConf()
   {
@@ -287,7 +295,7 @@ public class GenderDialog extends TrafoDialog
 
   /**
    * Fügt {@link #genderPanel} in dialog ein und zeigt ihn an.
-   * 
+   *
    * @param dialog
    * @author Matthias Benkmann (D-III-ITD D.10), Christoph Lutz (D-III-ITD D.10)
    */
@@ -313,6 +321,7 @@ public class GenderDialog extends TrafoDialog
     JButton cancel = new JButton(L.m("Abbrechen"));
     cancel.addActionListener(new ActionListener()
     {
+      @Override
       public void actionPerformed(ActionEvent e)
       {
         abort();
@@ -321,6 +330,7 @@ public class GenderDialog extends TrafoDialog
     JButton insert = new JButton(L.m("OK"));
     insert.addActionListener(new ActionListener()
     {
+      @Override
       public void actionPerformed(ActionEvent e)
       {
         updateTrafoConf();
@@ -347,10 +357,11 @@ public class GenderDialog extends TrafoDialog
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.dialog.trafo.TrafoDialog#show(java.lang.String,
    *      java.awt.Dialog)
    */
+  @Override
   public void show(String windowTitle, Dialog owner)
   {
     if (owner == null)
@@ -361,10 +372,11 @@ public class GenderDialog extends TrafoDialog
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.dialog.trafo.TrafoDialog#show(java.lang.String,
    *      java.awt.Frame)
    */
+  @Override
   public void show(String windowTitle, Frame owner)
   {
     if (owner == null)
@@ -376,31 +388,38 @@ public class GenderDialog extends TrafoDialog
   /**
    * Der Windowlistener, der die Close-Action des "X"-Knopfs abfängt und den Dialog
    * sauber mit abort beendet.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private class MyWindowListener implements WindowListener
   {
+    @Override
     public void windowOpened(WindowEvent e)
     {}
 
+    @Override
     public void windowClosing(WindowEvent e)
     {
       abort();
     }
 
+    @Override
     public void windowClosed(WindowEvent e)
     {}
 
+    @Override
     public void windowIconified(WindowEvent e)
     {}
 
+    @Override
     public void windowDeiconified(WindowEvent e)
     {}
 
+    @Override
     public void windowActivated(WindowEvent e)
     {}
 
+    @Override
     public void windowDeactivated(WindowEvent e)
     {}
   }
@@ -408,7 +427,7 @@ public class GenderDialog extends TrafoDialog
   /**
    * Beendet den Dialog und ruft insbesondere den close-ActionListener der
    * darüberliegenden Anwendung auf.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private void abort()
@@ -436,15 +455,17 @@ public class GenderDialog extends TrafoDialog
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.dialog.trafo.TrafoDialog#dispose()
    */
+  @Override
   public void dispose()
   {
     try
     {
       javax.swing.SwingUtilities.invokeLater(new Runnable()
       {
+        @Override
         public void run()
         {
           try
@@ -464,7 +485,7 @@ public class GenderDialog extends TrafoDialog
    * Erzeugt ein ConfigThingy mit dem Aufbau BIND(FUNCTION "Gender" SET("Anrede",
    * VALUE "<anredeFieldId>") SET("Falls_Anrede_HerrN", "<textHerr>")
    * SET("Falls_Anrede_Frau", "<textFrau>") SET("Falls_sonstige_Anrede", "<textSonst>"))
-   * 
+   *
    * @param anredeId
    *          Id des geschlechtsbestimmenden Feldes
    * @param textHerr
@@ -473,7 +494,7 @@ public class GenderDialog extends TrafoDialog
    *          Text für Frau
    * @param textSonst
    *          Text für sonstige Anreden
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   public static ConfigThingy generateGenderTrafoConf(String anredeId,
@@ -503,7 +524,7 @@ public class GenderDialog extends TrafoDialog
 
   /**
    * für Tests
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   public static void main(String[] args)

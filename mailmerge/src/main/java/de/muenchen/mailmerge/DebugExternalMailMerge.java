@@ -58,6 +58,6 @@ public class DebugExternalMailMerge
       UnoRuntime.queryInterface(XSet.class, UNO.defaultContext.getServiceManager());
     set.insert(MailMergeComponent.__getComponentFactory(MailMergeComponent.class.getName()));
 
-    MailMergeComponent wm = new MailMergeComponent(UNO.defaultContext);
+    new MailMergeComponent(UNO.defaultContext);
   }
 }

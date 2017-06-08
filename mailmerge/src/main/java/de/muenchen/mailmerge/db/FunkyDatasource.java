@@ -1,8 +1,8 @@
-/* 
+/*
  * Dateiname: FunkyDatasource.java
  * Projekt  : WollMux
  * Funktion : Datasource, die mit WollMux-Funktionen berechnete Spalten ermöglicht.
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  *
  * @author Matthias Benkmann (D-III-ITD-D101)
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.db;
 
@@ -55,7 +55,7 @@ import de.muenchen.mailmerge.func.FunctionFactory;
  * Diese Datasource verhält sich bei Suchanfragen nicht entsprechend dem normalen
  * Verhalten einer Datasource, da sie immer auf den Originaldaten sucht, jedoch
  * transformierte Datensätze zurückliefert.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD-D101)
  */
 public class FunkyDatasource implements Datasource
@@ -70,7 +70,7 @@ public class FunkyDatasource implements Datasource
 
   /**
    * Erzeugt eine neue FunkyDatasource.
-   * 
+   *
    * @param nameToDatasource
    *          enthält alle bis zum Zeitpunkt der Definition dieser UnionDatasource
    *          bereits vollständig instanziierten Datenquellen.
@@ -82,7 +82,7 @@ public class FunkyDatasource implements Datasource
    *          verwendet).
    */
   public FunkyDatasource(Map<String, Datasource> nameToDatasource,
-      ConfigThingy sourceDesc, URL urlContext) throws ConfigurationErrorException
+      ConfigThingy sourceDesc, URL urlContext)
   {
     try
     {
@@ -114,7 +114,7 @@ public class FunkyDatasource implements Datasource
 
     /*
      * Kommentar kopiert von der entsprechenden Stelle aus WollMuxFiles:
-     * 
+     *
      * Zum Zeitpunkt wo der DJ initialisiert wird sind die Funktions- und
      * Dialogbibliothek des WollMuxSingleton noch nicht initialisiert, deswegen
      * können sie hier nicht verwendet werden. Man könnte die Reihenfolge natürlich
@@ -136,28 +136,33 @@ public class FunkyDatasource implements Datasource
     schema.addAll(source.getSchema());
   }
 
+  @Override
   public Set<String> getSchema()
   {
     return schema;
   }
 
+  @Override
   public QueryResults getDatasetsByKey(Collection<String> keys, long timeout)
       throws TimeoutException
   {
     return columnTransformer.transform(source.getDatasetsByKey(keys, timeout));
   }
 
+  @Override
   public QueryResults getContents(long timeout) throws TimeoutException
   {
     return columnTransformer.transform(source.getContents(timeout));
   }
 
+  @Override
   public QueryResults find(List<QueryPart> query, long timeout)
       throws TimeoutException
   {
     return columnTransformer.transform(source.find(query, timeout));
   }
 
+  @Override
   public String getName()
   {
     return name;

@@ -9,10 +9,10 @@ import de.muenchen.mailmerge.document.TextDocumentController;
  * Sammelt alle Formularfelder des Dokuments model auf, die nicht von
  * WollMux-Kommandos umgeben sind, jedoch trotzdem vom WollMux verstanden und
  * befüllt werden (derzeit c,s,s,t,textfield,Database-Felder).
- * 
+ *
  * Das Event wird aus der Implementierung von XPrintModel (siehe TextDocumentModel)
  * geworfen, wenn dort die Methode collectNonWollMuxFormFields aufgerufen wird.
- * 
+ *
  */
 public class OnCollectNonWollMuxFormFieldsViaPrintModel extends BasicEvent
 {
@@ -32,7 +32,8 @@ public class OnCollectNonWollMuxFormFieldsViaPrintModel extends BasicEvent
     documentController.collectNonWollMuxFormFields();
 
     stabilize();
-    if (listener != null) listener.actionPerformed(null);
+    if (listener != null)
+      listener.actionPerformed(null);
   }
 
   @Override

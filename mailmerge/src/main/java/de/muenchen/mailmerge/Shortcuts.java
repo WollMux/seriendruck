@@ -2,7 +2,7 @@
  * Dateiname: Shortcuts.java
  * Projekt  : WollMux
  * Funktion : Ersetzen bzw. setzen von Shortcuts in OOo.
- * 
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  *
  * @author Bettina Bauer (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 
 package de.muenchen.mailmerge;
@@ -56,7 +56,7 @@ public class Shortcuts
    * Liest alle Attribute SHORTCUT und URL aus tastenkombinationenConf aus, löscht
    * alle bisher vorhandenen Tastenkombinationen deren URL mit "wollmux:" beginnt und
    * setzt neue Tastenkombination in OOo-Writer.
-   * 
+   *
    * @param tastenkombinationenConf
    *          .conf Abschnitt Tastenkuerzel mit allen Knoten
    */
@@ -64,7 +64,8 @@ public class Shortcuts
   {
     XAcceleratorConfiguration shortcutManager =
       UNO.getShortcutManager("com.sun.star.text.TextDocument");
-    if (shortcutManager == null) return;
+    if (shortcutManager == null)
+      return;
 
     // löschen aller KeyEvents die mit "wollmux:" beginnen
     removeComandFromAllKeyEvents(shortcutManager);
@@ -144,7 +145,7 @@ public class Shortcuts
    * Wenn es Tastenkuerzel mit einer UNO-url beginnent mit "wollmux:" gibt, werden
    * diese gelöscht. Workaround wegen nicht funktionierendem
    * xAcceleratorConfiguration.removeCommandFromAllKeyEvents(). OOo Issue #72558
-   * 
+   *
    * @param xAcceleratorConfiguration
    *          AcceleratorConfiguration (muß danach noch mit store() persistent
    *          gemacht werden)
@@ -179,13 +180,14 @@ public class Shortcuts
 
   /**
    * Gibt alle KeyEvents mit Modifier, KeyCode und Command aus
-   * 
+   *
    * @param xac
    *          AcceleratorConfigurator
    */
   public static void showKeyset(XAcceleratorConfiguration xac)
   {
-    if (xac == null) return;
+    if (xac == null)
+      return;
 
     KeyEvent[] keys = xac.getAllKeyEvents();
 
@@ -207,7 +209,7 @@ public class Shortcuts
 
   /**
    * Erzeugt ein Object KeyEvent
-   * 
+   *
    * @param shortcutWithSeparator
    *          Tastenkombination mit "+" als Separator
    * @return gibt ein KeyEvent zurück oder null wenn kein keyCode sondern nur
@@ -216,7 +218,8 @@ public class Shortcuts
   private static KeyEvent createKeyEvent(String shortcutWithSeparator)
   {
 
-    if (shortcutWithSeparator == null) return null;
+    if (shortcutWithSeparator == null)
+      return null;
 
     String[] shortcuts = shortcutWithSeparator.split("\\+");
     Short keyCode = null;
@@ -252,7 +255,7 @@ public class Shortcuts
 
   /**
    * Gibt die Konstante com.sun.star.awt.Key für die entsprechende Taste zurück
-   * 
+   *
    * @param shortcut
    *          Taste
    * @return Key der entsprechenden Taste
@@ -378,15 +381,13 @@ public class Shortcuts
     myMap.put("EQUAL", Short.valueOf(Key.EQUAL));
     myMap.put("=", Short.valueOf(Key.EQUAL));
 
-    final Short keyCode = myMap.get(shortcut.toUpperCase());
-
-    return keyCode;
+    return myMap.get(shortcut.toUpperCase());
   }
 
   /**
    * Gibt die Konstante com.sun.star.awt.KeyModifier für die entsprechende Taste
    * zurück
-   * 
+   *
    * @param shortcut
    *          Taste
    * @return KeyModifier der entsprechenden Taste
@@ -403,9 +404,7 @@ public class Shortcuts
     myMap.put("STRG", Short.valueOf(KeyModifier.MOD1));
     myMap.put("ALT", Short.valueOf(KeyModifier.MOD2));
 
-    final Short keyModifier = myMap.get(shortcut.toUpperCase());
-
-    return keyModifier;
+    return myMap.get(shortcut.toUpperCase());
   }
 
   public static void main(String[] args) throws Exception

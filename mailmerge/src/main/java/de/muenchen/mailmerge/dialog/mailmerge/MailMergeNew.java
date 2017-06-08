@@ -2,7 +2,7 @@
  * Dateiname: MailMergeNew.java
  * Projekt  : WollMux
  * Funktion : Die neuen erweiterten Serienbrief-Funktionalitäten
- * 
+ *
  * Copyright (c) 2010-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,16 +23,16 @@
  * -------------------------------------------------------------------
  * 11.10.2007 | BNK | Erstellung
  * 25.05.2010 | ERT | Aufruf von PDFGesamtdruck-Druckfunktion
- * 20.12.2010 | ERT | Bei ungültigem indexSelection.rangeEnd wird der 
+ * 20.12.2010 | ERT | Bei ungültigem indexSelection.rangeEnd wird der
  *                    Wert auf den letzten Datensatz gesetzt
  * 08.05.2012 | jub | um beim serienbrief/emailversand die auswahl zwischen odt und pdf
- *                    anhängen anbieten zu können, sendAsEmail() und saveToFile() mit 
- *                    einer flage versehen, die zwischen den beiden formaten 
+ *                    anhängen anbieten zu können, sendAsEmail() und saveToFile() mit
+ *                    einer flage versehen, die zwischen den beiden formaten
  *                    unterscheidet.
  * -------------------------------------------------------------------
  *
  * @author Matthias Benkmann (D-III-ITD 5.1)
- * 
+ *
  */
 package de.muenchen.mailmerge.dialog.mailmerge;
 
@@ -103,7 +103,7 @@ import de.muenchen.mailmerge.event.MailMergeEventHandler;
 
 /**
  * Die neuen erweiterten Serienbrief-Funktionalitäten.
- * 
+ *
  * @author Matthias Benkmann (D-III-ITD 5.1)
  */
 public class MailMergeNew
@@ -135,22 +135,22 @@ public class MailMergeNew
   private JTextField previewDatasetNumberTextfield;
 
   private Collection<JComponent> elementsDisabledWhenNoDatasourceSelected =
-    new Vector<JComponent>();
+    new Vector<>();
 
   private Collection<JComponent> elementsDisabledWhenNotInPreviewMode =
-    new Vector<JComponent>();
+    new Vector<>();
 
   private Collection<JComponent> elementsDisabledWhenFirstDatasetSelected =
-    new Vector<JComponent>();
+    new Vector<>();
 
   private Collection<JComponent> elementsDisabledWhenLastDatasetSelected =
-    new Vector<JComponent>();
+    new Vector<>();
 
   /**
    * Enthält alle elementsDisabledWhen... Collections.
    */
   private Vector<Collection<JComponent>> listsOfElementsDisabledUnderCertainCircumstances =
-    new Vector<Collection<JComponent>>();
+    new Vector<>();
 
   /**
    * Das Toolbar-Fenster.
@@ -179,12 +179,12 @@ public class MailMergeNew
   private TextDocumentController documentController;
 
   private MailMergeControllerImpl mailMergeController;
-  
-  
+
+
 
   /**
    * Die zentrale Klasse, die die Serienbrieffunktionalität bereitstellt.
-   * 
+   *
    * @param documentController
    *          das {@link TextDocumentModel} an dem die Toolbar hängt.
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
@@ -194,10 +194,10 @@ public class MailMergeNew
     this.mailMergeController = new MailMergeControllerImpl(documentController);
     this.documentController = documentController;
     this.abortListener = abortListener;
-    
+
     String uuid = UUID.randomUUID().toString();
     instances.put(uuid, this);
-    
+
     XTextDocument doc = documentController.getModel().doc;
     XDocumentPropertiesSupplier propSupplier = UnoRuntime.queryInterface(XDocumentPropertiesSupplier.class, doc);
     XPropertyContainer userDefinedProperties = propSupplier.getDocumentProperties().getUserDefinedProperties();
@@ -211,7 +211,7 @@ public class MailMergeNew
         Logger.error(e);
       }
     }
-    
+
     try
     {
       props.setPropertyValue(PROP_MAILMERGENEW, uuid);
@@ -220,12 +220,12 @@ public class MailMergeNew
       Logger.error(e);
     }
   }
-  
+
   public static MailMergeNew getInstance(String uuid)
   {
     return instances.get(uuid);
   }
-  
+
   public static void disposeInstance(TextDocumentController documentController)
   {
     XTextDocument doc = documentController.getModel().doc;
@@ -265,7 +265,6 @@ public class MailMergeNew
           {
             Logger.error(x);
           }
-          ;
         }
       });
     }
@@ -342,8 +341,8 @@ public class MailMergeNew
     });
     hbox.add(button);
 
-    final String VORSCHAU = L.m("   Vorschau   ");
-    button = new JButton(VORSCHAU);
+    final String preview = L.m("   Vorschau   ");
+    button = new JButton(preview);
     previewMode = false;
     documentController.setFormFieldsPreviewMode(previewMode);
 
@@ -353,11 +352,12 @@ public class MailMergeNew
       @Override
       public void actionPerformed(ActionEvent e)
       {
-        if (!mailMergeController.hasDatasource()) return;
+        if (!mailMergeController.hasDatasource())
+          return;
         if (previewMode)
         {
           documentController.collectNonWollMuxFormFields();
-          previewButton.setText(VORSCHAU);
+          previewButton.setText(preview);
           previewMode = false;
           documentController.setFormFieldsPreviewMode(false);
           updateEnabledDisabledState();
@@ -396,7 +396,8 @@ public class MailMergeNew
       public void actionPerformed(ActionEvent e)
       {
         --previewDatasetNumber;
-        if (previewDatasetNumber < 1) previewDatasetNumber = 1;
+        if (previewDatasetNumber < 1)
+          previewDatasetNumber = 1;
         updatePreviewFields();
       }
     });
@@ -556,9 +557,9 @@ public class MailMergeNew
   /**
    * Geht alle Komponenten durch, die unter bestimmten Bedingungen ausgegraut werden
    * müssen und setzt ihren Status korrekt.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
-   * 
+   *
    */
   private void updateEnabledDisabledState()
   {
@@ -583,8 +584,9 @@ public class MailMergeNew
       for (JComponent compo : elementsDisabledWhenLastDatasetSelected)
         compo.setEnabled(false);
 
-    if (!previewMode) for (JComponent compo : elementsDisabledWhenNotInPreviewMode)
-      compo.setEnabled(false);
+    if (!previewMode)
+      for (JComponent compo : elementsDisabledWhenNotInPreviewMode)
+        compo.setEnabled(false);
   }
 
   /**
@@ -592,27 +594,31 @@ public class MailMergeNew
    * setzt {@link #previewDatasetNumberMax} und setzt dann falls {@link #previewMode}
    * == true alle Feldwerte auf die Werte des entsprechenden Datensatzes. Ruft
    * außerdem {@link #updateEnabledDisabledState()} auf.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD D.10)
-   * 
+   *
    *         TESTED
    */
   private void updatePreviewFields()
   {
-    if (!mailMergeController.hasDatasource()) return;
+    if (!mailMergeController.hasDatasource())
+      return;
 
     int count = mailMergeController.getNumberOfDatasets();
     previewDatasetNumberMax = count;
 
-    if (previewDatasetNumber > count) previewDatasetNumber = count;
-    if (previewDatasetNumber <= 0) previewDatasetNumber = 1;
+    if (previewDatasetNumber > count)
+      previewDatasetNumber = count;
+    if (previewDatasetNumber <= 0)
+      previewDatasetNumber = 1;
 
     String previewDatasetNumberStr = "" + previewDatasetNumber;
     previewDatasetNumberTextfield.setText(previewDatasetNumberStr);
 
     updateEnabledDisabledState();
 
-    if (!previewMode) return;
+    if (!previewMode)
+      return;
 
     List<String> schema = mailMergeController.getColumnNames();
     List<String> data = mailMergeController.getValuesForDataset(previewDatasetNumber);
@@ -636,7 +642,7 @@ public class MailMergeNew
 
   /**
    * Schliesst den MailMergeNew und alle zugehörigen Fenster.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD 5.1)
    */
   public void dispose()
@@ -666,12 +672,12 @@ public class MailMergeNew
   /**
    * Erzeugt eine Liste mit {@link javax.swing.Action}s für alle Namen aus
    * {@link #ds},getColumnNames(), die ein entsprechendes Seriendruckfeld einfügen.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   private List<Action> getInsertFieldActionList()
   {
-    List<Action> actions = new Vector<Action>();
+    List<Action> actions = new Vector<>();
     List<String> columnNames = mailMergeController.getColumnNames();
 
     Collections.sort(columnNames);
@@ -699,7 +705,7 @@ public class MailMergeNew
   /**
    * Erzeugt ein JPopupMenu, das Einträge für das Einfügen von Spezialfeldern enthält
    * und zeigt es an neben invoker an der relativen Position x,y.
-   * 
+   *
    * @param invoker
    *          zu welcher Komponente gehört das Popup
    * @param x
@@ -710,7 +716,7 @@ public class MailMergeNew
    */
   private void showInsertSpecialFieldPopup(JComponent invoker, int x, int y)
   {
-    boolean dsHasFields = mailMergeController.getColumnNames().size() > 0;
+    boolean dsHasFields = !mailMergeController.getColumnNames().isEmpty();
     final TrafoDialog editFieldDialog = getTrafoDialogForCurrentSelection();
 
     JPopupMenu menu = new JPopupMenu();
@@ -811,7 +817,7 @@ public class MailMergeNew
    * Buttons buttonName, aus dem das Label des Dialogs, und später der Mouse-Over
    * hint erzeugt wird und die Liste der aktuellen Felder, die evtl. im Dialog zur
    * Verfügung stehen sollen.
-   * 
+   *
    * @param fieldNames
    *          Eine Liste der Feldnamen, die der Dialog anzeigt, falls er Buttons zum
    *          Einfügen von Serienbrieffeldern bereitstellt.
@@ -823,7 +829,7 @@ public class MailMergeNew
    *          spezifiziert. Der von den Dialogen benötigte äußere Knoten
    *          "Func(...trafoConf...) wird dabei von dieser Methode erzeugt, so dass
    *          trafoConf nur die eigentliche Funktion darstellen muss.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   protected void insertFieldFromTrafoDialog(List<String> fieldNames,
@@ -871,13 +877,14 @@ public class MailMergeNew
    * liefert ein mit Hilfe der TrafoDialogFactory erzeugtes zugehöriges
    * TrafoDialog-Objekt zurück, oder null, wenn keine transformierte Funktion
    * selektiert ist oder für die Trafo kein Dialog existiert.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private TrafoDialog getTrafoDialogForCurrentSelection()
   {
     ConfigThingy trafoConf = documentController.getModel().getFormFieldTrafoFromSelection();
-    if (trafoConf == null) return null;
+    if (trafoConf == null)
+      return null;
 
     final String trafoName = trafoConf.getName();
 
@@ -918,7 +925,7 @@ public class MailMergeNew
 
   /**
    * grobe Plausiprüfung, ob E-Mailadresse gültig ist.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   static boolean isMailAddress(String mail)
@@ -928,9 +935,9 @@ public class MailMergeNew
 
   /**
    * Speichert doc unter dem in outFile angegebenen Dateipfad und schließt dann doc.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
-   * 
+   *
    *         TESTED
    */
   static void saveOutputFile(File outFile, XTextDocument doc)
@@ -944,7 +951,7 @@ public class MailMergeNew
 
       /*
        * For more options see:
-       * 
+       *
        * http://wiki.services.openoffice.org/wiki/API/Tutorials/PDF_export
        */
       if (unparsedUrl.endsWith(".pdf"))
@@ -965,7 +972,8 @@ public class MailMergeNew
       }
       else
       {
-        if (!unparsedUrl.endsWith(".odt")) unparsedUrl = unparsedUrl + ".odt";
+        if (!unparsedUrl.endsWith(".odt"))
+          unparsedUrl = unparsedUrl + ".odt";
 
         options = new PropertyValue[0];
       }
@@ -986,14 +994,15 @@ public class MailMergeNew
   /**
    * Holt sich Element key aus dataset, sorgt dafür, dass der Wert digit-stellig wird
    * und speichert diesen Wert wieder in dataset ab.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   static void fillWithLeading0(HashMap<String, String> dataset, String key,
       int digits)
   {
     String value = dataset.get(key);
-    if (value == null) value = "";
+    if (value == null)
+      value = "";
     while (value.length() < digits)
       value = "0" + value;
     dataset.put(key, value);
@@ -1002,7 +1011,7 @@ public class MailMergeNew
   /**
    * Ersetzt alle möglicherweise bösen Zeichen im Dateinamen name durch eine
    * Unterstrich.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   static String simplifyFilename(String name)
@@ -1012,7 +1021,7 @@ public class MailMergeNew
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * de.muenchen.allg.itd51.wollmux.dialog.mailmerge.MailMergeParams.MailMergeController
    * #getTextDocument()
@@ -1041,12 +1050,12 @@ public class MailMergeNew
       myFrame.removeWindowListener(windowListener);
       myFrame.getContentPane().remove(0);
       myFrame.setJMenuBar(null);
-  
+
       myFrame.dispose();
       myFrame = null;
-  
+
       mailMergeController.close();
-  
+
       if (abortListener != null)
       {
         abortListener.actionPerformed(new ActionEvent(this, 0, ""));
@@ -1058,49 +1067,55 @@ public class MailMergeNew
    * Koppelt das AWT-Window window an das Fenster dieses Textdokuments an. Die
    * Methode muss aufgerufen werden, solange das Fenster window unsichtbar und nicht
    * aktiv ist (also z.B. vor dem Aufruf von window.setVisible(true)).
-   * 
+   *
    * @param window
    *          das Fenster, das an das Hauptfenster angekoppelt werden soll.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private synchronized void addCoupledWindow(Window window)
   {
-    if (window == null) return;
+    if (window == null)
+      return;
     if (coupledWindowController == null)
     {
       coupledWindowController = new CoupledWindowController();
       XFrame f = documentController.getFrameController().getFrame();
       XTopWindow w = null;
-      if (f != null) w = UNO.XTopWindow(f.getContainerWindow());
-      if (w != null) coupledWindowController.setTopWindow(w);
+      if (f != null)
+        w = UNO.XTopWindow(f.getContainerWindow());
+      if (w != null)
+        coupledWindowController.setTopWindow(w);
     }
-  
+
     coupledWindowController.addCoupledWindow(window);
   }
 
   /**
    * Löst die Bindung eines angekoppelten Fensters window an das Dokumentfenster.
-   * 
+   *
    * @param window
    *          das Fenster, dessen Bindung zum Hauptfenster gelöst werden soll. Ist
    *          das Fenster nicht angekoppelt, dann passiert nichts.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private synchronized void removeCoupledWindow(Window window)
   {
-    if (window == null || coupledWindowController == null) return;
-  
+    if (window == null || coupledWindowController == null)
+      return;
+
     coupledWindowController.removeCoupledWindow(window);
-  
+
     if (!coupledWindowController.hasCoupledWindows())
     {
       // deregistriert den windowListener.
       XFrame f = documentController.getFrameController().getFrame();
       XTopWindow w = null;
-      if (f != null) w = UNO.XTopWindow(f.getContainerWindow());
-      if (w != null) coupledWindowController.unsetTopWindow(w);
+      if (f != null)
+        w = UNO.XTopWindow(f.getContainerWindow());
+      if (w != null)
+        coupledWindowController.unsetTopWindow(w);
       coupledWindowController = null;
     }
   }

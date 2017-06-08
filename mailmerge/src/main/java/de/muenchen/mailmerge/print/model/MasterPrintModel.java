@@ -43,7 +43,7 @@ import de.muenchen.mailmerge.print.PrintFunction;
  * Kommunikation zwischen den verschiedenen Druckfunktionen implementiert es das
  * XPropertySet()-Interface und kann in einer HashMap beliebige
  * funktionsspezifische Daten ablegen.
- * 
+ *
  * Eine einzelne Druckfunktion wird immer mit einem zugehörigen SlavePrintModel
  * ausgeführt, das seine Position in der Aufrufkette des MasterPrintModles kennt
  * und die Weiterleitung an die nächste Druckfunktion der Aufrufkette erledigt. Da
@@ -54,7 +54,7 @@ import de.muenchen.mailmerge.print.PrintFunction;
  * garantiert. Vor dem Einstellen des Action-Ereignisses in den WollMuxEventHandler
  * wird dabei ein lock gesetzt. Nach dem Einstellen des Ereignisses wird so lange
  * gewartet, bis der WollMuxEventHandler die übergebene Callback-Methode aufruft.
- * 
+ *
  * @author christoph.lutz
  */
 class MasterPrintModel implements XPrintModel, InternalPrintModel
@@ -122,14 +122,14 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * zwischen den Druckfunktionen vorbelegt ist. Nach der Erzeugung können weitere
    * Druckfunktionen über usePrintFunction/useInternalPrintFunction... hinzugeladen
    * werden und Properties über get/setPropertyValue gesetzt bzw. gelesen werden.
-   * 
+   *
    * @param documentController
    */
   MasterPrintModel(TextDocumentController documentController)
   {
     this.documentController = documentController;
-    this.props = new HashMap<String, Object>();
-    this.functions = new TreeSet<PrintFunction>();
+    this.props = new HashMap<>();
+    this.functions = new TreeSet<>();
   }
 
   /**
@@ -138,15 +138,15 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * richtigen Position in die Aufrufkette der zu bearbeitenden Druckfunktionen
    * ein; Wird die Druckfunktion aufgerufen, so bekommt sie genau ein Argument
    * (dieses XPrintModel) übergeben.
-   * 
+   *
    * @param functionName
    *          Name der Druckfunktion, die durch das MasterPrintModel verwaltet
    *          werden soll.
    * @throws NoSuchMethodException
    *           Wird geworfen, wenn die Druckfunktion nicht definiert ist.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#usePrintFunction(java.lang.String)
    */
   @Override
@@ -163,7 +163,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @seede.muenchen.allg.itd51.wollmux.PrintModels.InternalPrintModel#
    * useInternalPrintFunction(de.muenchen.allg.itd51.wollmux.func.PrintFunction)
    */
@@ -183,13 +183,13 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * ORDER-Attribut definierte Reihenfolge in einer Aufrufkette angeordnet; Diese
    * Methode liefert die Druckfunktion an der Position idx dieser Aufrufkette (die
    * Zählung beginnt mit 0).
-   * 
+   *
    * @param idx
    *          Die Position der Druckfunktion
    * @return Die Druckfunktion an der Position idx in der sortierten Reihenfolge
    *         oder null, wenn es an der Position idx keine Druckfunktion gibt (z.B.
    *         IndexOutOfRange)
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   protected PrintFunction getPrintFunction(int idx)
@@ -203,7 +203,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
 
   /**
    * Liefert das XTextDocument mit dem die Druckfunktion aufgerufen wurde.
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#getTextDocument()
    */
   @Override
@@ -214,7 +214,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
 
   /**
    * Diese Methode ruft numberOfCopies mal printWithProps() auf.
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#print(short)
    */
   @Override
@@ -232,21 +232,22 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * setPropertyValue(...) gesetzt wurden ausgewertet. Die Methode kehrt erst dann
    * wieder zurück, wenn der gesamte Druckvorgang dieser und der darunterliegenden
    * Druckfunktionen vollständig ausgeführt wurde.
-   * 
+   *
    * Im MasterPrintModel sorgt der Aufruf dieser Methode dafür, dass (nur) die
    * erste verfügbare Druckfunktion aufgerufen wird. Das Weiterreichen der Anfrage
    * an die jeweils nächste Druckfunktion übernimmt dann das SlavePrintModel. Ist
    * die Aufrufkette zum Zeitpunkt des Aufrufs leer, so wird ein Dispatch
    * ".uno:Print" abgesetzt, damit der Standarddruckdialog von OOo aufgerufen wird.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#printWithProps()
    */
   @Override
   public void printWithProps()
   {
-    if (isCanceled()) return;
+    if (isCanceled())
+      return;
 
     PrintFunction f = getPrintFunction(0);
     if (f != null)
@@ -281,7 +282,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * können und startet den Druck. Bei folgenden Aufrufe dieser Methode wird kein
    * Druckdialog mehr angezeigt und die zuletzt getroffenen Einstellungen werden
    * verwendet.
-   * 
+   *
    * @return bei Erfolg true, sonst false.
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
@@ -294,7 +295,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
     boolean noParamsDialog = (b != null) ? b.booleanValue() : false;
 
     // Bei Bedarf den PrintParamsDialog anzeigen.
-    if (noParamsDialog == false)
+    if (!noParamsDialog)
     {
       SyncActionListener s = new SyncActionListener();
       new PrintParametersDialog(documentController.getModel().doc, showCopiesSpinner, s);
@@ -316,25 +317,28 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
     }
 
     Short copyCount = (Short) getProperty(PROP_FINAL_COPY_COUNT);
-    if (copyCount == null) copyCount = Short.valueOf((short) 1);
+    if (copyCount == null)
+      copyCount = Short.valueOf((short) 1);
 
     PageRange pageRange = (PageRange) getProperty(PROP_FINAL_PAGE_RANGE);
-    if (pageRange == null) pageRange = new PageRange(PageRangeType.ALL, null);
+    if (pageRange == null)
+      pageRange = new PageRange(PageRangeType.ALL, null);
 
-    if (!print(pageRange, copyCount)) cancel();
+    if (!print(pageRange, copyCount))
+      cancel();
   }
 
   /**
    * Druckt den Druckbereich pr des Dokuments copyCount mal auf dem aktuell
    * eingestellten Drucker aus und liefert true zurück, wenn das Drucken
    * erfolgreich war oder false, wenn Fehler auftraten.
-   * 
+   *
    * @param pr
    *          beschreibt zu druckenden Seitenbereich
    * @param copyCount
    *          enthält die Anzahl der anzufertigenden Kopien
    * @return bei Erfolg true, sonst false.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private boolean print(PageRange pr, Short copyCount)
@@ -369,21 +373,22 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
         break;
     }
 
-    if (UNO.XPrintable(documentController.getModel().doc) != null) try
-    {
-      UNO.XPrintable(documentController.getModel().doc).print(myProps.getProps());
-      return true;
-    }
-    catch (IllegalArgumentException e)
-    {
-      Logger.error(e);
-    }
+    if (UNO.XPrintable(documentController.getModel().doc) != null)
+      try
+      {
+        UNO.XPrintable(documentController.getModel().doc).print(myProps.getProps());
+        return true;
+      }
+      catch (IllegalArgumentException e)
+      {
+        Logger.error(e);
+      }
     return false;
   }
 
   /**
    * synchronisiertes Setzen von props
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private void setProperty(String prop, Object o)
@@ -398,18 +403,19 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * Setzt den die Beschreibung des aktuellen Druckvorgangs auf stage und
    * aktualisiert die Anzeige in der PrintProgressBar (falls eine solche Leiste
    * angezeigt wird).
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public void setStage(String stage)
   {
     currentStage = stage;
-    if (printProgressBar != null) printProgressBar.setTitle(currentStage);
+    if (printProgressBar != null)
+      printProgressBar.setTitle(currentStage);
   }
 
   /**
    * synchronisiertes Auslesen von props
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   private Object getProperty(String prop)
@@ -427,14 +433,14 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * Formularfelder entsprechend angepasst. Handelt es sich beim zugehörigen
    * Dokument um ein Dokument ohne Formularbeschreibung, so werden nur alle
    * insertFormValue-Kommandos dieses Dokuments angepasst, die die ID id besitzen.
-   * 
+   *
    * @param id
    *          Die ID des Formularfeldes, dessen Wert verändert werden soll. Ist die
    *          FormGUI aktiv, so werden auch alle von id abhängigen Formularwerte
    *          neu gesetzt.
    * @param value
    *          Der neue Wert des Formularfeldes id
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#setFormValue(java.lang.String,
    *      java.lang.String)
    */
@@ -449,19 +455,19 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
   /**
    * Liefert true, wenn das Dokument als "modifiziert" markiert ist und damit z.B.
    * die "Speichern?" Abfrage vor dem Schließen erscheint.
-   * 
+   *
    * Manche Druckfunktionen verändern u.U. den Inhalt von Dokumenten. Trotzdem kann
    * es sein, dass eine solche Druckfunktion den "Modifiziert"-Status des Dokuments
    * nicht verändern darf um ungewünschte "Speichern?"-Abfragen zu verhindern. In
    * diesem Fall kann der "Modifiziert"-Status mit folgendem Konstrukt innerhalb
    * der Druckfunktion unverändert gehalten werden:
-   * 
+   *
    * boolean modified = pmod.getDocumentModified();
-   * 
+   *
    * ...die eigentliche Druckfunktion, die das Dokument verändert...
-   * 
+   *
    * pmod.setDocumentModified(modified);
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#getDocumentModified()
    */
   @Override
@@ -474,7 +480,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
 
   /**
    * Diese Methode setzt den DocumentModified-Status auf modified.
-   * 
+   *
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#setDocumentModified(boolean)
    */
   @Override
@@ -501,7 +507,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sun.star.beans.XPropertySet#getPropertySetInfo()
    */
   @Override
@@ -510,7 +516,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
     final HashSet<String> propsKeySet;
     synchronized (props)
     {
-      propsKeySet = new HashSet<String>(props.keySet());
+      propsKeySet = new HashSet<>(props.keySet());
     }
 
     return new XPropertySetInfo()
@@ -552,21 +558,21 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sun.star.beans.XPropertySet#setPropertyValue(java.lang.String,
    * java.lang.Object)
    */
   @Override
   public void setPropertyValue(String arg0, Object arg1)
       throws UnknownPropertyException, PropertyVetoException,
-      IllegalArgumentException, WrappedTargetException
+      WrappedTargetException
   {
     setProperty(arg0, arg1);
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sun.star.beans.XPropertySet#getPropertyValue(java.lang.String)
    */
   @Override
@@ -601,7 +607,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sun.star.beans.XPropertySet#addPropertyChangeListener(java.lang.String,
    * com.sun.star.beans.XPropertyChangeListener)
@@ -615,7 +621,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sun.star.beans.XPropertySet#removePropertyChangeListener(java.lang.String,
    * com.sun.star.beans.XPropertyChangeListener)
@@ -630,7 +636,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sun.star.beans.XPropertySet#addVetoableChangeListener(java.lang.String,
    * com.sun.star.beans.XVetoableChangeListener)
@@ -644,7 +650,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sun.star.beans.XPropertySet#removeVetoableChangeListener(java.lang.String,
    * com.sun.star.beans.XVetoableChangeListener)
@@ -661,7 +667,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * Diese Methode setzt die Eigenschaften "Sichtbar" (visible) und die Anzeige der
    * Hintergrundfarbe (showHighlightColor) für alle Druckblöcke eines bestimmten
    * Blocktyps blockName (z.B. "AllVersions").
-   * 
+   *
    * @param blockName
    *          Der Blocktyp dessen Druckblöcke behandelt werden sollen. Folgende
    *          Blocknamen werden derzeit unterstützt: "AllVersions", "DraftOnly",
@@ -673,7 +679,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    *          gibt an ob die Hintergrundfarbe angezeigt werden soll (gilt nur, wenn
    *          zu einem betroffenen Druckblock auch eine Hintergrundfarbe angegeben
    *          ist).
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   @Override
@@ -691,14 +697,14 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * Status visible und wirkt sich damit auf alle Dokumentkommandos
    * WM(CMD'setGroups'...) bzw. alle Textbereiche aus, die über eine
    * GROUPS-Zuordnung die Sichtbarkeitsgruppe groupId verknüpft haben.
-   * 
+   *
    * @param groupID
    *          Name der Sichtbarkeitsgruppe, deren Sichtbarkeitsstatus verändert
    *          werden soll
    * @param visible
    *          Bei dem Wert true ist die Sichtbarkeitsgruppe sichtbar und bei false
    *          unsichtbar.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#setGroupVisible(java.lang.String,
    *      boolean)
@@ -717,7 +723,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * insbesonders von Druckfunktionen ausgewertet werden, die mehrmals
    * printWithProps() aufrufen und dabei aufwendige Vor- und Nacharbeiten leisten
    * müssen (die in diesem Fall sobald sinnvoll möglich eingestellt werden können).
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#isCanceled()
    */
@@ -735,7 +741,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * von printWithProps() sofort ohne Wirkung zurückkehren. Die Methode kann von
    * jeder Druckfunktion aufgerufen werden wenn Fehler auftreten oder der
    * Druckvorgang durch den Benutzer abgebrochen wurde.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#cancel()
    */
@@ -758,11 +764,11 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * aktuellen Gesamtstatus wird von der Fortschrittsanzeige übernommen. Damit muss
    * jede Druckfunktion hier auch nur die Anzahl Versionen setzen, die von der
    * Druckfunktion selbst erzeugt werden.
-   * 
+   *
    * @param maxValue
    *          den maximalen Wert der von dieser Druckfunktion zu druckenden
    *          Ausfertigungen.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#setPrintProgressMaxValue(short)
    */
@@ -777,11 +783,11 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * value (=Anzahl bis jetzt tatsächlich gedruckter Versionen) der aktuellen
    * Druckfunktion übermittelt. Der Wert value muss im Bereich 0 <= value <=
    * maxValue (siehe setPrintProgressMaxValue(maxValue)) liegen.
-   * 
+   *
    * @param value
    *          Die Anzahl der bis jetzt tatsächlich von dieser Druckfunktion
    *          gedruckten Versionen. Es muss gelten: 0 <= value <= maxValue
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    * @see de.muenchen.allg.itd51.wollmux.XPrintModel#setPrintProgressValue(short)
    */
@@ -797,13 +803,13 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * Fortschrittsleiste aktiv, so wird eine neue Fortschrittsleiste erzeugt und
    * aktiviert; ist maxValue==0, so wird die durch key repräsentierte Druckfunktion
    * deregistriert.
-   * 
+   *
    * @param key
    *          repräsentiert eine Druckfunktion (oder genauer Ihr zugehöriges
    *          SlavePrintModel)
    * @param maxValue
    *          den Maximalwert von dieser Funktion zu erwartenden Versionen
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   void setPrintProgressMaxValue(Object key, short maxValue)
@@ -820,7 +826,8 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
       });
     }
 
-    if (printProgressBar != null) printProgressBar.setMaxValue(key, maxValue);
+    if (printProgressBar != null)
+      printProgressBar.setMaxValue(key, maxValue);
   }
 
   /**
@@ -828,19 +835,20 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * an die Fortschrittsleiste weiter, wenn die Fortschrittsleiste aktiviert wurde
    * (dazu muss mindestens eine Druckfunktion mit setPrintProgressMaxValue(...)
    * registriert worden sein).
-   * 
+   *
    * @param key
    *          repräsentiert die Druckfunktion (oder genauer ihr zugehöriges
    *          SlavePrintModel)
    * @param value
    *          enthält die Anzahl der von dieser Druckfunktion bereits erstellten
    *          Versionen.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
   void setPrintProgressValue(Object key, short value)
   {
-    if (printProgressBar != null) printProgressBar.setValue(key, value);
+    if (printProgressBar != null)
+      printProgressBar.setValue(key, value);
   }
 
   /**
@@ -848,15 +856,16 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
    * Der Text wird einmalig angezeigt, d.h. wenn danach ein weiterer Aufruf
    * von setPrintProgressValue erfolgt, wird der Text wieder gelöscht und
    * durch den Fortschrittsstatus ersetzt.
-   * 
+   *
    * @param value
    *          enthält den anzuzeigenden Text
-   * 
+   *
    * @author Ignaz Forster (ITM-I23)
    */
   @Override
   public void setPrintMessage(String value)
   {
-    if (printProgressBar != null) printProgressBar.setMessage(this, value);
+    if (printProgressBar != null)
+      printProgressBar.setMessage(this, value);
   }
 }

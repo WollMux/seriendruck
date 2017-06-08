@@ -29,7 +29,7 @@ public class IndexSelection
    * bestimmt dies die Indizes der ausgewählten Datensätze, wobei 1 den ersten
    * Datensatz bezeichnet.
    */
-  private List<Integer> selectedIndexes = new ArrayList<Integer>();
+  private List<Integer> selectedIndexes = new ArrayList<>();
 
   public int getRangeStart()
   {

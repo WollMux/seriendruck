@@ -23,23 +23,28 @@ abstract class MultiFunction implements Function
 
   public MultiFunction(ConfigThingy conf, FunctionLibrary funcLib,
       DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
-    Vector<Function> subFunction = new Vector<Function>(conf.count());
+    Vector<Function> subFunction = new Vector<>(conf.count());
     Iterator<ConfigThingy> iter = conf.iterator();
     while (iter.hasNext())
     {
       ConfigThingy subFunConf = iter.next();
-      if (handleParam(subFunConf, funcLib, dialogLib, context)) continue;
+      if (handleParam(subFunConf, funcLib, dialogLib, context))
+        continue;
       Function fun = FunctionFactory.parse(subFunConf, funcLib, dialogLib, context);
       subFunction.add(fun);
     }
 
-    if (subFunction.size() == 0)
+    if (subFunction.isEmpty())
       throw new ConfigurationErrorException(L.m(
         "Funktion %1 erfordert mindestens einen Parameter", conf.getName()));
 
     subFunction.trimToSize();
+    init(subFunction);
+  }
+
+  public MultiFunction(Collection<Function> subFunction)
+  {
     init(subFunction);
   }
 
@@ -51,12 +56,11 @@ abstract class MultiFunction implements Function
    * {@link #getAdditionalParams()} und
    * {@link #getFunctionDialogReferences(Collection)} zu überschreiben, um die
    * zusätzlichen Funktionen aus dem behandelten Parameter zu behandeln.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   protected boolean handleParam(ConfigThingy conf, FunctionLibrary funcLib,
       DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
     return false;
   }
@@ -65,17 +69,12 @@ abstract class MultiFunction implements Function
    * Liefert die Namen der Parameter der zusätzlichen Funktionen, die von
    * {@link #handleParam(ConfigThingy, FunctionLibrary, DialogLibrary, Map)}
    * geparst wurden oder null, falls es keine gibt.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   protected String[] getAdditionalParams()
   {
     return null;
-  }
-
-  public MultiFunction(Collection<Function> subFunction)
-  {
-    init(subFunction);
   }
 
   private void init(Collection<Function> subFunction)
@@ -89,13 +88,14 @@ abstract class MultiFunction implements Function
     // dafür aber nicht gegeben, insbes. da insertFunctionValue umgeschrieben
     // werden soll und der FM4000 bereits umgeschrieben wurde um nicht von der
     // Reihenfolge abzuhängen.
-    ArrayList<String> deps = new ArrayList<String>();
+    ArrayList<String> deps = new ArrayList<>();
     for (Function f : subFunction)
     {
       String[] params = f.parameters();
       for (String str : params)
       {
-        if (!deps.contains(str)) deps.add(str);
+        if (!deps.contains(str))
+          deps.add(str);
       }
     }
 
@@ -104,16 +104,14 @@ abstract class MultiFunction implements Function
     {
       for (String str : additionalparams)
       {
-        if (!deps.contains(str)) deps.add(str);
+        if (!deps.contains(str))
+          deps.add(str);
       }
     }
 
     params = new String[deps.size()];
     params = deps.toArray(params);
   }
-
-  @Override
-  public abstract String getString(Values parameters);
 
   @Override
   public boolean getBoolean(Values parameters)

@@ -3,7 +3,7 @@
  * Projekt  : WollMux
  * Funktion : Das Model für den Druckerauswahl Dialog beim Seriendruck.
  *            Siehe auch DruckerController und DruckerAuswahlDialog.
- * 
+ *
  * Copyright (c) 2014-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,30 +27,31 @@
  *
  * @author Judith Baur, Simona Loi
  * @version 1.0
- * 
+ *
  */
 package de.muenchen.mailmerge.dialog.mailmerge;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DruckerModel {
 
-  String ausgewählterDrucker;
-  ArrayList<String> alleDrucker = new ArrayList<String> ( );
-   
-  public void setAlleDrucker(ArrayList<String> listeDerDrucker) {
-    alleDrucker = listeDerDrucker;
+  String selectedPrinter;
+  ArrayList<String> alleDrucker = new ArrayList<>();
+
+  public void setAlleDrucker(List<String> listeDerDrucker) {
+    alleDrucker = new ArrayList<>(listeDerDrucker);
   }
-  
-  public ArrayList<String> getAlleDrucker() {
+
+  public List<String> getAlleDrucker() {
     return alleDrucker;
   }
-  
+
   public void setDrucker(String drucker) {
-    ausgewählterDrucker = drucker;    
+    selectedPrinter = drucker;
   }
-  
+
   public String getDrucker() {
-    return ausgewählterDrucker;
+    return selectedPrinter;
   }
 }

@@ -1,8 +1,8 @@
 /*
  * Dateiname: WollMux.java
  * Projekt  : WollMux
- * Funktion : zentraler UNO-Service WollMux 
- * 
+ * Funktion : zentraler UNO-Service WollMux
+ *
  * Copyright (c) 2008-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,13 +25,13 @@
  * 09.11.2005 | LUT | + Logfile wird jetzt erweitert (append-modus)
  *                    + verwenden des Konfigurationsparameters SENDER_SOURCE
  *                    + Erster Start des wollmux über wm_configured feststellen.
- * 05.12.2005 | BNK | line.separator statt \n                 |  
+ * 05.12.2005 | BNK | line.separator statt \n                 |
  * 06.06.2006 | LUT | + Ablösung der Event-Klasse durch saubere Objektstruktur
  * -------------------------------------------------------------------
  *
  * @author Christoph Lutz (D-III-ITD 5.1)
  * @version 1.0
- * 
+ *
  */
 
 package de.muenchen.mailmerge.comp;
@@ -76,20 +76,20 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
    * eigentlichen WollMux. Der Konstuktor wird aufgerufen, bevor OpenOffice.org die
    * Methode executeAsync() aufrufen kann, die bei einem ON_FIRST_VISIBLE_TASK-Event
    * über den Job-Mechanismus ausgeführt wird.
-   * 
+   *
    * @param context
    */
   public MailMergeComponent(XComponentContext ctx)
   {
     WollMuxSingleton.initialize(ctx);
-    
+
     // Event ON_FIRST_INITIALIZE erzeugen:
     MailMergeEventHandler.getInstance().handleInitialize();
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sun.star.lang.XServiceInfo#getSupportedServiceNames()
    */
   @Override
@@ -100,7 +100,7 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sun.star.lang.XServiceInfo#supportsService(java.lang.String)
    */
   @Override
@@ -109,25 +109,26 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
     int len = SERVICENAMES.length;
     for (int i = 0; i < len; i++)
     {
-      if (sService.equals(SERVICENAMES[i])) return true;
+      if (sService.equals(SERVICENAMES[i]))
+        return true;
     }
     return false;
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sun.star.lang.XServiceInfo#getImplementationName()
    */
   @Override
   public String getImplementationName()
   {
-    return (MailMergeComponent.class.getName());
+    return MailMergeComponent.class.getName();
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sun.star.frame.XDispatchProvider#queryDispatch(com.sun.star.util.URL,
    * java.lang.String, int)
    */
@@ -142,7 +143,7 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @seecom.sun.star.frame.XDispatchProvider#queryDispatches(com.sun.star.frame.
    * DispatchDescriptor[])
    */
@@ -157,11 +158,11 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
    * zu erzeugen. Die Methode wird von UNO intern benötigt. Die Methoden
    * __getComponentFactory und __writeRegistryServiceInfo stellen das Herzstück des
    * UNO-Service dar.
-   * 
+   *
    * @param sImplName
    * @return
    */
-  public synchronized static XSingleComponentFactory __getComponentFactory(
+  public static synchronized XSingleComponentFactory __getComponentFactory(
       java.lang.String sImplName)
   {
     com.sun.star.lang.XSingleComponentFactory xFactory = null;
@@ -175,11 +176,11 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
    * Diese Methode registriert den UNO-Service. Sie wird z.B. beim unopkg-add im
    * Hintergrund aufgerufen. Die Methoden __getComponentFactory und
    * __writeRegistryServiceInfo stellen das Herzstück des UNO-Service dar.
-   * 
+   *
    * @param xRegKey
    * @return
    */
-  public synchronized static boolean __writeRegistryServiceInfo(XRegistryKey xRegKey)
+  public static synchronized boolean __writeRegistryServiceInfo(XRegistryKey xRegKey)
   {
     try
     {
@@ -201,7 +202,7 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
       return false;
     }
   }
-  
+
   @Override
   public void addEventListener(XEventListener l)
   {
@@ -213,5 +214,5 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
   {
     MailMergeEventHandler.getInstance().handleRemoveDocumentEventListener(l);
   }
-  
+
 }

@@ -96,7 +96,7 @@ public class MailMergeControllerImpl implements MailMergeController
     L.m("Fehler beim E-Mail-Versand");
 
   private TextDocumentController documentController;
-  
+
   /**
    * Stellt die Felder und Datensätze für die Serienbriefverarbeitung bereit.
    */
@@ -152,7 +152,7 @@ public class MailMergeControllerImpl implements MailMergeController
     documentController.collectNonWollMuxFormFields();
     QueryResultsWithSchema data = ds.getData();
 
-    List<Integer> selected = new Vector<Integer>();
+    List<Integer> selected = new Vector<>();
     switch (datasetSelectionType)
     {
       case ALL:
@@ -168,8 +168,10 @@ public class MailMergeControllerImpl implements MailMergeController
         break;
       case RANGE:
         indexSelection = (IndexSelection) args.get(SubmitArgument.indexSelection);
-        if (indexSelection.getRangeStart() < 1) indexSelection.setRangeStart(1);
-        if (indexSelection.getRangeEnd() < 1) indexSelection.setRangeEnd(data.size());
+        if (indexSelection.getRangeStart() < 1)
+          indexSelection.setRangeStart(1);
+        if (indexSelection.getRangeEnd() < 1)
+          indexSelection.setRangeEnd(data.size());
         if (indexSelection.getRangeEnd() > data.size())
           indexSelection.setRangeEnd(data.size());
         if (indexSelection.getRangeStart() > data.size())
@@ -196,22 +198,28 @@ public class MailMergeControllerImpl implements MailMergeController
       pmod.setPropertyValue(PROP_MAILMERGENEW_SELECTION, selected);
 
       Object o = args.get(SubmitArgument.targetDirectory);
-      if (o != null) pmod.setPropertyValue(PROP_TARGETDIR, o);
+      if (o != null)
+        pmod.setPropertyValue(PROP_TARGETDIR, o);
 
       o = args.get(SubmitArgument.filenameTemplate);
-      if (o != null) pmod.setPropertyValue(PROP_FILEPATTERN, o);
+      if (o != null)
+        pmod.setPropertyValue(PROP_FILEPATTERN, o);
 
       o = args.get(SubmitArgument.emailToFieldName);
-      if (o != null) pmod.setPropertyValue(PROP_EMAIL_TO_FIELD_NAME, o);
+      if (o != null)
+        pmod.setPropertyValue(PROP_EMAIL_TO_FIELD_NAME, o);
 
       o = args.get(SubmitArgument.emailFrom);
-      if (o != null) pmod.setPropertyValue(PROP_EMAIL_FROM, o);
+      if (o != null)
+        pmod.setPropertyValue(PROP_EMAIL_FROM, o);
 
       o = args.get(SubmitArgument.emailSubject);
-      if (o != null) pmod.setPropertyValue(PROP_EMAIL_SUBJECT, o);
+      if (o != null)
+        pmod.setPropertyValue(PROP_EMAIL_SUBJECT, o);
 
       o = args.get(SubmitArgument.emailText);
-      if (o != null) pmod.setPropertyValue(PROP_EMAIL_MESSAGE_TEXTTAGS, o);
+      if (o != null)
+        pmod.setPropertyValue(PROP_EMAIL_MESSAGE_TEXTTAGS, o);
     }
     catch (Exception x)
     {
@@ -269,16 +277,16 @@ public class MailMergeControllerImpl implements MailMergeController
    * targetDir zusammen. Die Spezialtags {@link MailMergeParams#TAG_DATENSATZNUMMER}
    * und {@link MailMergeParams#TAG_SERIENBRIEFNUMMER} werden durch die Strings
    * datensatzNummer und serienbriefNummer ersetzt.
-   * 
+   *
    * @param totalDatasets
    *          die Gesamtzahl aller Datensätze (auch der für den aktuellen
    *          Druckauftrag nicht gewählten). Wird verwendet um datensatzNummer und
    *          serienbriefNummer mit 0ern zu padden.
-   * 
+   *
    * @throws MissingMapEntryException
    *           wenn ein Tag verwendet wird, zu dem es keine Spalte im aktuellen
    *           Datensatz existiert.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
    */
   static String createOutputPathFromPattern(TextComponentTags filePattern,
@@ -292,16 +300,16 @@ public class MailMergeControllerImpl implements MailMergeController
     }
     catch (Exception e)
     {}
-  
+
     @SuppressWarnings("unchecked")
     HashMap<String, String> dataset =
-      new HashMap<String, String>((HashMap<String, String>) pmod.getProp(PROP_DATASET_EXPORT,
+      new HashMap<>((HashMap<String, String>) pmod.getProp(PROP_DATASET_EXPORT,
         new HashMap<String, String>()));
-  
+
     // Zähler für #DS und #SB mit gleicher Länge erzeugen (ggf. mit 0en auffüllen)
     MailMergeNew.fillWithLeading0(dataset, MailMergeParams.TAG_DATENSATZNUMMER, digits);
     MailMergeNew.fillWithLeading0(dataset, MailMergeParams.TAG_SERIENBRIEFNUMMER, digits);
-  
+
     String fileName = filePattern.getContent(dataset);
     return MailMergeNew.simplifyFilename(fileName);
   }
@@ -309,7 +317,7 @@ public class MailMergeControllerImpl implements MailMergeController
   /**
    * Speichert das übergebene Dokument in eine ODF-Datei. Die WollMux-Daten bleiben
    * dabei erhalten.
-   * 
+   *
    * @author Ignaz Forster (D-III-ITD-D102)
    */
   public static void sendAsEmail(XPrintModel pmod, boolean isODT)
@@ -345,7 +353,7 @@ public class MailMergeControllerImpl implements MailMergeController
       pmod.cancel();
       return;
     }
-  
+
     String from = pmod.getProp(PROP_EMAIL_FROM, "").toString();
     if (!MailMergeNew.isMailAddress(from))
     {
@@ -354,11 +362,11 @@ public class MailMergeControllerImpl implements MailMergeController
       pmod.cancel();
       return;
     }
-  
+
     String fieldName = pmod.getProp(PROP_EMAIL_TO_FIELD_NAME, "").toString();
     @SuppressWarnings("unchecked")
     HashMap<String, String> ds =
-      new HashMap<String, String>((HashMap<String, String>) pmod.getProp(
+      new HashMap<>((HashMap<String, String>) pmod.getProp(
         PROP_DATASET_EXPORT, new HashMap<String, String>()));
     String to = ds.get(fieldName);
     PrintModels.setStage(pmod, L.m("Sende an %1", to));
@@ -370,18 +378,20 @@ public class MailMergeControllerImpl implements MailMergeController
           L.m(
             "Die Empfängeradresse '%1' ist ungültig!\n\nDiesen Datensatz überspringen und fortsetzen?",
             to), MAIL_ERROR_MESSAGE_TITLE, JOptionPane.OK_CANCEL_OPTION);
-      if (res == JOptionPane.CANCEL_OPTION) pmod.cancel();
+      if (res == JOptionPane.CANCEL_OPTION)
+        pmod.cancel();
       return;
     }
-  
+
     String subject =
       pmod.getProp(PROP_EMAIL_SUBJECT, L.m("<kein Betreff>")).toString();
-  
+
     String message = "";
     TextComponentTags messageTags =
       (TextComponentTags) pmod.getProp(PROP_EMAIL_MESSAGE_TEXTTAGS, null);
-    if (messageTags != null) message = messageTags.getContent(ds);
-  
+    if (messageTags != null)
+      message = messageTags.getContent(ds);
+
     File attachment = null;
     try
     {
@@ -416,14 +426,15 @@ public class MailMergeControllerImpl implements MailMergeController
     }
     finally
     {
-      if (attachment != null) attachment.delete();
+      if (attachment != null)
+        attachment.delete();
     }
   }
 
   /**
    * Speichert das übergebene Dokument in eine ODF-Datei. Die WollMux-Daten bleiben
    * dabei erhalten.
-   * 
+   *
    * @author Ignaz Forster (D-III-ITD-D102)
    * @throws java.io.IOException
    */
@@ -431,11 +442,11 @@ public class MailMergeControllerImpl implements MailMergeController
       java.io.IOException
   {
     XTextDocument textDocument = pmod.getTextDocument();
-  
+
     File outputDir =
       new File(pmod.getProp(PROP_TARGETDIR,
         System.getProperty("user.home") + "/Seriendruck").toString());
-  
+
     String filename;
     TextComponentTags filePattern =
       (TextComponentTags) pmod.getProp(PROP_FILEPATTERN, null);
@@ -443,7 +454,7 @@ public class MailMergeControllerImpl implements MailMergeController
       filename = MailMergeControllerImpl.createOutputPathFromPattern(filePattern, pmod);
     else
       filename = L.m("Dokument.odt");
-    
+
     // jub .odt/.pdf ergänzen, falls nicht angegeben.
     if (!filename.toLowerCase().endsWith(".odt")
       && !filename.toLowerCase().endsWith(".pdf"))
@@ -453,16 +464,16 @@ public class MailMergeControllerImpl implements MailMergeController
       else
         filename = filename + ".pdf";
     }
-    
+
     File file = new File(outputDir, filename);
-  
+
     MailMergeNew.saveOutputFile(file, textDocument);
-  
+
     return file;
   }
 
   /**
-   * Liefert die Größe der von MailMergeNew im XPrintModel gesetzten Selection.  
+   * Liefert die Größe der von MailMergeNew im XPrintModel gesetzten Selection.
    */
   @SuppressWarnings("unchecked")
   public static int mailMergeNewGetSelectionSize(XPrintModel pmod)
@@ -488,16 +499,16 @@ public class MailMergeControllerImpl implements MailMergeController
    * Im Fall, dass simProc != null ist, wird auch die nächste Druckfunktion in der
    * Aufrufkette nicht aufgerufen, sondern statt dessen der in simProc enthaltene
    * handler. Die Druckfunktion zieht folgende Properties heran:
-   * 
+   *
    * <ul>
    * <li>{@link MailMergeNew#PROP_QUERYRESULTS} (ein Objekt vom Typ {@link QueryResults})</li>
-   * 
+   *
    * <li>"MailMergeNew_Schema", was ein Set mit den Spaltennamen enthält</li>
-   * 
+   *
    * <li>{@link MailMergeNew#PROP_MAILMERGENEW_SELECTION}, was eine Liste der Indizes der
    * ausgewählten Datensätze ist (0 ist der erste Datensatz).</li> *
    * <ul>
-   * 
+   *
    * @param pmod
    *          PrintModel welches das Hauptdokument des Seriendrucks beschreibt.
    * @param simProc
@@ -506,7 +517,7 @@ public class MailMergeControllerImpl implements MailMergeController
    *          aufgerufen.
    * @throws Exception
    *           Falls irgend etwas schief geht
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1), Christoph Lutz (D-III-ITD-D101)
    *         TESTED
    */
@@ -516,45 +527,49 @@ public class MailMergeControllerImpl implements MailMergeController
   {
     TextDocumentController documentController =
       DocumentManager.getTextDocumentController(pmod.getTextDocument());
-  
+
     QueryResults data = (QueryResults) pmod.getPropertyValue(PROP_QUERYRESULTS);
     Collection<String> schema = (Collection<String>) pmod.getPropertyValue("MailMergeNew_Schema");
     List<Integer> selection =
       (List<Integer>) pmod.getPropertyValue(PROP_MAILMERGENEW_SELECTION);
-    if (selection.isEmpty()) return;
-  
+    if (selection.isEmpty())
+      return;
+
     Iterator<Dataset> iter = data.iterator();
     Iterator<Integer> selIter = selection.iterator();
     int selectedIdx = selIter.next();
-  
+
     pmod.setPrintProgressMaxValue((short) selection.size());
-  
+
     int index = -1;
     int serienbriefNummer = 1;
     while (iter.hasNext() && selectedIdx >= 0)
     {
-      if (pmod.isCanceled()) return;
-  
+      if (pmod.isCanceled())
+        return;
+
       Dataset ds = iter.next();
-      if (++index < selectedIdx) continue;
-  
+      if (++index < selectedIdx)
+        continue;
+
       int datensatzNummer = index + 1; // same as datensatzNummer = selectedIdx+1;
-  
+
       if (selIter.hasNext())
         selectedIdx = selIter.next();
       else
         selectedIdx = -1;
-  
-      if (simProc != null) documentController.startSimulation();
-  
-      HashMap<String, String> dataSetExport = new HashMap<String, String>();
+
+      if (simProc != null)
+        documentController.startSimulation();
+
+      HashMap<String, String> dataSetExport = new HashMap<>();
       try
       {
         pmod.setPropertyValue(PROP_DATASET_EXPORT, dataSetExport);
       }
       catch (Exception x)
       {}
-  
+
       for(String spalte : schema)
       {
         String value = ds.get(spalte);
@@ -567,7 +582,7 @@ public class MailMergeControllerImpl implements MailMergeController
         + serienbriefNummer);
       dataSetExport.put(MailMergeParams.TAG_SERIENBRIEFNUMMER, ""
         + serienbriefNummer);
-  
+
       // Weiterreichen des Drucks an die nächste Druckfunktion. Dies findet nicht
       // statt, wenn simProc != null ist, da die Verarbeitung in diesem Fall über
       // simProc durchgeführt wird.
@@ -575,7 +590,7 @@ public class MailMergeControllerImpl implements MailMergeController
         pmod.printWithProps();
       else
         simProc.processSimulationResults(documentController.stopSimulation());
-  
+
       pmod.setPrintProgressValue((short) serienbriefNummer);
       ++serienbriefNummer;
     }
@@ -589,7 +604,7 @@ public class MailMergeControllerImpl implements MailMergeController
    * {@link MailMergeNew#PROP_MAILMERGENEW_SELECTION}, was eine Liste der Indizes der
    * ausgewählten Datensätze ist (0 ist der erste Datensatz). Dies funktioniert
    * natürlich nur dann, wenn pmod kein Proxy ist.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   public static void mailMergeNewSetFormValue(XPrintModel pmod) throws Exception
@@ -600,7 +615,7 @@ public class MailMergeControllerImpl implements MailMergeController
   /**
    * Ersetzt alle möglicherweise bösen Zeichen im Dateinamen name durch eine
    * Unterstrich.
-   * 
+   *
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   private static String simplifyFilename(String name)

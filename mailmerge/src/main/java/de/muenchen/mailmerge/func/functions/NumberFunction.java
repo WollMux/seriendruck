@@ -11,7 +11,6 @@ import de.muenchen.allg.itd51.wollmux.core.functions.Function;
 import de.muenchen.allg.itd51.wollmux.core.functions.FunctionLibrary;
 import de.muenchen.allg.itd51.wollmux.core.functions.Values;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
-import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 
 abstract class NumberFunction extends MultiFunction
 {
@@ -19,7 +18,6 @@ abstract class NumberFunction extends MultiFunction
 
   public NumberFunction(ConfigThingy conf, FunctionLibrary funcLib,
       DialogLibrary dialogLib, Map<Object, Object> context)
-      throws ConfigurationErrorException
   {
     super(conf, funcLib, dialogLib, context);
     try
@@ -29,13 +27,12 @@ abstract class NumberFunction extends MultiFunction
     }
     catch (Exception x)
     {}
-    ;
   }
 
   /**
    * Startet eine neue Auswertung der Funktion für Parameter parameters. Im Falle
    * einer Summen-Funktion würde dies den Summenzähler mit 0 initialisieren.
-   * 
+   *
    * @return Falls zu diesem Zeitpunkt bereits ein Ergebnis bestimmt werden kann
    *         (z.B. Function.ERROR, wenn ein benötigter Parameter nicht in
    *         parameters übergeben wurde), so wird dieses zurückgeliefert, ansonsten
@@ -47,7 +44,7 @@ abstract class NumberFunction extends MultiFunction
    * Fügt den Wert num der aktuellen Berechnung hinzu. Im Falle einer
    * Summen-Funktion würde er auf den Summen-Zähler addiert. Darf eine Exception
    * werfen. In diesem Fall wird die Funktion Function.ERROR zurückliefern.
-   * 
+   *
    * @return Falls zu diesem Zeitpunkt bereits ein Ergebnis bestimmt werden kann
    *         (z.B. im Falle einer Vergleichsfunktion, die Kurzschlussauswertung
    *         macht), so wird dieses zurückgeliefert, ansonsten null.
@@ -57,7 +54,7 @@ abstract class NumberFunction extends MultiFunction
   /**
    * Wird aufgerufen, nachdem der letzte Wert mittels addComputation() verarbeitet
    * wurde, wenn jeder addComputation()-Aufruf null geliefert hat.
-   * 
+   *
    * @return das Endergebnis der Berechnung. null ist NICHT erlaubt.
    */
   protected abstract String computationResult();
@@ -66,18 +63,21 @@ abstract class NumberFunction extends MultiFunction
   public String getString(Values parameters)
   {
     String result = initComputation(parameters);
-    if (result != null) return result;
+    if (result != null)
+      return result;
     Iterator<Function> iter = subFunction.iterator();
     while (iter.hasNext())
     {
       Function func = iter.next();
       String str = func.getString(parameters);
-      if (str == Function.ERROR) return Function.ERROR;
+      if (str == Function.ERROR)
+        return Function.ERROR;
       try
       {
         BigDecimal num = makeBigDecimal(str);
         result = addToComputation(num);
-        if (result != null) return result;
+        if (result != null)
+          return result;
       }
       catch (Exception x)
       {
@@ -87,7 +87,7 @@ abstract class NumberFunction extends MultiFunction
     return computationResult();
   }
 
-  protected BigDecimal makeBigDecimal(String str) throws NumberFormatException
+  protected BigDecimal makeBigDecimal(String str)
   {
     /*
      * Falls der Dezimaltrenner nicht '.' ist, ersetzte alle '.' durch etwas, das
@@ -97,14 +97,15 @@ abstract class NumberFunction extends MultiFunction
      * fälschlicher weise "100.000" als 100 interpretieren, wenn die eingebende
      * Person 100000 gemeint hat.
      */
-    if (decimalPoint != '.') str = str.replace('.', 'ß');
+    if (decimalPoint != '.')
+      str = str.replace('.', 'ß');
 
     return new BigDecimal(str.replace(decimalPoint, '.'));
   }
 
   /**
    * Liefert eine Stringrepräsentation von num
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
   protected String formatBigDecimal(BigDecimal num)
