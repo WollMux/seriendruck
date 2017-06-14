@@ -508,4 +508,39 @@ public class Common
       // -> no icon for you
     }
   }
+
+  /**
+   * Bricht jede Zeile aus text nach margin Zeichen beim nächsten Leerzeichen
+   * um.
+   *
+   * @param text
+   *          Der Text zum umbrechen.
+   * @param margin
+   *          Die Anzahl an Zeichen, nach denen umgebrochen werden soll.
+   * @return Der umgebrochene Text.
+   */
+  public static String wrapLines(String text, int margin)
+  {
+    String formattedMessage = "";
+    String[] lines = text.split("\n");
+    for (int i = 0; i < lines.length; i++)
+    {
+      String[] words = lines[i].split(" ");
+      int chars = 0;
+      for (int j = 0; j < words.length; j++)
+      {
+        String word = words[j];
+        if (margin > 0 && chars > 0 && chars + word.length() > margin)
+        {
+          formattedMessage += "\n";
+          chars = 0;
+        }
+        formattedMessage += word + " ";
+        chars += word.length() + 1;
+      }
+      if (i != lines.length - 1)
+        formattedMessage += "\n";
+    }
+    return formattedMessage;
+  }
 }
