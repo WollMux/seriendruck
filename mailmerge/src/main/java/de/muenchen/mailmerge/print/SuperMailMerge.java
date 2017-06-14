@@ -6,8 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -229,38 +229,14 @@ class SuperMailMerge
   {
     final JFrame myFrame = new JFrame(L.m("Seriendruck"));
     myFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-    myFrame.addWindowListener(new WindowListener()
+    myFrame.addWindowListener(new WindowAdapter()
     {
-      @Override
-      public void windowOpened(WindowEvent e)
-      {}
-
       @Override
       public void windowClosing(WindowEvent e)
       {
         stopRunning();
         myFrame.dispose();
       }
-
-      @Override
-      public void windowClosed(WindowEvent e)
-      {}
-
-      @Override
-      public void windowIconified(WindowEvent e)
-      {}
-
-      @Override
-      public void windowDeiconified(WindowEvent e)
-      {}
-
-      @Override
-      public void windowActivated(WindowEvent e)
-      {}
-
-      @Override
-      public void windowDeactivated(WindowEvent e)
-      {}
     });
 
     myFrame.setAlwaysOnTop(true);
