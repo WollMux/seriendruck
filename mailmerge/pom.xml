@@ -12,6 +12,12 @@
 	</properties>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -51,6 +57,63 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<finalName>mailmerge.uno</finalName>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<artifactSet>
+								<excludes>
+									<exclude>org.libreoffice:ridl</exclude>
+									<exclude>org.libreoffice:juh</exclude>
+									<exclude>org.libreoffice:jurt</exclude>
+									<exclude>org.libreoffice:unoil</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>**/*.default</exclude>
+										<exclude>**/META-INF/LICENSE.txt</exclude>
+										<exclude>META-INF/maven/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<manifestEntries>
+										<Main-Class>com.sun.star.lib.loader.Loader</Main-Class>
+										<RegistrationClassName>de.muenchen.mailmerge.comp.MailMergeComponent</RegistrationClassName>
+										<UNO-Type-Path>&lt;&gt;</UNO-Type-Path>
+									</manifestEntries>
+								</transformer>
+							</transformers>
+							<relocations>
+								<relocation>
+									<pattern>de.muenchen.allg.itd51.wollmux</pattern>
+									<shadedPattern>de.muenchen.mailmerge</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>de.muenchen.allg</pattern>
+									<shadedPattern>de.muenchen.mailmerge</shadedPattern>
+									<excludes>
+										<exclude>de.muenchen.allg.itd51.*</exclude>
+									</excludes>
+								</relocation>
+							</relocations>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.0.0</version>
 				<configuration>
@@ -58,35 +121,6 @@
 					<recompressZippedFiles>true</recompressZippedFiles>
 				</configuration>
 				<executions>
-					<execution>
-						<id>assemble-unojar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<finalName>mailmerge.uno</finalName>
-							<appendAssemblyId>false</appendAssemblyId>
-							<archive>
-								<addMavenDescriptor>false</addMavenDescriptor>
-								<manifest>
-									<addClasspath>false</addClasspath>
-									<classpathPrefix>lib/</classpathPrefix>
-								</manifest>
-								<manifestEntries>
-									<RegistrationClassName>de.muenchen.mailmerge.comp.MailMergeComponent</RegistrationClassName>
-									<Main-Class>com.sun.star.lib.loader.Loader</Main-Class>
-									<UNO-Type-Path>&lt;&gt;</UNO-Type-Path>
-								</manifestEntries>
-							</archive>
-							<archiverConfig>
-								<compress>false</compress>
-							</archiverConfig>
-							<descriptors>
-								<descriptor>src/assembly/assembly.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
 					<execution>
 						<id>assemble-oxt</id>
 						<phase>package</phase>

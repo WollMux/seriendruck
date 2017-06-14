@@ -2,7 +2,7 @@
  * Dateiname: WollMuxSingleton.java
  * Projekt  : WollMux
  * Funktion : Singleton für zentrale WollMux-Methoden.
- * 
+ *
  * Copyright (c) 2010-2015 Landeshauptstadt München
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,12 +25,12 @@
  * 09.11.2005 | LUT | + Logfile wird jetzt erweitert (append-modus)
  *                    + verwenden des Konfigurationsparameters SENDER_SOURCE
  *                    + Erster Start des wollmux über wm_configured feststellen.
- * 05.12.2005 | BNK | line.separator statt \n     
+ * 05.12.2005 | BNK | line.separator statt \n
  * 13.04.2006 | BNK | .wollmux/ Handling ausgegliedert in WollMuxFiles.
- * 20.04.2006 | LUT | Überarbeitung Code-Kommentare  
+ * 20.04.2006 | LUT | Überarbeitung Code-Kommentare
  * 20.04.2006 | BNK | DEFAULT_CONTEXT ausgegliedert nach WollMuxFiles
- * 21.04.2006 | LUT | + Robusteres Verhalten bei Fehlern während dem Einlesen 
- *                    von Konfigurationsdateien; 
+ * 21.04.2006 | LUT | + Robusteres Verhalten bei Fehlern während dem Einlesen
+ *                    von Konfigurationsdateien;
  *                    + wohldefinierte Datenstrukturen
  *                    + Flag für EventProcessor: acceptEvents
  * 08.05.2006 | LUT | + isDebugMode()
@@ -42,11 +42,11 @@
  * 29.12.2006 | BNK | +registerDatasources()
  * 27.03.2007 | BNK | Default-oooEinstellungen ausgelagert nach data/...
  * 16.12.2009 | ERT | Cast XTextField-Interface entfernt
- * 07.04.2010 | BED | Konfigurierbares SENDER_DISPLAYTEMPLATE 
+ * 07.04.2010 | BED | Konfigurierbares SENDER_DISPLAYTEMPLATE
  * -------------------------------------------------------------------
  *
  * @author Christoph Lutz (D-III-ITD 5.1)
- * 
+ *
  */
 
 package de.muenchen.mailmerge;
@@ -90,7 +90,7 @@ public class WollMuxSingleton
    * Verwaltet Informationen zum NoConfig mode.
    */
   private NoConfig noConfig;
-  
+
   /**
    * Die WollMux-Hauptklasse ist als singleton realisiert.
    */
@@ -115,14 +115,14 @@ public class WollMuxSingleton
     {
       noConfig = new NoConfig(true);
       showNoConfigInfo();
-    } 
+    }
     else
     {
       noConfig = new NoConfig(false);
     }
-    
+
     WollMuxClassLoader.initClassLoader();
-    
+
     Logger.debug(L.m("StartupWollMux"));
     Logger.debug("Build-Info: " + getBuildInfo());
     if (WollMuxFiles.getWollMuxConfFile() != null)
@@ -197,7 +197,7 @@ public class WollMuxSingleton
   /**
    * Diese Methode liefert die Instanz des WollMux-Singletons. Ist der WollMux noch
    * nicht initialisiert, so liefert die Methode null!
-   * 
+   *
    * @return Instanz des WollMuxSingletons oder null.
    */
   public static WollMuxSingleton getInstance()
@@ -219,7 +219,7 @@ public class WollMuxSingleton
 
   /**
    * Liefert die Versionsnummer des WollMux (z.B. "5.9.2") zurück.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD-D101)
    */
   public static String getVersion()
@@ -233,10 +233,10 @@ public class WollMuxSingleton
    * dem Kommando "svn info" auf das Projektverzeichnis erstellt. Die Buildinfo-Datei
    * buildinfo enthält die Paketnummer und die svn-Revision und ist im
    * WollMux.oxt-Paket sowie in der WollMux.uno.jar-Datei abgelegt.
-   * 
+   *
    * Kann dieses File nicht gelesen werden, so wird eine entsprechende Ersatzmeldung
    * erzeugt (siehe Sourcecode).
-   * 
+   *
    * @return Der Build-Status der aktuellen WollMux-Installation.
    */
   public static String getBuildInfo()
@@ -244,7 +244,7 @@ public class WollMuxSingleton
     BufferedReader in = null;
     try
     {
-      URL url = WollMuxSingleton.class.getClassLoader().getResource("buildinfo");
+      URL url = WollMuxSingleton.class.getClassLoader().getResource("mailmerge.version.txt");
       if (url != null)
       {
         in = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -275,7 +275,7 @@ public class WollMuxSingleton
    * wollmux-Konfiguration (z.B. "wollmux-standard-config-2.2.1") als String zurück,
    * wenn in der Konfiguration ein entsprechender CONF_VERSION-Schlüssel definiert
    * ist, oder "unbekannt", falls der dieser Schlüssel nicht existiert.
-   * 
+   *
    * @return Der Versionsinformation der aktuellen WollMux-Konfiguration (falls
    *         definiert) oder "unbekannt", falls nicht.
    */
@@ -291,7 +291,7 @@ public class WollMuxSingleton
       if (noConfig != null && noConfig.isNoConfig())
       {
         return L.m("keine geladen");
-      } 
+      }
       else
       {
         return L.m("unbekannt");
@@ -311,10 +311,10 @@ public class WollMuxSingleton
    * Verarbeitet alle Datenquellen/Registriere-Unterabschnitte von conf und
    * registriert die entsprechenden Datenquellen in OOo, falls dort noch nicht
    * vorhanden.
-   * 
+   *
    * @param context
    *          gibt an relativ zu was relative URLs aufgelöst werden sollen.
-   * 
+   *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   private static void registerDatasources(ConfigThingy conf, URL context)
@@ -417,7 +417,7 @@ public class WollMuxSingleton
   /**
    * Setzt die im ConfigThingy übergebenen OOoEinstellungen-Abschnitt enthaltenen
    * Einstellungen in der OOo-Registry.
-   * 
+   *
    * @param oooEinstellungenConf
    *          Der Knoten OOoEinstellungen eines solchen Abschnitts.
    */
@@ -448,7 +448,7 @@ public class WollMuxSingleton
    * Konvertiert den als String übergebenen Wert value in ein Objekt vom Typ type
    * oder liefert eine IllegalArgumentException, wenn die Werte nicht konvertiert
    * werden können.
-   * 
+   *
    * @param type
    *          Der Typ in den konvertiert werden soll ('boolean', 'integer', 'float',
    *          'string').
@@ -486,7 +486,7 @@ public class WollMuxSingleton
   /**
    * Setzt eine Einstellung value in der OOo-Registry, wobei die Position im
    * Registry-Baum durch node und prop beschrieben wird.
-   * 
+   *
    * @param node
    *          z.B. "/org.openoffice.Inet/Settings"
    * @param prop
@@ -513,17 +513,17 @@ public class WollMuxSingleton
   /**
    * Git zurück, ob sich der WollMux im NoConfig-Modus befindet,
    * d.h. es wurde keine Config-Datei gefunden.
-   * 
+   *
    * @return
    */
   public boolean isNoConfig()
   {
     return (null != noConfig) ? noConfig.isNoConfig() : false;
   }
-  
+
   /**
    * Schreibt Meldung in die Log-Datei, wenn der NoConfig-Modus aktiv ist.
-   * 
+   *
    * @return
    */
   public boolean showNoConfigInfo()

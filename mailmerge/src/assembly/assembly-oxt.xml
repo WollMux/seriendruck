@@ -9,10 +9,6 @@
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<files>
 		<file>
-			<source>oxt/buildinfo</source>
-			<filtered>true</filtered>
-		</file>
-		<file>
 			<source>oxt/description.xml</source>
 			<filtered>true</filtered>
 		</file>
