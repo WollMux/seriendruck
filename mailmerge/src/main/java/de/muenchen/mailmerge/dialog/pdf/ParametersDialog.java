@@ -24,8 +24,9 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
-import com.sun.star.lib.loader.WollMuxRegistryAccess;
-import com.sun.star.lib.loader.WollMuxRegistryAccessException;
+import com.sun.jna.platform.win32.WinReg;
+import com.sun.star.lib.loader.RegistryAccess;
+import com.sun.star.lib.loader.RegistryAccessException;
 
 /**
  * Beschreibt den Dialog zur Einstellung der Optionen für das
@@ -466,12 +467,12 @@ public class ParametersDialog
   {
     try
     {
-      String progId = WollMuxRegistryAccess
-          .getStringValueFromRegistry("HKEY_CLASSES_ROOT", ".pdf", "");
+      String progId = RegistryAccess
+          .getStringValueFromRegistry(WinReg.HKEY_CLASSES_ROOT, ".pdf", "");
       if (progId != null)
       {
-        String cmd = WollMuxRegistryAccess.getStringValueFromRegistry(
-            "HKEY_CLASSES_ROOT", "" + progId + "\\shell\\open\\command", "");
+        String cmd = RegistryAccess.getStringValueFromRegistry(
+            WinReg.HKEY_CLASSES_ROOT, "" + progId + "\\shell\\open\\command", "");
         if (cmd != null)
         {
           // cmd kann sein z.B. '"C:\Programme...\acrobat.exe" "%1"' oder
@@ -487,7 +488,7 @@ public class ParametersDialog
           }
         }
       }
-    } catch (WollMuxRegistryAccessException e)
+    } catch (RegistryAccessException e)
     {
       // return default pdf viewer
     }

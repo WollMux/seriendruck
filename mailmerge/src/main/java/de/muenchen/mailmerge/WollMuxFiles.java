@@ -76,8 +76,9 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Shell32;
 import com.sun.jna.platform.win32.ShlObj;
 import com.sun.jna.platform.win32.WinDef;
-import com.sun.star.lib.loader.WollMuxRegistryAccess;
-import com.sun.star.lib.loader.WollMuxRegistryAccessException;
+import com.sun.jna.platform.win32.WinReg;
+import com.sun.star.lib.loader.RegistryAccess;
+import com.sun.star.lib.loader.RegistryAccessException;
 
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
@@ -307,17 +308,17 @@ public class WollMuxFiles
         try
         {
           wollmuxConfPath =
-            WollMuxRegistryAccess.getStringValueFromRegistry("HKEY_CURRENT_USER",
+            RegistryAccess.getStringValueFromRegistry(WinReg.HKEY_CURRENT_USER,
               WOLLMUX_KEY, WOLLMUX_CONF_PATH_VALUE_NAME);
           searchPaths.add(wollmuxConfPath);
 
           wollmuxConfPath =
-            WollMuxRegistryAccess.getStringValueFromRegistry("HKEY_LOCAL_MACHINE",
+            RegistryAccess.getStringValueFromRegistry(WinReg.HKEY_LOCAL_MACHINE,
               WOLLMUX_KEY, WOLLMUX_CONF_PATH_VALUE_NAME);
 
           searchPaths.add(wollmuxConfPath);
         }
-        catch (WollMuxRegistryAccessException ex)
+        catch (RegistryAccessException ex)
         {}
 
         Shell32 shell = Shell32.INSTANCE;
