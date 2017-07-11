@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+include /usr/share/cdbs/1/rules/buildvars.mk
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	rm -rf dist
+	dh_auto_clean
+
+override_dh_auto_build:
+	odoc extract --target dist/MailMerge mailmerge/target/MailMerge.oxt
+	dh_auto_build
+
+override_dh_pysupport:
+

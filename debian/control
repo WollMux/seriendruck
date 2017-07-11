@@ -1,0 +1,18 @@
+Source: seriendruck
+Section: misc
+Priority: optional
+Maintainer: WollMux mailing list <wollmux-general@lists.forge.osor.eu>
+Uploaders: Felix WollMux <wollmux-general@lists.forge.osor.eu>
+Build-Depends: cdbs, debhelper (>= 9), default-jdk, python-odoc | python3-odoc
+Standards-Version: 3.9.4
+Homepage: http://www.wollmux.org
+
+Package: lhm-seriendruck
+Architecture: all
+Depends: ${misc:Depends}, libreoffice-meta
+Conflicts: libreoffice4.1-wollmux
+Description: MailMerge extension for LibreOffice
+ The package adds an extension to LibreOffice with the following features:
+  - Enhanced serial letter functionality that ties in with the form
+    functionality (e.g. auto-computed fields) and the custom print plugins.
+
