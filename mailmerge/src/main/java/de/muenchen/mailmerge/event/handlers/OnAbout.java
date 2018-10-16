@@ -21,9 +21,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.mailmerge.WollMuxFehlerException;
-import de.muenchen.mailmerge.WollMuxFiles;
-import de.muenchen.mailmerge.WollMuxSingleton;
+import de.muenchen.mailmerge.MailMergeFehlerException;
+import de.muenchen.mailmerge.MailMergeFiles;
+import de.muenchen.mailmerge.MailMergeSingleton;
 import de.muenchen.mailmerge.dialog.Common;
 
 public class OnAbout extends BasicEvent
@@ -53,7 +53,7 @@ public class OnAbout extends BasicEvent
     myPanel.add(hbox);
 
     copyrightPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-    JLabel label = new JLabel(L.m("Seriendruck") + " " + WollMuxSingleton.getVersion());
+    JLabel label = new JLabel(L.m("Seriendruck") + " " + MailMergeSingleton.getVersion());
     Font largeFont = label.getFont().deriveFont(15.0f);
     label.setFont(largeFont);
     copyrightPanel.add(label);
@@ -77,12 +77,12 @@ public class OnAbout extends BasicEvent
     infoPanel.setOpaque(false);
     infoPanel.setBorder(BorderFactory.createTitledBorder(L.m("Info")));
 
-    infoPanel.add(new JLabel(L.m("Seriendruck") + " " + WollMuxSingleton.getBuildInfo()));
+    infoPanel.add(new JLabel(L.m("Seriendruck") + " " + MailMergeSingleton.getBuildInfo()));
 
     infoPanel
-        .add(new JLabel(L.m("WollMux-Konfiguration:") + " " + WollMuxSingleton.getInstance().getConfVersionInfo()));
+        .add(new JLabel(L.m("WollMux-Konfiguration:") + " " + MailMergeSingleton.getInstance().getConfVersionInfo()));
 
-    infoPanel.add(new JLabel("DEFAULT_CONTEXT: " + WollMuxFiles.getDEFAULT_CONTEXT().toExternalForm()));
+    infoPanel.add(new JLabel("DEFAULT_CONTEXT: " + MailMergeFiles.getDEFAULT_CONTEXT().toExternalForm()));
 
     myPanel.add(Box.createVerticalStrut(4));
 
@@ -116,7 +116,7 @@ public class OnAbout extends BasicEvent
   }
 
   @Override
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {
     dialog.setVisible(true);
   }

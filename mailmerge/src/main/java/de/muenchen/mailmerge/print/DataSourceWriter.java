@@ -44,12 +44,4 @@ public interface DataSourceWriter
    * @author Christoph Lutz (D-III-ITD-D101)
    */
   public int getSize();
-
-  /**
-   * Entscheidet ob aus den PersistentData der Originaldatei die WollMux-Abschitte
-   * gelöscht werden müssen.
-   *
-   * @return true falls die Abschnitte gelöscht werden müssen, false sonst
-   */
-  public boolean isAdjustMainDoc();
 }

@@ -3,7 +3,7 @@ package de.muenchen.mailmerge.event.handlers;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import de.muenchen.mailmerge.WollMuxFehlerException;
+import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.dialog.mailmerge.MailMergeNew;
 import de.muenchen.mailmerge.document.TextDocumentController;
 import de.muenchen.mailmerge.event.MailMergeEventHandler;
@@ -26,7 +26,7 @@ public class OnSeriendruck extends BasicEvent
   }
 
   @Override
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {
     // Bestehenden Max in den Vordergrund holen oder neuen Max erzeugen.
     MailMergeNew mmn = new MailMergeNew(documentController, new ActionListener()

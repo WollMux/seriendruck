@@ -34,13 +34,6 @@
  */
 package de.muenchen.mailmerge.print;
 
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -50,10 +43,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.beans.XPropertySet;
@@ -81,9 +72,8 @@ import de.muenchen.allg.afid.UnoCollection;
 import de.muenchen.allg.afid.UnoProps;
 import de.muenchen.allg.itd51.wollmux.core.HashableComponent;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.ooo.TextDocument;
-import de.muenchen.mailmerge.WollMuxFiles;
+import de.muenchen.mailmerge.MailMergeFiles;
 import de.muenchen.mailmerge.Workarounds;
 
 /**
@@ -93,6 +83,9 @@ import de.muenchen.mailmerge.Workarounds;
  */
 public class PrintIntoFile
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PrintIntoFile.class);
+
   /**
    * Präfix, das vor den Namen des angelegten temporären Verzeichnisses gesetzt wird.
    */
@@ -222,11 +215,11 @@ public class PrintIntoFile
        * expected.
        */
       cursor = text.createTextCursorByRange(text.getEnd());
-      Logger.debug2("================= OID dump BEFORE insert ==================");
+      LOGGER.trace("================= OID dump BEFORE insert ==================");
       dumpOids(outputDoc);
       UNO.XDocumentInsertable(cursor).insertDocumentFromURL(url,
         new PropertyValue[] {});
-      Logger.debug2("================= OID dump AFTER insert ==================");
+      LOGGER.trace("================= OID dump AFTER insert ==================");
       dumpOids(outputDoc);
 
       cursor.collapseToStart();
@@ -267,7 +260,7 @@ public class PrintIntoFile
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
     finally
     {
@@ -345,7 +338,7 @@ public class PrintIntoFile
       }
       catch (Exception x)
       {
-        Logger.error(x);
+        LOGGER.error("", x);
       }
     }
     return false;
@@ -376,7 +369,7 @@ public class PrintIntoFile
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
       return;
     }
     Map<String, String> mapOldPageStyleName2NewPageStyleName = new HashMap<>();
@@ -406,7 +399,7 @@ public class PrintIntoFile
       }
       catch (Exception x)
       {
-        Logger.error(x);
+        LOGGER.error("", x);
       }
       if (!cursor.gotoNextParagraph(false))
         break;
@@ -420,7 +413,7 @@ public class PrintIntoFile
    */
   private static void dumpOids(XTextDocument outputDoc)
   {
-    if (!WollMuxFiles.isDebugMode())
+    if (!MailMergeFiles.isDebugMode())
       return;
     XIndexAccess shapes =
       UNO.XIndexAccess(UNO.XDrawPageSupplier(outputDoc).getDrawPage());
@@ -434,12 +427,12 @@ public class PrintIntoFile
         String name = "<Unknown>";
         if (named != null)
           name = named.getName();
-        Logger.debug2(name + " -> " + UnoRuntime.generateOid(ob));
+        LOGGER.trace("{} -> {}", name, UnoRuntime.generateOid(ob));
       }
     }
     catch (Exception x)
     {
-      Logger.debug2(x);
+      LOGGER.trace("", x);
     }
   }
 
@@ -552,34 +545,34 @@ public class PrintIntoFile
             int oldPageNo =
               ((Number) UNO.getProperty(ob, "AnchorPageNo")).intValue();
             int newPageNo = oldPageNo + pageNumberOffset;
-            Logger.debug2(L.m("Verschiebe \"%1\" von Seite %2 nach Seite %3", name,
+            LOGGER.trace(L.m("Verschiebe \"%1\" von Seite %2 nach Seite %3", name,
               oldPageNo, newPageNo));
             Object afterMovePageNo =
               UNO.setProperty(ob, "AnchorPageNo", Short.valueOf((short) newPageNo));
             if (null == afterMovePageNo
               || ((Number) afterMovePageNo).intValue() != newPageNo)
             {
-              Logger.error(L.m(
+              LOGGER.error(L.m(
                 "Kann AnchorPageNo von Objekt #\"%1\" nicht auf %2 setzen", i,
                 newPageNo));
             }
           }
           else
           {
-            Logger.debug2(L.m(
+            LOGGER.trace(L.m(
               "Verschiebe \"%1\" NICHT, weil zwar neu dazugekommen, aber nicht an der Seite verankert",
               name));
           }
         }
         else
         {
-          Logger.debug2(L.m("Verschiebe \"%1\" NICHT, weil nicht neu dazugekommen",
+          LOGGER.trace(L.m("Verschiebe \"%1\" NICHT, weil nicht neu dazugekommen",
             name));
         }
       }
       catch (Exception x)
       {
-        Logger.error(x);
+        LOGGER.error("", x);
       }
     }
   }
@@ -645,141 +638,4 @@ public class PrintIntoFile
     UNO.XStorable(inputDoc).storeToURL(url, arguments.getProps());
     return url;
   }
-
-  /**
-   * @author Matthias Benkmann (D-III-ITD 5.1)
-   */
-  public static void main(String[] args) throws Exception
-  {
-    UNO.init();
-    Logger.init(Logger.ALL);
-
-    final boolean[] done = new boolean[] { false };
-    SwingUtilities.invokeAndWait(new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        final XTextDocument[] doc = new XTextDocument[] { null };
-        final boolean[] firstAppend = new boolean[] { true };
-
-        JFrame myFrame = new JFrame("PrintIntoFile");
-        myFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        myFrame.addWindowListener(new WindowAdapter()
-        {
-          @Override
-          public void windowClosing(WindowEvent e)
-          {
-            try
-            {
-              UNO.XCloseable(doc[0]).close(true);
-            }
-            catch (Exception x)
-            {}
-            synchronized (done)
-            {
-              done[0] = true;
-              done.notifyAll();
-            }
-          }
-        });
-
-        myFrame.setLayout(new GridLayout(1, 2));
-        JButton button = new JButton("Neues Gesamtdokument");
-        button.addActionListener(new ActionListener()
-        {
-          @Override
-          public void actionPerformed(ActionEvent e)
-          {
-            if (doc[0] != null)
-            {
-              try
-              {
-                UNO.XCloseable(doc[0]).close(true);
-              }
-              catch (Exception x)
-              {}
-              doc[0] = null;
-            }
-            firstAppend[0] = true;
-            try
-            {
-              doc[0] =
-                UNO.XTextDocument(UNO.loadComponentFromURL(
-                  "private:factory/swriter", true, true));
-            }
-            catch (Exception x)
-            {}
-          }
-        });
-        myFrame.add(button);
-        button = new JButton("Dokument anhängen");
-        button.addActionListener(new ActionListener()
-        {
-          @Override
-          public void actionPerformed(ActionEvent e)
-          {
-            if (doc[0] == null)
-              return;
-
-            /*
-             * Wenn das aktuelle Vordergrunddok ein Textdokument ist und nicht das
-             * Gesamtdokument, so wähle es aus.
-             */
-            XTextDocument inputDoc =
-              UNO.XTextDocument(UNO.desktop.getCurrentComponent());
-            if (inputDoc == null || UnoRuntime.areSame(inputDoc, doc[0]))
-            {
-              /*
-               * Ansonsten suchen wir, ob wir ein Textdokument finden, das nicht das
-               * Gesamtdokument ist.
-               */
-              try
-              {
-                for (XTextDocument document : UnoCollection.getCollection(UNO.desktop.getComponents(), XTextDocument.class))
-                {
-                  if (document != null && !UnoRuntime.areSame(document, doc[0]))
-                    inputDoc = document;
-                    break;
-                }
-              }
-              catch (Exception x)
-              {}
-            }
-
-            /*
-             * Falls wir keinen andere Kandidaten gefunden haben, so will der
-             * Benutzer wohl das Gesamtdokument an sich selbst anhängen.
-             */
-            if (inputDoc == null)
-              inputDoc = doc[0];
-
-            appendToFile(doc[0], inputDoc, firstAppend[0]);
-            firstAppend[0] = false;
-          }
-        });
-        myFrame.add(button);
-
-        myFrame.setAlwaysOnTop(true);
-        myFrame.pack();
-        int frameWidth = myFrame.getWidth();
-        int frameHeight = myFrame.getHeight();
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width / 2 - frameWidth / 2;
-        int y = screenSize.height / 2 - frameHeight / 2;
-        myFrame.setLocation(x, y);
-        myFrame.setResizable(false);
-        myFrame.setVisible(true);
-      }
-    });
-
-    synchronized (done)
-    {
-      while (!done[0])
-        done.wait();
-    }
-
-    System.exit(0);
-  }
-
 }

@@ -53,10 +53,11 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.beans.UnknownPropertyException;
@@ -74,19 +75,21 @@ import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.afid.UnoProps;
 import de.muenchen.allg.itd51.wollmux.core.dialog.DimAdjust;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 public class PrintParametersDialog
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PrintParametersDialog.class);
+
   /**
-   * Kommando-String, der dem closeActionListener übermittelt wird, wenn der Dialog
-   * über den Drucken-Knopf geschlossen wird.
+   * Kommando-String, der dem closeActionListener übermittelt wird, wenn der
+   * Dialog über den Drucken-Knopf geschlossen wird.
    */
   public static final String CMD_SUBMIT = "submit";
 
   /**
-   * Kommando-String, der dem closeActionListener übermittelt wird, wenn der Dialog
-   * über den Abbrechen oder "X"-Knopf geschlossen wird.
+   * Kommando-String, der dem closeActionListener übermittelt wird, wenn der
+   * Dialog über den Abbrechen oder "X"-Knopf geschlossen wird.
    */
   public static final String CMD_CANCEL = "cancel";
 
@@ -116,8 +119,7 @@ public class PrintParametersDialog
     }
   };
 
-  public PrintParametersDialog(XTextDocument doc, boolean showCopyCount,
-      ActionListener listener)
+  public PrintParametersDialog(XTextDocument doc, boolean showCopyCount, ActionListener listener)
   {
     this.doc = doc;
     this.showCopyCount = showCopyCount;
@@ -155,11 +157,11 @@ public class PrintParametersDialog
    *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
-  public enum PageRangeType {
+  public enum PageRangeType
+  {
     ALL(L.m("Alles")),
 
-    USER_DEFINED(L.m("Seiten"), "1,3,5,10-100<etwasPlatz>",
-        L.m("Mögliche Eingaben sind z.B. '1', '2-5' oder '1,3,5'")),
+    USER_DEFINED(L.m("Seiten"), "1,3,5,10-100<etwasPlatz>", L.m("Mögliche Eingaben sind z.B. '1', '2-5' oder '1,3,5'")),
 
     CURRENT_PAGE(L.m("Aktuelle Seite")),
 
@@ -181,14 +183,11 @@ public class PrintParametersDialog
       this.additionalTextFieldHint = "";
     }
 
-    private PageRangeType(String label,
-        String additionalTextFieldPrototypeDisplayValue,
-        String additionalTextFieldHint)
+    private PageRangeType(String label, String additionalTextFieldPrototypeDisplayValue, String additionalTextFieldHint)
     {
       this.label = label;
       this.hasAdditionalTextField = true;
-      this.additionalTextFieldPrototypeDisplayValue =
-        additionalTextFieldPrototypeDisplayValue;
+      this.additionalTextFieldPrototypeDisplayValue = additionalTextFieldPrototypeDisplayValue;
       this.additionalTextFieldHint = additionalTextFieldHint;
     }
   }
@@ -205,9 +204,9 @@ public class PrintParametersDialog
   }
 
   /**
-   * Liefert die Anzahl in der GUI eingestellter Kopien als Short zurück; Zeigt der
-   * Dialog kein Elemente zur Eingabe der Kopien an, oder ist die Eingabe keine
-   * gültige Zahl, so wird new Short((short) 1) zurück geliefert.
+   * Liefert die Anzahl in der GUI eingestellter Kopien als Short zurück; Zeigt
+   * der Dialog kein Elemente zur Eingabe der Kopien an, oder ist die Eingabe
+   * keine gültige Zahl, so wird new Short((short) 1) zurück geliefert.
    *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
@@ -216,8 +215,7 @@ public class PrintParametersDialog
     try
     {
       return Short.valueOf(copyCountSpinner.getValue().toString());
-    }
-    catch (NumberFormatException e)
+    } catch (NumberFormatException e)
     {
       return Short.valueOf((short) 1);
     }
@@ -236,8 +234,7 @@ public class PrintParametersDialog
     Box hbox;
 
     hbox = Box.createHorizontalBox();
-    hbox.setBorder(BorderFactory.createTitledBorder(
-      BorderFactory.createRaisedBevelBorder(), L.m("Drucker")));
+    hbox.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), L.m("Drucker")));
     hbox.add(new JLabel(L.m("Name")));
     hbox.add(Box.createHorizontalStrut(10));
     printerNameField = new JTextField(" " + getCurrentPrinterName(doc) + " ");
@@ -245,26 +242,16 @@ public class PrintParametersDialog
     hbox.add(printerNameField);
     hbox.add(Box.createHorizontalStrut(10));
     hbox.add(Box.createHorizontalGlue());
-    JButton printerSettingsButton =
-      new JButton(L.m("Drucker wechseln/einrichten..."));
-    printerSettingsButton.addActionListener(new ActionListener()
-    {
-      @Override
-      public void actionPerformed(ActionEvent e)
-      {
-        showPrintSettingsDialog();
-      }
-    });
+    JButton printerSettingsButton = new JButton(L.m("Drucker wechseln/einrichten..."));
+    printerSettingsButton.addActionListener(event -> showPrintSettingsDialog());
     hbox.add(printerSettingsButton);
     vbox.add(hbox);
 
     hbox = Box.createHorizontalBox();
     Box vboxPageRange = Box.createVerticalBox();
-    vboxPageRange.setBorder(BorderFactory.createTitledBorder(
-      BorderFactory.createEtchedBorder(), L.m("Druckbereich")));
+    vboxPageRange.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), L.m("Druckbereich")));
     Box vboxCopies = Box.createVerticalBox();
-    vboxCopies.setBorder(BorderFactory.createTitledBorder(
-      BorderFactory.createEtchedBorder(), L.m("Kopien")));
+    vboxCopies.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), L.m("Kopien")));
     hbox.add(vboxPageRange);
     if (showCopyCount)
       hbox.add(vboxCopies);
@@ -280,8 +267,7 @@ public class PrintParametersDialog
       final JTextField additionalTextfield;
       if (t.hasAdditionalTextField)
       {
-        additionalTextfield =
-          new JTextField("" + t.additionalTextFieldPrototypeDisplayValue);
+        additionalTextfield = new JTextField("" + t.additionalTextFieldPrototypeDisplayValue);
         DimAdjust.fixedPreferredSize(additionalTextfield);
         DimAdjust.fixedMaxSize(additionalTextfield, 0, 0);
         additionalTextfield.setToolTipText(t.additionalTextFieldHint);
@@ -306,31 +292,25 @@ public class PrintParametersDialog
             currentPageRangeValue = additionalTextfield.getText();
           }
         });
-      }
-      else
+      } else
         additionalTextfield = null;
 
       final JRadioButton button = new JRadioButton(t.label);
       if (firstButton == null)
         firstButton = button;
-      button.addChangeListener(new ChangeListener()
-      {
-        @Override
-        public void stateChanged(ChangeEvent e)
+      button.addChangeListener(event -> {
+        if (button.isSelected())
         {
-          if (button.isSelected())
-          {
-            currentPageRangeType = t;
-            if (additionalTextfield != null)
-              currentPageRangeValue = additionalTextfield.getText();
-            else
-              currentPageRangeValue = null;
-          }
+          currentPageRangeType = t;
           if (additionalTextfield != null)
-          {
-            additionalTextfield.setEditable(button.isSelected());
-            additionalTextfield.setFocusable(button.isSelected());
-          }
+            currentPageRangeValue = additionalTextfield.getText();
+          else
+            currentPageRangeValue = null;
+        }
+        if (additionalTextfield != null)
+        {
+          additionalTextfield.setEditable(button.isSelected());
+          additionalTextfield.setFocusable(button.isSelected());
         }
       });
       // stateChanged()-Event forcieren:
@@ -363,25 +343,11 @@ public class PrintParametersDialog
     JButton button;
     hbox = Box.createHorizontalBox();
     button = new JButton(L.m("Abbrechen"));
-    button.addActionListener(new ActionListener()
-    {
-      @Override
-      public void actionPerformed(ActionEvent e)
-      {
-        abort(CMD_CANCEL);
-      }
-    });
+    button.addActionListener(event -> abort(CMD_CANCEL));
     hbox.add(button);
     hbox.add(Box.createHorizontalGlue());
     button = new JButton(L.m("Drucken"));
-    button.addActionListener(new ActionListener()
-    {
-      @Override
-      public void actionPerformed(ActionEvent e)
-      {
-        printButtonPressed();
-      }
-    });
+    button.addActionListener(event -> printButtonPressed());
     hbox.add(button);
     panel.add(hbox, BorderLayout.SOUTH);
 
@@ -402,10 +368,10 @@ public class PrintParametersDialog
   {
     /*
      * Wegen folgendem Java Bug (WONTFIX)
-     * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4259304 sind die folgenden
-     * 3 Zeilen nötig, damit der Dialog gc'ed werden kann. Die Befehle sorgen dafür,
-     * dass kein globales Objekt (wie z.B. der Keyboard-Fokus-Manager) indirekt über
-     * den JFrame den MailMerge kennt.
+     * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4259304 sind die
+     * folgenden 3 Zeilen nötig, damit der Dialog gc'ed werden kann. Die Befehle
+     * sorgen dafür, dass kein globales Objekt (wie z.B. der
+     * Keyboard-Fokus-Manager) indirekt über den JFrame den MailMerge kennt.
      */
     if (dialog != null)
     {
@@ -443,38 +409,31 @@ public class PrintParametersDialog
         try
         {
           com.sun.star.util.URL url = UNO.getParsedUNOUrl(".uno:Print");
-          XNotifyingDispatch disp =
-            UNO.XNotifyingDispatch(getDispatchForModel(UNO.XModel(doc), url));
+          XNotifyingDispatch disp = UNO.XNotifyingDispatch(getDispatchForModel(UNO.XModel(doc), url));
 
           if (disp != null)
           {
-            disp.dispatchWithNotification(url, new PropertyValue[] {},
-              new XDispatchResultListener()
+            disp.dispatchWithNotification(url, new PropertyValue[] {}, new XDispatchResultListener()
+            {
+              @Override
+              public void disposing(EventObject arg0)
               {
-                @Override
-                public void disposing(EventObject arg0)
-                {}
+              }
 
-                @Override
-                public void dispatchFinished(DispatchResultEvent arg0)
-                {
-                  SwingUtilities.invokeLater(new Runnable()
-                  {
-                    @Override
-                    public void run()
-                    {
-                      printerNameField.setText(" " + getCurrentPrinterName(doc) + " ");
-                      dialog.pack();
-                      dialog.setAlwaysOnTop(true);
-                    }
-                  });
-                }
-              });
+              @Override
+              public void dispatchFinished(DispatchResultEvent arg0)
+              {
+                SwingUtilities.invokeLater(() -> {
+                  printerNameField.setText(" " + getCurrentPrinterName(doc) + " ");
+                  dialog.pack();
+                  dialog.setAlwaysOnTop(true);
+                });
+              }
+            });
           }
-        }
-        catch (java.lang.Exception e)
+        } catch (java.lang.Exception e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
       }
     };
@@ -483,16 +442,16 @@ public class PrintParametersDialog
   }
 
   /**
-   * Holt sich den Frame von doc, führt auf diesem ein queryDispatch() mit der zu
-   * urlStr gehörenden URL aus und liefert den Ergebnis XDispatch zurück oder null,
-   * falls der XDispatch nicht verfügbar ist.
+   * Holt sich den Frame von doc, führt auf diesem ein queryDispatch() mit der
+   * zu urlStr gehörenden URL aus und liefert den Ergebnis XDispatch zurück oder
+   * null, falls der XDispatch nicht verfügbar ist.
    *
    * @param doc
    *          Das Dokument, dessen Frame für den Dispatch verwendet werden soll.
    * @param urlStr
    *          die URL in Form eines Strings (wird intern zu URL umgewandelt).
-   * @return den gefundenen XDispatch oder null, wenn der XDispatch nicht verfügbar
-   *         ist.
+   * @return den gefundenen XDispatch oder null, wenn der XDispatch nicht
+   *         verfügbar ist.
    */
   private XDispatch getDispatchForModel(XModel doc, com.sun.star.util.URL url)
   {
@@ -503,14 +462,13 @@ public class PrintParametersDialog
     try
     {
       dispProv = UNO.XDispatchProvider(doc.getCurrentController().getFrame());
+    } catch (Exception e)
+    {
     }
-    catch (Exception e)
-    {}
 
     if (dispProv != null)
     {
-      return dispProv.queryDispatch(url, "_self",
-        com.sun.star.frame.FrameSearchFlag.SELF);
+      return dispProv.queryDispatch(url, "_self", com.sun.star.frame.FrameSearchFlag.SELF);
     }
     return null;
   }
@@ -530,8 +488,7 @@ public class PrintParametersDialog
     try
     {
       return (String) printerInfo.getPropertyValue("Name");
-    }
-    catch (UnknownPropertyException e)
+    } catch (UnknownPropertyException e)
     {
       return L.m("unbekannt");
     }
@@ -552,34 +509,9 @@ public class PrintParametersDialog
       printerInfo.setPropertyValue("Name", druckerName);
       if (printable != null)
         printable.setPrinter(printerInfo.getProps());
-    }
-    catch (Exception e)
+    } catch (Exception e)
     {
       System.out.println("property setzen: " + e.getMessage());
     }
-  }
-
-  public static void main(String[] args) throws Exception
-  {
-    UNO.init();
-    new PrintParametersDialog(UNO.XTextDocument(UNO.desktop.getCurrentComponent()),
-      true, new ActionListener()
-      {
-        @Override
-        public void actionPerformed(ActionEvent e)
-        {
-          try
-          {
-            System.out.println(e.getActionCommand());
-            PrintParametersDialog ppd = (PrintParametersDialog) e.getSource();
-            System.out.println(ppd.getPageRange());
-            System.out.println(ppd.getCopyCount());
-            Thread.sleep(1000);
-          }
-          catch (InterruptedException e1)
-          {}
-          System.exit(0);
-        }
-      });
   }
 }

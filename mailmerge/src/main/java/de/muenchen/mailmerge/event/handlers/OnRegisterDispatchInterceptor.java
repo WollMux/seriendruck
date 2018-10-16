@@ -1,9 +1,11 @@
 package de.muenchen.mailmerge.event.handlers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.frame.XFrame;
 
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.document.FrameController;
 import de.muenchen.mailmerge.document.TextDocumentController;
 import de.muenchen.mailmerge.event.DispatchProviderAndInterceptor;
@@ -14,6 +16,9 @@ import de.muenchen.mailmerge.event.DispatchProviderAndInterceptor;
  */
 public class OnRegisterDispatchInterceptor extends BasicEvent
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(OnRegisterDispatchInterceptor.class);
+
   private TextDocumentController documentController;
 
   public OnRegisterDispatchInterceptor(TextDocumentController documentController)
@@ -27,7 +32,7 @@ public class OnRegisterDispatchInterceptor extends BasicEvent
     FrameController fc = documentController.getFrameController(); 
     if (fc.getFrame() == null)
     {
-      Logger.debug(L.m("Ignoriere handleRegisterDispatchInterceptor(null)"));
+      LOGGER.debug(L.m("Ignoriere handleRegisterDispatchInterceptor(null)"));
       return;
     }
     try
@@ -36,7 +41,7 @@ public class OnRegisterDispatchInterceptor extends BasicEvent
     }
     catch (java.lang.Exception e)
     {
-      Logger.error(L.m("Kann DispatchInterceptor nicht registrieren:"), e);
+      LOGGER.error(L.m("Kann DispatchInterceptor nicht registrieren:"), e);
     }
 
     // Sicherstellen, dass die Schaltflächen der Symbolleisten aktiviert werden:

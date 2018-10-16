@@ -6,26 +6,30 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
-public class WollMuxClassLoader extends URLClassLoader
+public class MailMergeClassLoader extends URLClassLoader
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MailMergeClassLoader.class);
+
   private ArrayList<String> blacklist;
 
   private ArrayList<String> whitelist;
 
-  private static WollMuxClassLoader classLoader;
+  private static MailMergeClassLoader classLoader;
 
-  private static final String[] BLACKLIST = {
-  "java.", "com.sun." };
+  private static final String[] DEFAULT_BLACKLIST = { "java.", "com.sun." };
 
-  private WollMuxClassLoader()
+  private MailMergeClassLoader()
   {
     super(new URL[] {});
-    blacklist = new ArrayList<String>();
-    whitelist = new ArrayList<String>();
+    blacklist = new ArrayList<>();
+    whitelist = new ArrayList<>();
     whitelist.add("com.sun.star.lib.loader"); // Ausnahme für Klassen in der Standardconfig
   }
 
@@ -61,7 +65,7 @@ public class WollMuxClassLoader extends URLClassLoader
     }
     catch (ClassNotFoundException x)
     {
-      return WollMuxClassLoader.class.getClassLoader().loadClass(name);
+      return MailMergeClassLoader.class.getClassLoader().loadClass(name);
     }
   }
 
@@ -97,29 +101,29 @@ public class WollMuxClassLoader extends URLClassLoader
    * 
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
-  public static WollMuxClassLoader getClassLoader()
+  public static MailMergeClassLoader getClassLoader()
   {
     if (classLoader == null)
     {
-      classLoader = new WollMuxClassLoader();
+      classLoader = new MailMergeClassLoader();
     }
     return classLoader;
   }
 
   /**
    * Parst die CLASSPATH Direktiven und hängt für jede eine weitere URL an den
-   * Suchpfad von {@link WollMuxClassLoader#classLoader} an.
+   * Suchpfad von {@link MailMergeClassLoader#classLoader} an.
    * 
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
   public static void initClassLoader()
   {
-    ConfigThingy conf = WollMuxFiles.getWollmuxConf().query("CLASSPATH", 1);
+    ConfigThingy conf = MailMergeFiles.getWollmuxConf().query("CLASSPATH", 1);
     Iterator<ConfigThingy> parentiter = conf.iterator();
     while (parentiter.hasNext())
     {
-      ConfigThingy CLASSPATHconf = parentiter.next();
-      Iterator<ConfigThingy> iter = CLASSPATHconf.iterator();
+      ConfigThingy classpathConf = parentiter.next();
+      Iterator<ConfigThingy> iter = classpathConf.iterator();
       while (iter.hasNext())
       {
         String urlStr = iter.next().toString();
@@ -132,36 +136,36 @@ public class WollMuxClassLoader extends URLClassLoader
         // erkannt werden.
         try
         {
-          URL url = WollMuxFiles.makeURL(urlStr);
-          WollMuxClassLoader.getClassLoader().addURL(url);
+          URL url = MailMergeFiles.makeURL(urlStr);
+          MailMergeClassLoader.getClassLoader().addURL(url);
         }
         catch (MalformedURLException e)
         {
-          Logger.error(L.m("Fehlerhafte CLASSPATH-Angabe: \"%1\"", urlStr), e);
+          LOGGER.error(L.m("Fehlerhafte CLASSPATH-Angabe: \"%1\"", urlStr), e);
         }
       }
     }
   
     StringBuilder urllist = new StringBuilder();
-    URL[] urls = WollMuxClassLoader.getClassLoader().getURLs();
+    URL[] urls = MailMergeClassLoader.getClassLoader().getURLs();
     for (int i = 0; i < urls.length; ++i)
     {
       urllist.append(urls[i].toExternalForm());
       urllist.append("  ");
     }
   
-    for (String s : WollMuxClassLoader.BLACKLIST)
+    for (String s : MailMergeClassLoader.DEFAULT_BLACKLIST)
     {
-      WollMuxClassLoader.getClassLoader().addBlacklisted(s);
+      MailMergeClassLoader.getClassLoader().addBlacklisted(s);
     }
   
-    ConfigThingy confWhitelist = WollMuxFiles.getWollmuxConf().query("CPWHITELIST", 1);
+    ConfigThingy confWhitelist = MailMergeFiles.getWollmuxConf().query("CPWHITELIST", 1);
     for (ConfigThingy w : confWhitelist)
     {
-      WollMuxClassLoader.getClassLoader().addWhitelisted(w.toString());
+      MailMergeClassLoader.getClassLoader().addWhitelisted(w.toString());
     }
   
-    Logger.debug("CLASSPATH=" + urllist);
+    LOGGER.debug("CLASSPATH={}", urllist);
   }
 
 }

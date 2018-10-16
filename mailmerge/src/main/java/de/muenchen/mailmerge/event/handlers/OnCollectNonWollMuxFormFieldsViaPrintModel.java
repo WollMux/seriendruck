@@ -2,7 +2,7 @@ package de.muenchen.mailmerge.event.handlers;
 
 import java.awt.event.ActionListener;
 
-import de.muenchen.mailmerge.WollMuxFehlerException;
+import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.document.TextDocumentController;
 
 /**
@@ -27,7 +27,7 @@ public class OnCollectNonWollMuxFormFieldsViaPrintModel extends BasicEvent
   }
 
   @Override
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {
     documentController.collectNonWollMuxFormFields();
 

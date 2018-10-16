@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.beans.Property;
 import com.sun.star.beans.PropertyAttribute;
 import com.sun.star.beans.PropertyVetoException;
@@ -25,12 +28,11 @@ import de.muenchen.allg.afid.UnoProps;
 import de.muenchen.allg.itd51.wollmux.XPrintModel;
 import de.muenchen.allg.itd51.wollmux.core.SyncActionListener;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.GlobalFunctions;
 import de.muenchen.mailmerge.dialog.PrintParametersDialog;
-import de.muenchen.mailmerge.dialog.PrintProgressBar;
 import de.muenchen.mailmerge.dialog.PrintParametersDialog.PageRange;
 import de.muenchen.mailmerge.dialog.PrintParametersDialog.PageRangeType;
+import de.muenchen.mailmerge.dialog.PrintProgressBar;
 import de.muenchen.mailmerge.document.TextDocumentController;
 import de.muenchen.mailmerge.event.MailMergeEventHandler;
 import de.muenchen.mailmerge.print.PrintFunction;
@@ -59,6 +61,9 @@ import de.muenchen.mailmerge.print.PrintFunction;
  */
 class MasterPrintModel implements XPrintModel, InternalPrintModel
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MasterPrintModel.class);
+
   /**
    * Schlüssel der Property, über die gesteuert wird, ob der finale Druckdialog mit
    * einem CopyCount-Spinner angezeigt wird.
@@ -260,7 +265,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
       }
       catch (InterruptedException e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     }
     else
@@ -381,7 +386,7 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
       }
       catch (IllegalArgumentException e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     return false;
   }

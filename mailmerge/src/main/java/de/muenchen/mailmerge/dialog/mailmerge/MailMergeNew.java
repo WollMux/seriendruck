@@ -44,6 +44,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,6 +66,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.star.awt.XTopWindow;
 import com.sun.star.beans.IllegalTypeException;
@@ -90,7 +94,6 @@ import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
 import de.muenchen.allg.itd51.wollmux.core.exceptions.UnavailableException;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.dialog.Common;
 import de.muenchen.mailmerge.dialog.NonNumericKeyConsumer;
 import de.muenchen.mailmerge.dialog.trafo.GenderDialog;
@@ -107,6 +110,9 @@ import de.muenchen.mailmerge.event.MailMergeEventHandler;
  */
 public class MailMergeNew
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MailMergeNew.class);
+
   public static final String PROP_MAILMERGENEW = "mailMergeNew";
   private static Map<String, MailMergeNew> instances = new ConcurrentHashMap<>();
   /**
@@ -134,22 +140,21 @@ public class MailMergeNew
   private JTextField previewDatasetNumberTextfield;
 
   private Collection<JComponent> elementsDisabledWhenNoDatasourceSelected =
-    new Vector<>();
+      new ArrayList<>();
 
   private Collection<JComponent> elementsDisabledWhenNotInPreviewMode =
-    new Vector<>();
+      new ArrayList<>();
 
   private Collection<JComponent> elementsDisabledWhenFirstDatasetSelected =
-    new Vector<>();
+      new ArrayList<>();
 
   private Collection<JComponent> elementsDisabledWhenLastDatasetSelected =
-    new Vector<>();
+      new ArrayList<>();
 
   /**
    * Enthält alle elementsDisabledWhen... Collections.
    */
-  private Vector<Collection<JComponent>> listsOfElementsDisabledUnderCertainCircumstances =
-    new Vector<>();
+  private List<Collection<JComponent>> listsOfElementsDisabledUnderCertainCircumstances = new ArrayList<>();
 
   /**
    * Das Toolbar-Fenster.
@@ -204,10 +209,10 @@ public class MailMergeNew
     if (!props.getPropertySetInfo().hasPropertyByName(PROP_MAILMERGENEW)) {
       try
       {
-        userDefinedProperties.addProperty(PROP_MAILMERGENEW, (short) (PropertyAttribute.TRANSIENT), "None");
+        userDefinedProperties.addProperty(PROP_MAILMERGENEW, (PropertyAttribute.TRANSIENT), "None");
       } catch (IllegalArgumentException | PropertyExistException | IllegalTypeException e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     }
 
@@ -216,7 +221,7 @@ public class MailMergeNew
       props.setPropertyValue(PROP_MAILMERGENEW, uuid);
     } catch (IllegalArgumentException | UnknownPropertyException | PropertyVetoException | WrappedTargetException e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 
@@ -242,7 +247,7 @@ public class MailMergeNew
         }
       } catch (UnknownPropertyException | WrappedTargetException | IllegalArgumentException | PropertyVetoException e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     }
 
@@ -264,14 +269,14 @@ public class MailMergeNew
           }
           catch (Exception x)
           {
-            Logger.error(x);
+            LOGGER.error("", x);
           }
         }
       });
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
   }
 
@@ -520,7 +525,7 @@ public class MailMergeNew
         // Tabellenspalten ergänzen wird außerdem ausgegraut, wenn die Datenquelle
         // dies nicht unterstützt
         boolean hasUnmappedFields =
-            documentController.getModel().getReferencedFieldIDsThatAreNotInSchema(new HashSet<String>(
+            documentController.getModel().getReferencedFieldIDsThatAreNotInSchema(new HashSet<>(
             mailMergeController.getColumnNames())).length > 0;
         adjustFieldsMenuItem.setEnabled(hasUnmappedFields);
         addColumnsMenuItem.setEnabled(hasUnmappedFields && mailMergeController.isDatasourceSupportingAddColumns());
@@ -626,7 +631,7 @@ public class MailMergeNew
 
     if (schema.size() != data.size())
     {
-      Logger.error(L.m("Daten haben sich zwischen dem Auslesen von Schema und Werten verändert"));
+      LOGGER.error(L.m("Daten haben sich zwischen dem Auslesen von Schema und Werten verändert"));
       return;
     }
 
@@ -661,7 +666,7 @@ public class MailMergeNew
           }
           catch (Exception x)
           {
-            Logger.error(x);
+            LOGGER.error("", x);
           }
         }
       });
@@ -856,7 +861,7 @@ public class MailMergeNew
           }
           catch (Exception x)
           {
-            Logger.error(x);
+            LOGGER.error("", x);
           }
         }
       }
@@ -869,7 +874,7 @@ public class MailMergeNew
     }
     catch (UnavailableException e)
     {
-      Logger.error(L.m("Das darf nicht passieren!"));
+      LOGGER.error(L.m("Das darf nicht passieren!"));
     }
   }
 
@@ -908,7 +913,7 @@ public class MailMergeNew
           }
           catch (Exception x)
           {
-            Logger.error(x);
+            LOGGER.error("", x);
           }
         }
       }
@@ -988,7 +993,7 @@ public class MailMergeNew
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
   }
 

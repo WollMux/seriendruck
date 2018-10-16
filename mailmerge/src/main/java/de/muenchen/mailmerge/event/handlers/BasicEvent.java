@@ -1,5 +1,8 @@
 package de.muenchen.mailmerge.event.handlers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.awt.XWindow;
 import com.sun.star.frame.XFrame;
 import com.sun.star.frame.XFrames;
@@ -7,15 +10,16 @@ import com.sun.star.uno.RuntimeException;
 
 import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
+import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.ModalDialogs;
-import de.muenchen.mailmerge.WollMuxFehlerException;
 
 /**
  * Dient als Basisklasse für konkrete Event-Implementierungen.
  */
 public abstract class BasicEvent implements WollMuxEvent
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(BasicEvent.class);
 
   /**
    * Diese Method ist für die Ausführung des Events zuständig. Nach der Bearbeitung
@@ -26,12 +30,12 @@ public abstract class BasicEvent implements WollMuxEvent
   @Override
   public void process()
   {
-    Logger.debug("Process WollMuxEvent " + this.toString());
+    LOGGER.debug("Process WollMuxEvent {}", this);
     try
     {
       doit();
     }
-    catch (WollMuxFehlerException e)
+    catch (MailMergeFehlerException e)
     {
       // hier wäre ein showNoConfigInfo möglich - ist aber nicht eindeutig auf no config zurückzuführen
       errorMessage(e);
@@ -39,7 +43,7 @@ public abstract class BasicEvent implements WollMuxEvent
     // Notnagel für alle Runtime-Exceptions.
     catch (Throwable t)
     {
-      Logger.error(t);
+      LOGGER.error("", t);
     }
   }
 
@@ -49,7 +53,7 @@ public abstract class BasicEvent implements WollMuxEvent
    */
   protected void errorMessage(Throwable t)
   {
-    Logger.error(t);
+    LOGGER.error("", t);
     String msg = "";
     if (t.getMessage() != null)
       msg += t.getMessage();
@@ -80,7 +84,7 @@ public abstract class BasicEvent implements WollMuxEvent
    * Dialog angezeigt werden sollen, können über eine WollMuxFehlerException nach
    * oben weitergereicht werden.
    */
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {}
 
   /**
@@ -131,13 +135,13 @@ public abstract class BasicEvent implements WollMuxEvent
         }
         catch (java.lang.Exception e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
       }
     }
     catch (java.lang.Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 }

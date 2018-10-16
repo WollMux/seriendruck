@@ -38,6 +38,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.awt.XTopWindow;
 import com.sun.star.awt.XTopWindowListener;
 import com.sun.star.lang.EventObject;
@@ -46,7 +49,6 @@ import com.sun.star.uno.XInterface;
 
 import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 /**
  * Diese Klasse steuert die logische Ankopplung von eigentlich unabhängigen Fenstern
@@ -75,20 +77,22 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 public class CoupledWindowController
 {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(CoupledWindowController.class);
+
   /**
    * Enthält alle mit addCoupledWindow registrierten angekoppelten Fenster. Dieses
    * Feld ist als ArrayList angelegt, damit gewährleistet ist, dass die Fenster immer
    * in der Reihenfolge der Registrierung sichtbar/unsichtbar geschalten werden (also
    * nicht in willkürlicher Reihenfolge, die ein HashSet mit sich bringen würde).
    */
-  private ArrayList<CoupledWindow> coupledWindows = new ArrayList<CoupledWindow>();
+  private ArrayList<CoupledWindow> coupledWindows = new ArrayList<>();
 
   /**
    * Enthält eine Liste mit WeakReference-Objekten, die auf Unterfenster von
    * coupledWindows zeigen, die die verschiedenen CoupledWindowListener aufsammeln.
    */
   private ArrayList<WeakReference<Window>> collectedChildWindows =
-    new ArrayList<WeakReference<Window>>();
+    new ArrayList<>();
 
   /**
    * Enthält den WindowStateWatcher, mit dem der Fensterstatus überwacht und die
@@ -256,19 +260,19 @@ public class CoupledWindowController
       {
         if (nr != lastValidTimeoutEvent)
         {
-          Logger.debug2(L.m("ignoriere ungültiges timeout event"));
+          LOGGER.trace(L.m("ignoriere ungültiges timeout event"));
           return;
         }
 
         if (activeWindow[0] == null)
         {
-          Logger.debug2(L.m("Timeout und kein aktives Fenster - stelle angekoppelte Fenster unsichtbar"));
+          LOGGER.trace(L.m("Timeout und kein aktives Fenster - stelle angekoppelte Fenster unsichtbar"));
           setCoupledWindowsVisible(false);
           acceptMainWindowOnly = true;
         }
         else
         {
-          Logger.debug2(L.m("Timeout aber keine Aktion da Fenster #%1 aktiv.",
+          LOGGER.trace(L.m("Timeout aber keine Aktion da Fenster #%1 aktiv.",
             Integer.valueOf(activeWindow[0].hashCode())));
         }
       }
@@ -296,7 +300,7 @@ public class CoupledWindowController
 
       if (acceptMainWindowOnly && !isMainWindow)
       {
-        Logger.debug2(L.m("Aktivierung ignoriert da Fenster #%1 kein Hauptfenster.",
+        LOGGER.trace(L.m("Aktivierung ignoriert da Fenster #%1 kein Hauptfenster.",
           Integer.valueOf(key.hashCode())));
         return;
       }
@@ -311,7 +315,7 @@ public class CoupledWindowController
           acceptMainWindowOnly = false;
         }
 
-        Logger.debug2(L.m("Aktivierung von Fenster #%1",
+        LOGGER.trace(L.m("Aktivierung von Fenster #%1",
           Integer.valueOf(activeWindow[0].hashCode())));
       }
     }
@@ -335,14 +339,14 @@ public class CoupledWindowController
       {
         if (key.equals(activeWindow[0]))
         {
-          Logger.debug2(L.m("Deaktivierung von Fenster #%1",
+          LOGGER.trace(L.m("Deaktivierung von Fenster #%1",
             Integer.valueOf(key.hashCode())));
           activeWindow[0] = null;
           startWaitForTimeout();
         }
         else
         {
-          Logger.debug2(L.m("Deaktierung ignoriert, da Fenster #%1 nicht aktiv.",
+          LOGGER.trace(L.m("Deaktierung ignoriert, da Fenster #%1 nicht aktiv.",
             Integer.valueOf(key.hashCode())));
         }
       }
@@ -406,9 +410,9 @@ public class CoupledWindowController
         }
       }
 
-      Logger.debug(L.m("Registriere Kindfenster #%1",
+      LOGGER.debug(L.m("Registriere Kindfenster #%1",
         Integer.valueOf(childWindow.hashCode())));
-      collectedChildWindows.add(new WeakReference<Window>(childWindow));
+      collectedChildWindows.add(new WeakReference<>(childWindow));
       childWindow.addWindowListener(coupledWindowListener);
     }
   }
@@ -428,7 +432,7 @@ public class CoupledWindowController
     if (window == null)
       return;
     CoupledWindow toAdd = new CoupledAWTWindow(window);
-    Logger.debug2("addCoupledWindow #" + toAdd.hashCode());
+    LOGGER.trace("addCoupledWindow #" + toAdd.hashCode());
     toAdd.addWindowListener(windowState.coupledWindowListener);
     coupledWindows.add(toAdd);
   }
@@ -447,7 +451,7 @@ public class CoupledWindowController
     if (window == null)
       return;
     CoupledWindow toRemove = new CoupledAWTWindow(window);
-    Logger.debug2("removeCoupledWindow #" + toRemove.hashCode());
+    LOGGER.trace("removeCoupledWindow #{}", toRemove.hashCode());
     for (Iterator<CoupledWindow> iter = coupledWindows.iterator(); iter.hasNext();)
     {
       CoupledWindow w = iter.next();
@@ -588,18 +592,13 @@ public class CoupledWindowController
     {
       try
       {
-        javax.swing.SwingUtilities.invokeLater(new Runnable()
-        {
-          @Override
-          public void run()
+        javax.swing.SwingUtilities.invokeLater(() -> {
+          try
           {
-            try
-            {
-              if (window.isVisible() != visible)
-                window.setVisible(visible);
-            }
-            catch (Exception x)
-            {}
+            if (window.isVisible() != visible)
+              window.setVisible(visible);
+          } catch (Exception x)
+          {
           }
         });
       }
@@ -612,17 +611,12 @@ public class CoupledWindowController
     {
       try
       {
-        javax.swing.SwingUtilities.invokeLater(new Runnable()
-        {
-          @Override
-          public void run()
+        javax.swing.SwingUtilities.invokeLater(() -> {
+          try
           {
-            try
-            {
-              window.addWindowListener(l);
-            }
-            catch (Exception x)
-            {}
+            window.addWindowListener(l);
+          } catch (Exception x)
+          {
           }
         });
       }
@@ -635,17 +629,12 @@ public class CoupledWindowController
     {
       try
       {
-        javax.swing.SwingUtilities.invokeLater(new Runnable()
-        {
-          @Override
-          public void run()
+        javax.swing.SwingUtilities.invokeLater(() -> {
+          try
           {
-            try
-            {
-              window.removeWindowListener(l);
-            }
-            catch (Exception x)
-            {}
+            window.removeWindowListener(l);
+          } catch (Exception x)
+          {
           }
         });
       }
@@ -668,15 +657,11 @@ public class CoupledWindowController
     @Override
     public boolean equals(Object o)
     {
-      try
-      {
-        CoupledAWTWindow w = (CoupledAWTWindow) o;
-        return w != null && window.equals(w.window);
+      if (o == null || o.getClass() != getClass()) {
+        return false;
       }
-      catch (ClassCastException x)
-      {}
-
-      return false;
+      CoupledAWTWindow w = (CoupledAWTWindow) o;
+      return window.equals(w.window);
     }
   }
 
@@ -690,7 +675,7 @@ public class CoupledWindowController
     {
       if (win == null)
       {
-        Logger.error(L.m("Großes Problem"));
+        LOGGER.error(L.m("Großes Problem"));
         throw new NullPointerException();
       }
       this.window = win;
@@ -702,7 +687,7 @@ public class CoupledWindowController
       this.window = UNO.XInterface(win);
       if (window == null)
       {
-        Logger.error(L.m("Großes Problem"));
+        LOGGER.error(L.m("Großes Problem"));
         throw new NullPointerException();
       }
       this.hash = UnoRuntime.generateOid(win).hashCode();

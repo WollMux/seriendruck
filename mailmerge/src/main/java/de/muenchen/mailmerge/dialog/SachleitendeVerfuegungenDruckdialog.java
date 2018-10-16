@@ -38,10 +38,9 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -62,43 +61,46 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import de.muenchen.allg.afid.UNO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.muenchen.allg.itd51.wollmux.core.db.DatasourceJoiner;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.mailmerge.SachleitendeVerfuegung;
 import de.muenchen.mailmerge.Verfuegungspunkt;
-import de.muenchen.mailmerge.WollMuxSingleton;
 
 /**
- * Diese Klasse baut anhand einer als ConfigThingy übergebenen Dialogbeschreibung
- * einen Dialog zum Drucken von Sachleitenden Verfügungen. Die private-Funktionen
- * dürfen NUR aus dem Event-Dispatching Thread heraus aufgerufen werden.
+ * Diese Klasse baut anhand einer als ConfigThingy übergebenen
+ * Dialogbeschreibung einen Dialog zum Drucken von Sachleitenden Verfügungen.
+ * Die private-Funktionen dürfen NUR aus dem Event-Dispatching Thread heraus
+ * aufgerufen werden.
  *
  * @author Matthias Benkmann (D-III-ITD 5.1), Christoph Lutz (D-III-ITD 5.1)
  */
 public class SachleitendeVerfuegungenDruckdialog
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SachleitendeVerfuegungenDruckdialog.class);
+
   /**
-   * Kommando-String, der dem closeActionListener übermittelt wird, wenn der Dialog
-   * über den Drucken-Knopf geschlossen wird.
+   * Kommando-String, der dem closeActionListener übermittelt wird, wenn der
+   * Dialog über den Drucken-Knopf geschlossen wird.
    */
   public static final String CMD_SUBMIT = "submit";
 
   /**
-   * Kommando-String, der dem closeActionListener übermittelt wird, wenn der Dialog
-   * über den Abbrechen oder "X"-Knopf geschlossen wird.
+   * Kommando-String, der dem closeActionListener übermittelt wird, wenn der
+   * Dialog über den Abbrechen oder "X"-Knopf geschlossen wird.
    */
   public static final String CMD_CANCEL = "cancel";
 
   /**
-   * Rand um Textfelder (wird auch für ein paar andere Ränder verwendet) in Pixeln.
+   * Rand um Textfelder (wird auch für ein paar andere Ränder verwendet) in
+   * Pixeln.
    */
   private static final int TF_BORDER = 4;
 
@@ -113,80 +115,56 @@ public class SachleitendeVerfuegungenDruckdialog
   private static final int BUTTON_BORDER = 2;
 
   /**
-   * Anzahl der Zeichen, nach der der Text der Verfügungspunkte abgeschnitten wird,
-   * damit der Dialog nicht platzt.
+   * Anzahl der Zeichen, nach der der Text der Verfügungspunkte abgeschnitten
+   * wird, damit der Dialog nicht platzt.
    */
   private static final int CONTENT_CUT = 75;
 
   /**
    * ActionListener für Buttons mit der ACTION "printElement".
    */
-  private ActionListener actionListenerPrintElement = new ActionListener()
-  {
-    @Override
-    public void actionPerformed(ActionEvent e)
-    {
-      if (e.getSource() instanceof JButton)
-        getCurrentSettingsForElement((JButton) e.getSource());
-      abort(CMD_SUBMIT);
-    }
+  private ActionListener actionListenerPrintElement = event -> {
+    if (event.getSource() instanceof JButton)
+      getCurrentSettingsForElement((JButton) event.getSource());
+    abort(CMD_SUBMIT);
   };
 
   /**
    * ActionListener für Buttons mit der ACTION "printAll".
    */
-  private ActionListener actionListenerPrintAll = new ActionListener()
-  {
-    @Override
-    public void actionPerformed(ActionEvent e)
-    {
-      printOrderAsc = getSelectedPrintOrderAsc();
-      getCurrentSettingsForAllElements();
-      abort(CMD_SUBMIT);
-    }
+  private ActionListener actionListenerPrintAll = event -> {
+    printOrderAsc = getSelectedPrintOrderAsc();
+    getCurrentSettingsForAllElements();
+    abort(CMD_SUBMIT);
   };
 
   /**
    * ActionListener für Buttons mit der ACTION "abort".
    */
-  private ActionListener actionListenerAbort = new ActionListener()
-  {
-    @Override
-    public void actionPerformed(ActionEvent e)
-    {
-      abort(CMD_CANCEL);
-    }
-  };
+  private ActionListener actionListenerAbort = event -> abort(CMD_CANCEL);
+
+  /**
+   * Enthält das TextFeld, das die Summe aller Ausfertigungen anzeigt.
+   */
+  private JTextField allElementCountTextField;
 
   /**
    * ChangeListener für Änderungen an den Spinnern.
    */
-  private ChangeListener spinnerChangeListener = new ChangeListener()
-  {
-    @Override
-    public void stateChanged(ChangeEvent arg0)
-    {
-      allElementCountTextField.setText("" + getAllElementCount());
-    }
-  };
+  private ChangeListener spinnerChangeListener = event -> allElementCountTextField.setText("" + getAllElementCount());
 
   /**
    * ChangeListener für Änderungen an den ComboBoxen, der eine Änderung des
    * ausgewählten Elements unmöglich macht.
    */
-  private ItemListener cboxItemListener = new ItemListener()
-  {
-    @Override
-    public void itemStateChanged(ItemEvent arg0)
+  private ItemListener cboxItemListener = event -> {
+    Object source = event.getSource();
+    if (source instanceof JComboBox<?>)
     {
-      Object source = arg0.getSource();
-      if (source != null && source instanceof JComboBox<?>)
-      {
-        @SuppressWarnings("unchecked")
-        JComboBox<String> cbox = (JComboBox<String>) source;
-        if (cbox.getSelectedIndex() != 0)
-          cbox.setSelectedIndex(0);
-      }
+      @SuppressWarnings("unchecked")
+      JComboBox<String> cbox = (JComboBox<String>) source;
+      if (cbox.getSelectedIndex() != 0)
+        cbox.setSelectedIndex(0);
     }
   };
 
@@ -217,11 +195,6 @@ public class SachleitendeVerfuegungenDruckdialog
   private JButton[] printElementButtons;
 
   /**
-   * Enthält das TextFeld, das die Summe aller Ausfertigungen anzeigt.
-   */
-  private JTextField allElementCountTextField;
-
-  /**
    * Die Checkbox zur Reihenfolge des Ausdrucks
    */
   private JCheckBox printOrder;
@@ -234,7 +207,8 @@ public class SachleitendeVerfuegungenDruckdialog
   private ActionListener dialogEndListener;
 
   /**
-   * Vector of Verfuegungspunkt, der die Beschreibungen der Verfügungspunkte enthält.
+   * Vector of Verfuegungspunkt, der die Beschreibungen der Verfügungspunkte
+   * enthält.
    */
   private List<Verfuegungspunkt> verfuegungspunkte;
 
@@ -245,7 +219,8 @@ public class SachleitendeVerfuegungenDruckdialog
   private List<VerfuegungspunktInfo> currentSettings;
 
   /**
-   * Enthält die Information ob die Methode printAll in auf- oder absteigender Reihenfolge drucken soll.
+   * Enthält die Information ob die Methode printAll in auf- oder absteigender
+   * Reihenfolge drucken soll.
    */
   private boolean printOrderAsc;
 
@@ -258,19 +233,18 @@ public class SachleitendeVerfuegungenDruckdialog
    * @param dialogEndListener
    *          falls nicht null, wird die
    *          {@link ActionListener#actionPerformed(java.awt.event.ActionEvent)}
-   *          Methode aufgerufen (im Event Dispatching Thread), nachdem der Dialog
-   *          geschlossen wurde. Das actionCommand des ActionEvents gibt die Aktion
-   *          an, die das Beenden des Dialogs veranlasst hat.
+   *          Methode aufgerufen (im Event Dispatching Thread), nachdem der
+   *          Dialog geschlossen wurde. Das actionCommand des ActionEvents gibt
+   *          die Aktion an, die das Beenden des Dialogs veranlasst hat.
    * @param verfuegungspunkte
-   *          Vector of Verfuegungspunkt, der die Beschreibungen der Verfügungspunkte
-   *          enthält.
+   *          Vector of Verfuegungspunkt, der die Beschreibungen der
+   *          Verfügungspunkte enthält.
    * @throws ConfigurationErrorException
    *           im Falle eines schwerwiegenden Konfigurationsfehlers, der es dem
    *           Dialog unmöglich macht, zu funktionieren (z.B. dass der "Fenster"
    *           Schlüssel fehlt.
    */
-  public SachleitendeVerfuegungenDruckdialog(ConfigThingy conf,
-      List<Verfuegungspunkt> verfuegungspunkte, ActionListener dialogEndListener)
+  public SachleitendeVerfuegungenDruckdialog(ConfigThingy conf, List<Verfuegungspunkt> verfuegungspunkte, ActionListener dialogEndListener)
   {
     this.verfuegungspunkte = verfuegungspunkte;
     this.dialogEndListener = dialogEndListener;
@@ -279,34 +253,26 @@ public class SachleitendeVerfuegungenDruckdialog
 
     ConfigThingy fensterDesc1 = conf.query("Fenster");
     if (fensterDesc1.count() == 0)
-      throw new ConfigurationErrorException(L.m("Schlüssel 'Fenster' fehlt in %1",
-        conf.getName()));
+      throw new ConfigurationErrorException(L.m("Schlüssel 'Fenster' fehlt in %1", conf.getName()));
 
     final ConfigThingy fensterDesc = fensterDesc1.query("Drucken");
     if (fensterDesc.count() == 0)
-      throw new ConfigurationErrorException(L.m("Schlüssel 'Drucken' fehlt in %1",
-        conf.getName()));
+      throw new ConfigurationErrorException(L.m("Schlüssel 'Drucken' fehlt in %1", conf.getName()));
 
     // GUI im Event-Dispatching Thread erzeugen wg. Thread-Safety.
     try
     {
-      javax.swing.SwingUtilities.invokeLater(new Runnable()
-      {
-        @Override
-        public void run()
+      javax.swing.SwingUtilities.invokeLater(() -> {
+        try
         {
-          try
-          {
-            createGUI(fensterDesc.getLastChild());
-          }
-          catch (Exception x)
-          {}
+          createGUI(fensterDesc.getLastChild());
+        } catch (Exception x)
+        {
         }
       });
-    }
-    catch (Exception x)
+    } catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
   }
 
@@ -326,8 +292,7 @@ public class SachleitendeVerfuegungenDruckdialog
 
     public final boolean isOriginal;
 
-    public VerfuegungspunktInfo(int verfPunktNr, short copyCount, boolean isDraft,
-        boolean isOriginal)
+    public VerfuegungspunktInfo(int verfPunktNr, short copyCount, boolean isDraft, boolean isOriginal)
     {
       this.verfPunktNr = verfPunktNr;
       this.copyCount = copyCount;
@@ -338,14 +303,17 @@ public class SachleitendeVerfuegungenDruckdialog
     @Override
     public String toString()
     {
-      return "VerfuegungspunktInfo(verfPunkt=" + verfPunktNr + ", copyCount="
-        + copyCount + ", isDraft=" + isDraft + ", isOriginal=" + isOriginal + ")";
+      return "VerfuegungspunktInfo(verfPunkt=" + verfPunktNr + ", copyCount=" + copyCount + ", isDraft=" + isDraft + ", isOriginal="
+          + isOriginal + ")";
     }
   }
 
   /**
-   * Liefert die aktuellen in diesem Dialog getroffenen Einstellung zur Reihenfolge des Ausdrucks.
-   * @return true falls in aufsteigender Reihenfloge gedruckt werden soll, false sonst.
+   * Liefert die aktuellen in diesem Dialog getroffenen Einstellung zur
+   * Reihenfolge des Ausdrucks.
+   * 
+   * @return true falls in aufsteigender Reihenfloge gedruckt werden soll, false
+   *         sonst.
    *
    * @author ulrich.kitzinger
    */
@@ -355,8 +323,8 @@ public class SachleitendeVerfuegungenDruckdialog
   }
 
   /**
-   * Liefert die aktuellen in diesem Dialog getroffenen Einstellungen als Liste von
-   * VerfuegungspunktInfo-Objekten zurück.
+   * Liefert die aktuellen in diesem Dialog getroffenen Einstellungen als Liste
+   * von VerfuegungspunktInfo-Objekten zurück.
    *
    * @author Christoph Lutz (D-III-ITD-5.1)
    */
@@ -386,7 +354,7 @@ public class SachleitendeVerfuegungenDruckdialog
     for (int i = 0; i < size; ++i)
     {
       Verfuegungspunkt verfPunkt = verfuegungspunkte.get(i);
-      Vector<String> zuleitungszeilen = verfPunkt.getZuleitungszeilen();
+      List<String> zuleitungszeilen = verfPunkt.getZuleitungszeilen();
 
       // elementComboBoxes vorbelegen:
       Vector<String> content = new Vector<>();
@@ -399,11 +367,10 @@ public class SachleitendeVerfuegungenDruckdialog
         String zuleitung = iter.next();
         content.add(cutContent(zuleitung));
       }
-      elementComboBoxes.add(new JComboBox<String>(content));
+      elementComboBoxes.add(new JComboBox<>(content));
 
       // elementCountComboBoxes vorbelegen:
-      SpinnerNumberModel model =
-        new SpinnerNumberModel(verfPunkt.getNumberOfCopies(), 0, 50, 1);
+      SpinnerNumberModel model = new SpinnerNumberModel(verfPunkt.getNumberOfCopies(), 0, 50, 1);
       elementCountSpinner[i] = new JSpinner(model);
 
       // printElementButtons vorbelegen:
@@ -414,16 +381,16 @@ public class SachleitendeVerfuegungenDruckdialog
     try
     {
       title = fensterDesc.get("TITLE").toString();
+    } catch (Exception x)
+    {
     }
-    catch (Exception x)
-    {}
 
     try
     {
       closeAction = getAction(fensterDesc.get("CLOSEACTION").toString());
+    } catch (Exception x)
+    {
     }
-    catch (Exception x)
-    {}
 
     // Create and set up the window.
     myFrame = new JFrame(title);
@@ -447,15 +414,12 @@ public class SachleitendeVerfuegungenDruckdialog
 
     for (int i = 0; i < size; i++)
     {
-      addUIElements(fensterDesc, L.m("Verfuegungspunkt"), i, i + 1 /* Headers */,
-        verfPunktPanel, 1, 0);
+      addUIElements(fensterDesc, L.m("Verfuegungspunkt"), i, i + 1 /* Headers */, verfPunktPanel, 1, 0);
     }
 
     // separator zwischen Verfügungspunkte und Summenzeile hinzufügen
-    GridBagConstraints gbcSeparator =
-      new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, 1, 1.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0,
-          0, 0), 0, 0);
+    GridBagConstraints gbcSeparator = new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, 1, 1.0, 0.0, GridBagConstraints.CENTER,
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0);
     JPanel uiElement = new JPanel(new GridLayout(1, 1));
     uiElement.add(new JSeparator(SwingConstants.HORIZONTAL));
     uiElement.setBorder(BorderFactory.createEmptyBorder(SEP_BORDER, 0, SEP_BORDER, 0));
@@ -463,9 +427,9 @@ public class SachleitendeVerfuegungenDruckdialog
     verfPunktPanel.add(uiElement, gbcSeparator);
 
     addUIElements(fensterDesc, "AllElements", 0,
-      size + 2 /* Headers und Separator */, verfPunktPanel, 1, 0);
+        size + 2 /* Headers und Separator */, verfPunktPanel, 1, 0);
     addUIElements(fensterDesc, "Reihenfolge", 0,
-      size + 4 /* Headers und Separator */, verfPunktPanel, 1, 0);
+        size + 4 /* Headers und Separator */, verfPunktPanel, 1, 0);
     addUIElements(fensterDesc, "Buttons", 0, 0, buttons, 1, 0);
 
     myFrame.pack();
@@ -482,8 +446,9 @@ public class SachleitendeVerfuegungenDruckdialog
   }
 
   /**
-   * Wenn value mehr als CONTENT_CUT Zeichen besitzt, dann wird eine gekürzte Form
-   * von value zurückgeliefert (mit "..." ergänzt) oder ansonsten value selbst.
+   * Wenn value mehr als CONTENT_CUT Zeichen besitzt, dann wird eine gekürzte
+   * Form von value zurückgeliefert (mit "..." ergänzt) oder ansonsten value
+   * selbst.
    *
    * @param value
    *          der zu kürzende String
@@ -499,47 +464,27 @@ public class SachleitendeVerfuegungenDruckdialog
   }
 
   /**
-   * Fügt compo UI Elemente gemäss den Kindern von conf.query(key) hinzu. compo muss
-   * ein GridBagLayout haben. stepx und stepy geben an um wieviel mit jedem UI
-   * Element die x und die y Koordinate der Zelle erhöht werden soll. Wirklich
-   * sinnvoll sind hier nur (0,1) und (1,0).
+   * Fügt compo UI Elemente gemäss den Kindern von conf.query(key) hinzu. compo
+   * muss ein GridBagLayout haben. stepx und stepy geben an um wieviel mit jedem
+   * UI Element die x und die y Koordinate der Zelle erhöht werden soll.
+   * Wirklich sinnvoll sind hier nur (0,1) und (1,0).
    */
-  private void addUIElements(ConfigThingy conf, String key, int verfPunktNr,
-      int yOffset, JComponent compo, int stepx, int stepy)
+  private void addUIElements(ConfigThingy conf, String key, int verfPunktNr, int yOffset, JComponent compo, int stepx, int stepy)
   {
-    // int gridx, int gridy, int gridwidth, int gridheight, double weightx,
-    // double weighty, int anchor, int fill, Insets insets, int ipadx, int
-    // ipady)
-    // GridBagConstraints gbcTextfield = new GridBagConstraints(0, 0, 1, 1, 1.0,
-    // 0.0, GridBagConstraints.LINE_START, GridBagConstraints.HORIZONTAL, new
-    // Insets(TF_BORDER,TF_BORDER,TF_BORDER,TF_BORDER),0,0);
-    GridBagConstraints gbcLabel =
-      new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
-        GridBagConstraints.NONE, new Insets(TF_BORDER, TF_BORDER, TF_BORDER,
-          TF_BORDER), 0, 0);
-    GridBagConstraints gbcGlue =
-      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
-        GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
-    GridBagConstraints gbcButton =
-      new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
-        GridBagConstraints.NONE, new Insets(BUTTON_BORDER, BUTTON_BORDER,
-          BUTTON_BORDER, BUTTON_BORDER), 0, 0);
-    GridBagConstraints gbcComboBox =
-      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-        GridBagConstraints.BOTH, new Insets(TF_BORDER, TF_BORDER, TF_BORDER,
-          TF_BORDER), 0, 0);
-    GridBagConstraints gbcTextField =
-      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-        GridBagConstraints.BOTH, new Insets(TF_BORDER, TF_BORDER, TF_BORDER,
-          TF_BORDER), 0, 0);
-    GridBagConstraints gbcSpinner =
-      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-        GridBagConstraints.BOTH, new Insets(TF_BORDER, TF_BORDER, TF_BORDER,
-          TF_BORDER), 0, 0);
-    GridBagConstraints gbcCheckBox =
-      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-        GridBagConstraints.BOTH, new Insets(TF_BORDER, TF_BORDER, TF_BORDER,
-          TF_BORDER), 0, 0);
+    GridBagConstraints gbcLabel = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START, GridBagConstraints.NONE,
+        new Insets(TF_BORDER, TF_BORDER, TF_BORDER, TF_BORDER), 0, 0);
+    GridBagConstraints gbcGlue = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START, GridBagConstraints.BOTH,
+        new Insets(0, 0, 0, 0), 0, 0);
+    GridBagConstraints gbcButton = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START, GridBagConstraints.NONE,
+        new Insets(BUTTON_BORDER, BUTTON_BORDER, BUTTON_BORDER, BUTTON_BORDER), 0, 0);
+    GridBagConstraints gbcComboBox = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(TF_BORDER, TF_BORDER, TF_BORDER, TF_BORDER), 0, 0);
+    GridBagConstraints gbcTextField = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(TF_BORDER, TF_BORDER, TF_BORDER, TF_BORDER), 0, 0);
+    GridBagConstraints gbcSpinner = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(TF_BORDER, TF_BORDER, TF_BORDER, TF_BORDER), 0, 0);
+    GridBagConstraints gbcCheckBox = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(TF_BORDER, TF_BORDER, TF_BORDER, TF_BORDER), 0, 0);
 
     ConfigThingy felderParent = conf.query(key);
     int y = -stepy + yOffset;
@@ -559,8 +504,8 @@ public class SachleitendeVerfuegungenDruckdialog
         {
           /*
            * ACHTUNG! DER FOLGENDE CODE SOLLTE SO GESCHRIEBEN WERDEN, DASS DER
-           * ZUSTAND AUCH IM FALLE EINES GESCHEITERTEN GET() UND EINER EVTL. DARAUS
-           * RESULTIERENDEN NULLPOINTEREXCEPTION NOCH KONSISTENT IST!
+           * ZUSTAND AUCH IM FALLE EINES GESCHEITERTEN GET() UND EINER EVTL.
+           * DARAUS RESULTIERENDEN NULLPOINTEREXCEPTION NOCH KONSISTENT IST!
            */
 
           // boolean readonly = false;
@@ -568,9 +513,9 @@ public class SachleitendeVerfuegungenDruckdialog
           try
           {
             id = uiElementDesc.get("ID").toString();
+          } catch (NodeNotFoundException e)
+          {
           }
-          catch (NodeNotFoundException e)
-          {}
           // try{ if (uiElementDesc.get("READONLY").toString().equals("true"))
           // readonly = true; }catch(NodeNotFoundException e){}
           String type = uiElementDesc.get("TYPE").toString();
@@ -582,17 +527,23 @@ public class SachleitendeVerfuegungenDruckdialog
             gbcLabel.gridy = y;
             String labelText = uiElementDesc.get("LABEL").toString();
             uiElement.setText(labelText);
-            // FIXME: Hier werden alle Labels mit dem Text 'Seiten' rausgefiltert,
+            // FIXME: Hier werden alle Labels mit dem Text 'Seiten'
+            // rausgefiltert,
             // damit auch bei einer nicht aktualisierten Standard-Config ein
-            // sinnvoller Dialog angezeigt wird. Früher konnte über diesen Dialog
+            // sinnvoller Dialog angezeigt wird. Früher konnte über diesen
+            // Dialog
             // noch der Seitenbereich eingestellt werden konnte. Passend dazu
             // existierte in alten Standard-Configs noch die Spaltenüberschrift
             // "Seiten". Seit der Existent der Druckfunktion 'Gesamtdokument
-            // erstellen' gibt es jedoch keinen Sinn mehr, den Seitenbereich über
-            // diesen Dialog zu steuern. Die Möglichkeit zur Einstellung ist daher
+            // erstellen' gibt es jedoch keinen Sinn mehr, den Seitenbereich
+            // über
+            // diesen Dialog zu steuern. Die Möglichkeit zur Einstellung ist
+            // daher
             // aus dem Dialog entfernt worden, die notwendigen Änderungen der
-            // Standardkonfig machen aber die Referate, worauf wir keine Einfluss
-            // haben. AUFGABE: ab März 2009 (ein Jahr nach der Änderung) sollten alle
+            // Standardkonfig machen aber die Referate, worauf wir keine
+            // Einfluss
+            // haben. AUFGABE: ab März 2009 (ein Jahr nach der Änderung) sollten
+            // alle
             // Referate die entsprechend angepasste Standard-Config installiert
             // haben. Dann muss dieses 'if' wieder aus dem Code rausfliegen!!!
             if (!"Seiten".equals(labelText))
@@ -604,12 +555,11 @@ public class SachleitendeVerfuegungenDruckdialog
             Box uiElement = Box.createHorizontalBox();
             try
             {
-              int minsize =
-                Integer.parseInt(uiElementDesc.get("MINSIZE").toString());
+              int minsize = Integer.parseInt(uiElementDesc.get("MINSIZE").toString());
               uiElement.add(Box.createHorizontalStrut(minsize));
+            } catch (Exception e)
+            {
             }
-            catch (Exception e)
-            {}
             uiElement.add(Box.createHorizontalGlue());
 
             gbcGlue.gridx = x;
@@ -620,8 +570,7 @@ public class SachleitendeVerfuegungenDruckdialog
           else if (type.equals("spinner"))
           {
             JSpinner spinner;
-            if (id.equals("elementCount")
-              && verfPunktNr < elementCountSpinner.length)
+            if (id.equals("elementCount") && verfPunktNr < elementCountSpinner.length)
               spinner = elementCountSpinner[verfPunktNr];
             else
               spinner = new JSpinner(new SpinnerNumberModel(0, 0, 0, 0));
@@ -665,8 +614,7 @@ public class SachleitendeVerfuegungenDruckdialog
             if (id.equals("printOrder"))
             {
               checkBox = printOrder;
-            }
-            else
+            } else
             {
               checkBox = new JCheckBox();
             }
@@ -679,7 +627,6 @@ public class SachleitendeVerfuegungenDruckdialog
             compo.add(checkBox, gbcCheckBox);
           }
 
-
           else if (type.equals("textfield"))
           {
             JTextField textField;
@@ -689,8 +636,7 @@ public class SachleitendeVerfuegungenDruckdialog
               textField.setEditable(false);
               textField.setHorizontalAlignment(SwingConstants.CENTER);
               allElementCountTextField = textField;
-            }
-            else
+            } else
               textField = new JTextField();
 
             gbcTextField.gridx = x;
@@ -704,9 +650,9 @@ public class SachleitendeVerfuegungenDruckdialog
             try
             {
               action = uiElementDesc.get("ACTION").toString();
+            } catch (NodeNotFoundException e)
+            {
             }
-            catch (NodeNotFoundException e)
-            {}
 
             String label = uiElementDesc.get("LABEL").toString();
 
@@ -714,21 +660,19 @@ public class SachleitendeVerfuegungenDruckdialog
             try
             {
               hotkey = uiElementDesc.get("HOTKEY").toString().charAt(0);
+            } catch (Exception e)
+            {
             }
-            catch (Exception e)
-            {}
 
             // Bei printElement-Actions die vordefinierten Buttons verwenden,
             // ansonsten einen neuen erzeugen.
             JButton button;
 
-            if (action.equalsIgnoreCase("printElement") && verfPunktNr >= 0
-              && verfPunktNr < printElementButtons.length)
+            if (action.equalsIgnoreCase("printElement") && verfPunktNr >= 0 && verfPunktNr < printElementButtons.length)
             {
               button = printElementButtons[verfPunktNr];
               button.setText(label);
-            }
-            else
+            } else
               button = new JButton(label);
 
             button.setMnemonic(hotkey);
@@ -741,16 +685,13 @@ public class SachleitendeVerfuegungenDruckdialog
             if (actionL != null)
               button.addActionListener(actionL);
 
-          }
-          else
+          } else
           {
-            Logger.error(L.m("Ununterstützter TYPE für User Interface Element: %1",
-              type));
+            LOGGER.error(L.m("Ununterstützter TYPE für User Interface Element: %1", type));
           }
-        }
-        catch (NodeNotFoundException e)
+        } catch (NodeNotFoundException e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
       }
     }
@@ -764,7 +705,7 @@ public class SachleitendeVerfuegungenDruckdialog
     int count = 0;
     for (int i = 0; i < elementCountSpinner.length; i++)
     {
-      count += new Integer(elementCountSpinner[i].getValue().toString()).intValue();
+      count += Integer.parseInt(elementCountSpinner[i].getValue().toString());
     }
     return count;
   }
@@ -783,39 +724,40 @@ public class SachleitendeVerfuegungenDruckdialog
     }
     if (action.equals("back"))
     {
-      // diese Aktion wird nicht mehr unterstützt, verhält sich aber aus Gründen der
+      // diese Aktion wird nicht mehr unterstützt, verhält sich aber aus Gründen
+      // der
       // Abwärtskompatibilität wie abort.
       return actionListenerAbort;
-    }
-    else if (action.equals("printElement"))
+    } else if (action.equals("printElement"))
     {
       return actionListenerPrintElement;
-    }
-    else if (action.equals("printAll"))
+    } else if (action.equals("printAll"))
     {
       return actionListenerPrintAll;
-    }
-    else if (action.equals("printSettings"))
+    } else if (action.equals("printSettings"))
     {
-      // FIXME: diese Aktion wird nicht mehr unterstützt, darf aber aus Gründen der
-      // Abwärtskompatibilität nicht zu einem Fehler führen. Diese Aktion kann aber
-      // nach einem Jahr, also ab März 2009 ebenfalls entfernt werden, da bis dahin
+      // FIXME: diese Aktion wird nicht mehr unterstützt, darf aber aus Gründen
+      // der
+      // Abwärtskompatibilität nicht zu einem Fehler führen. Diese Aktion kann
+      // aber
+      // nach einem Jahr, also ab März 2009 ebenfalls entfernt werden, da bis
+      // dahin
       // die entsprechende Standard-config hoffentlich überall im Einsatz ist.
       return null;
-    }
-    else if (action.isEmpty())
+    } else if (action.isEmpty())
     {
       return null;
+    } else
+    {
+      LOGGER.error(L.m("Ununterstützte ACTION: %1", action));
     }
-    else
-      Logger.error(L.m("Ununterstützte ACTION: %1", action));
 
     return null;
   }
 
   /**
-   * Beendet den Dialog und informiert den dialogEndListener (wenn dieser != null
-   * ist).
+   * Beendet den Dialog und informiert den dialogEndListener (wenn dieser !=
+   * null ist).
    *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
@@ -827,12 +769,16 @@ public class SachleitendeVerfuegungenDruckdialog
   }
 
   /**
-   * Ermittelt ob in aufsteigender oder absteigender Reihenfolge gedruckt werden soll.
-   * @return true falls in aufsteigender Reihenfolge gedruckt werden soll, false sonst
+   * Ermittelt ob in aufsteigender oder absteigender Reihenfolge gedruckt werden
+   * soll.
+   * 
+   * @return true falls in aufsteigender Reihenfolge gedruckt werden soll, false
+   *         sonst
    *
    * @author ulrich.kitzinger
    */
-  private boolean getSelectedPrintOrderAsc(){
+  private boolean getSelectedPrintOrderAsc()
+  {
     return !printOrder.isSelected();
   }
 
@@ -852,8 +798,9 @@ public class SachleitendeVerfuegungenDruckdialog
   }
 
   /**
-   * Bestimmt die Nummer des Verfügungspunktes, dem JButton button zugeordnet ist und
-   * schreibt dessen VerfuegungspunktInfo als einziges Element nach currentSettings.
+   * Bestimmt die Nummer des Verfügungspunktes, dem JButton button zugeordnet
+   * ist und schreibt dessen VerfuegungspunktInfo als einziges Element nach
+   * currentSettings.
    *
    * @author christoph.lutz
    */
@@ -882,12 +829,10 @@ public class SachleitendeVerfuegungenDruckdialog
     short numberOfCopies = 0;
     try
     {
-      numberOfCopies =
-        new Short(elementCountSpinner[verfPunkt - 1].getValue().toString()).shortValue();
-    }
-    catch (Exception e)
+      numberOfCopies = Short.parseShort(elementCountSpinner[verfPunkt - 1].getValue().toString());
+    } catch (Exception e)
     {
-      Logger.error(L.m("Kann Anzahl der Ausfertigungen nicht bestimmen."), e);
+      LOGGER.error(L.m("Kann Anzahl der Ausfertigungen nicht bestimmen."), e);
     }
 
     boolean isDraft = (verfPunkt == verfuegungspunkte.size());
@@ -897,57 +842,17 @@ public class SachleitendeVerfuegungenDruckdialog
   }
 
   /**
-   * Ein WindowListener, der auf den JFrame registriert wird, damit als Reaktion auf
-   * den Schliessen-Knopf auch die ACTION "abort" ausgeführt wird.
+   * Ein WindowListener, der auf den JFrame registriert wird, damit als Reaktion
+   * auf den Schliessen-Knopf auch die ACTION "abort" ausgeführt wird.
    *
    * @author Matthias Benkmann (D-III-ITD 5.1)
    */
-  private class MyWindowListener implements WindowListener
+  private class MyWindowListener extends WindowAdapter
   {
-    public MyWindowListener()
-    {}
-
-    @Override
-    public void windowActivated(WindowEvent e)
-    {}
-
-    @Override
-    public void windowClosed(WindowEvent e)
-    {}
-
     @Override
     public void windowClosing(WindowEvent e)
     {
       closeAction.actionPerformed(null);
     }
-
-    @Override
-    public void windowDeactivated(WindowEvent e)
-    {}
-
-    @Override
-    public void windowDeiconified(WindowEvent e)
-    {}
-
-    @Override
-    public void windowIconified(WindowEvent e)
-    {}
-
-    @Override
-    public void windowOpened(WindowEvent e)
-    {}
-  }
-
-  public static void main(String[] args) throws Exception
-  {
-    UNO.init();
-    WollMuxSingleton.initialize(UNO.defaultContext);
-    List<VerfuegungspunktInfo> info =
-      SachleitendeVerfuegung.callPrintDialog(UNO.XTextDocument(UNO.desktop.getCurrentComponent()));
-    for (VerfuegungspunktInfo v : info)
-    {
-      System.out.println(v);
-    }
-    System.exit(0);
   }
 }

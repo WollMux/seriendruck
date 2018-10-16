@@ -40,6 +40,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.star.beans.NamedValue;
 import com.sun.star.beans.PropertyValue;
@@ -86,7 +88,6 @@ import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommand;
 import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommand.InsertFormValue;
 import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommands;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.ModalDialogs;
 import de.muenchen.mailmerge.SachleitendeVerfuegung;
 import de.muenchen.mailmerge.dialog.mailmerge.MailMergeControllerImpl;
@@ -95,6 +96,9 @@ import de.muenchen.mailmerge.print.model.PrintModels;
 
 public class OOoBasedMailMerge
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(OOoBasedMailMerge.class);
+
   private static final String SEP = ":";
 
   private static final String COLUMN_PREFIX_SINGLE_PARAMETER_FUNCTION = "WM:SP";
@@ -143,7 +147,7 @@ public class OOoBasedMailMerge
     // unterstützt wird. Falls nicht, falle zurück auf OutputType.toFile.
     if (type == OutputType.toShell && type.getUNOMailMergeType() == null)
     {
-      Logger.debug(L.m("Die aktuelle Office-Version unterstützt MailMergeType.SHELL nicht. Verwende MailMergeType.FILE stattdessen"));
+      LOGGER.debug(L.m("Die aktuelle Office-Version unterstützt MailMergeType.SHELL nicht. Verwende MailMergeType.FILE stattdessen"));
       type = OutputType.toFile;
     }
 
@@ -163,7 +167,7 @@ public class OOoBasedMailMerge
     File inputFile =
       createAndAdjustInputFile(tmpDir, pmod.getTextDocument(), dbName);
 
-    Logger.debug(L.m("Temporäre Datenquelle: %1", dbName));
+    LOGGER.debug(L.m("Temporäre Datenquelle: %1", dbName));
 
     if (pmod.isCanceled())
       return;
@@ -186,7 +190,7 @@ public class OOoBasedMailMerge
       }
       catch (Exception e)
       {
-        Logger.error(L.m("Fehler beim Starten des OOo-Seriendrucks"), e);
+        LOGGER.error(L.m("Fehler beim Starten des OOo-Seriendrucks"), e);
       }
 
       // Warte auf Ende des MailMerge-Threads unter Berücksichtigung von
@@ -209,7 +213,7 @@ public class OOoBasedMailMerge
       if (pmod.isCanceled() && thread.isAlive())
       {
         thread.interrupt();
-        Logger.debug(L.m("Der OOo-Seriendruck wurde abgebrochen"));
+        LOGGER.debug(L.m("Der OOo-Seriendruck wurde abgebrochen"));
         // aber aufräumen tun wir noch...
       }
 
@@ -227,9 +231,7 @@ public class OOoBasedMailMerge
     if (type == OutputType.toFile)
     {
       openFinishedFile(tmpDir);
-    }
-
-    else if (type == OutputType.toShell)
+    } else if (type == OutputType.toShell)
     {
       showFinishedDocument(result);
     }
@@ -264,12 +266,12 @@ public class OOoBasedMailMerge
       {
         String unoURL =
           UNO.getParsedUNOUrl(outputFile.toURI().toString()).Complete;
-        Logger.debug(L.m("Öffne erzeugtes Gesamtdokument %1", unoURL));
+        LOGGER.debug(L.m("Öffne erzeugtes Gesamtdokument %1", unoURL));
         UNO.loadComponentFromURL(unoURL, true, false);
       }
       catch (Exception e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     else
     {
@@ -292,15 +294,7 @@ public class OOoBasedMailMerge
     }
     catch (Exception e)
     {
-      if (ds.getDataSourceWriter().isAdjustMainDoc())
-      {
-        PersistentDataContainer lCont =
-          DocumentManager.createPersistentDataContainer(pmod.getTextDocument());
-        lCont.removeData(PersistentDataContainer.DataID.FORMULARWERTE);
-        Logger.debug(L.m("Formularwerte wurden aus %1 gelöscht.",
-          pmod.getTextDocument().getURL()));
-      }
-      Logger.error(
+      LOGGER.error(
         L.m("OOo-Based-MailMerge: kann Simulationsdatenquelle nicht erzeugen!"), e);
       return null;
     }
@@ -361,7 +355,7 @@ public class OOoBasedMailMerge
       }
       catch (IOException e)
       {
-        Logger.error(
+        LOGGER.error(
           L.m("Kann temporäres Eingabedokument für den OOo-Seriendruck nicht erzeugen"),
           e);
         return null;
@@ -379,7 +373,7 @@ public class OOoBasedMailMerge
     }
     catch (InterruptedException e2)
     {
-      Logger.error(e2);
+      LOGGER.error("", e2);
     }
 
     // Neues input-Dokument öffnen. Achtung: Normalerweise würde der
@@ -482,11 +476,12 @@ public class OOoBasedMailMerge
           }
 
           String condition = StringUtils.join(conditions, " or ");
+          ps.setPropertyValue("IsVisible", false);
           ps.setPropertyValue("Condition", condition);
         }
         catch (Exception e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
       }
     }
@@ -541,7 +536,7 @@ public class OOoBasedMailMerge
         }
         catch (Exception e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
 
         if (bookmark != null)
@@ -551,7 +546,7 @@ public class OOoBasedMailMerge
           }
           catch (NoSuchElementException e1)
           {
-            Logger.error(e1);
+            LOGGER.error("", e1);
           }
       }
     }
@@ -601,7 +596,7 @@ public class OOoBasedMailMerge
         }
         catch (Exception e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
       }
     }
@@ -697,7 +692,7 @@ public class OOoBasedMailMerge
             }
             catch (Exception e)
             {
-              Logger.error(e);
+              LOGGER.error("", e);
             }
           }
         }
@@ -779,7 +774,7 @@ public class OOoBasedMailMerge
       }
       catch (Exception e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     new File(tmpDir, DATASOURCE_ODB_FILENAME).delete();
   }
@@ -813,7 +808,7 @@ public class OOoBasedMailMerge
       }
       catch (Exception e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
 
     return name;
@@ -866,7 +861,7 @@ public class OOoBasedMailMerge
         }
         catch (Exception e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
       }
       return null;
@@ -916,11 +911,11 @@ public class OOoBasedMailMerge
         if (progress != null)
           progress.incrementProgress();
         count++;
-        Logger.debug2(L.m("OOo-MailMerger: verarbeite Datensatz %1 (%2 ms)", count,
+        LOGGER.trace(L.m("OOo-MailMerger: verarbeite Datensatz %1 (%2 ms)", count,
           (System.currentTimeMillis() - start)));
         if (count >= progress.maxDatasets && type == OutputType.toPrinter)
         {
-          progress.setMessage(L.m("Sende Druckauftrag - bitte warten..."));
+          progress.setMessage(L.m("Sende Druckauftrag - bitte warten... (Dies kann einige Minuten dauern)"));
         }
       }
     });
@@ -955,7 +950,7 @@ public class OOoBasedMailMerge
         printOpts[0] = new PropertyValue();
         printOpts[0].Name = "PrinterName";
         printOpts[0].Value = printerName;
-        Logger.debug(L.m("Seriendruck - Setze Drucker: %1", printerName));
+        LOGGER.debug(L.m("Seriendruck - Setze Drucker: %1", printerName));
         mmProps.add(new NamedValue("PrintOptions", printOpts));
       }
       // jgm ende

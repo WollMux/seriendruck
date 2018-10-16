@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.lang.XComponent;
@@ -45,15 +48,17 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.parser.SyntaxErrorException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
+import de.muenchen.mailmerge.MailMergeFiles;
 import de.muenchen.mailmerge.SachleitendeVerfuegung;
-import de.muenchen.mailmerge.WollMuxFiles;
 import de.muenchen.mailmerge.db.DatasourceJoinerFactory;
 import de.muenchen.mailmerge.dialog.DialogFactory;
 import de.muenchen.mailmerge.func.FunctionFactory;
 
 public class TextDocumentController
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TextDocumentController.class);
+
   private TextDocumentModel model;
 
   /**
@@ -223,9 +228,7 @@ public class TextDocumentController
       }
       catch (NodeNotFoundException e)
       {}
-      dialogLib =
-        DialogFactory.parseFunctionDialogs(formConf,
-          globalDialogs, functionContext);
+      dialogLib = DialogFactory.parseFunctionDialogs(formConf, globalDialogs);
     }
     return dialogLib;
   }
@@ -264,8 +267,7 @@ public class TextDocumentController
   public synchronized ConfigThingy getFormDescription()
   {
     ConfigThingy formDescription = model.getFormDescription();
-    applyFormularanpassung(formDescription);
-    return formDescription;
+    return applyFormularanpassung(formDescription);
   }
 
   /**
@@ -285,7 +287,7 @@ public class TextDocumentController
   private ConfigThingy applyFormularanpassung(ConfigThingy formularConf)
   {
     ConfigThingy anpassungen =
-        WollMuxFiles.getWollmuxConf().query("Formularanpassung", 1);
+        MailMergeFiles.getWollmuxConf().query("Formularanpassung", 1);
     if (anpassungen.count() == 0)
       return formularConf;
 
@@ -440,7 +442,7 @@ public class TextDocumentController
     }
     catch (java.lang.Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 
@@ -480,7 +482,7 @@ public class TextDocumentController
 
             if (func == null)
             {
-              Logger.error(L.m(
+              LOGGER.error(L.m(
                 "Die im Formularfeld verwendete Funktion '%1' ist nicht definiert.",
                 funcName));
               continue;
@@ -519,13 +521,13 @@ public class TextDocumentController
         }
         catch (Exception x)
         {
-          Logger.error(x);
+          LOGGER.error("", x);
         }
       }
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
   }
 
@@ -603,7 +605,7 @@ public class TextDocumentController
   {
     try
     {
-      if (!WollMuxFiles.isDebugMode() && UNO.XModel(model.doc) != null)
+      if (!MailMergeFiles.isDebugMode() && UNO.XModel(model.doc) != null)
       {
         if (lock)
           UNO.XModel(model.doc).lockControllers();
@@ -742,7 +744,7 @@ public class TextDocumentController
       else
       {
         transformed = L.m("<FEHLER: TRAFO '%1' nicht definiert>", trafoName);
-        Logger.error(L.m("Die TRAFO '%1' ist nicht definiert.", trafoName));
+        LOGGER.error(L.m("Die TRAFO '%1' ist nicht definiert.", trafoName));
       }
     }
     return transformed;
@@ -779,7 +781,7 @@ public class TextDocumentController
     }
     else
     {
-      Logger.error(L.m("Die TRAFO '%1' ist nicht definiert.", trafoName));
+      LOGGER.error(L.m("Die TRAFO '%1' ist nicht definiert.", trafoName));
       return L.m("<FEHLER: TRAFO '%1' nicht definiert>", trafoName);
     }
   }
@@ -870,7 +872,7 @@ public class TextDocumentController
           }
           catch (NumberFormatException e)
           {
-            Logger.error(L.m(
+            LOGGER.error(L.m(
               "Fehler in Dokumentkommando '%1': Die Farbe HIGHLIGHT_COLOR mit dem Wert '%2' ist ungültig.",
               "" + cmd, highlightColor));
           }
@@ -969,7 +971,7 @@ public class TextDocumentController
             // 1-zu-1 Zuordnung: Hier kann substitueFieldID verwendet werden
             f.substituteFieldID(fieldId, newFieldId);
           else
-            Logger.error(L.m("Kann transformiertes Feld nur durch eine 1-zu-1 Zuordnung ersetzen."));
+            LOGGER.error(L.m("Kann transformiertes Feld nur durch eine 1-zu-1 Zuordnung ersetzen."));
         }
         else
         {
@@ -1021,7 +1023,7 @@ public class TextDocumentController
             // werden, dafür kann aber die Trafo angepasst werden.
             substituteFieldIdInTrafo(f.getTrafoName(), fieldId, newFieldId);
           else
-            Logger.error(L.m("Kann transformiertes Feld nur durch eine 1-zu-1 Zuordnung ersetzen."));
+            LOGGER.error(L.m("Kann transformiertes Feld nur durch eine 1-zu-1 Zuordnung ersetzen."));
         }
         else
         {
@@ -1117,7 +1119,7 @@ public class TextDocumentController
     }
     catch (java.lang.Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 
@@ -1155,7 +1157,7 @@ public class TextDocumentController
     }
     catch (java.lang.Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 
@@ -1296,7 +1298,7 @@ public class TextDocumentController
     }
     catch (java.lang.Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 
@@ -1544,7 +1546,7 @@ public class TextDocumentController
         }
         catch (java.lang.Exception e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
       }
     }
@@ -1656,7 +1658,7 @@ public class TextDocumentController
     }
     catch (NodeNotFoundException e)
     {
-      Logger.error(L.m("Dies kann nicht passieren."), e);
+      LOGGER.error(L.m("Dies kann nicht passieren."), e);
     }
   }
 
@@ -1704,12 +1706,12 @@ public class TextDocumentController
       {
         // sollte eigentlich nicht auftreten, da die alte Trafo ja auch schon
         // einmal erfolgreich geparsed werden konnte.
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     }
     catch (NodeNotFoundException e)
     {
-      Logger.error(L.m(
+      LOGGER.error(L.m(
         "Die trafo '%1' ist nicht in diesem Dokument definiert und kann daher nicht verändert werden.",
         trafoName));
     }
@@ -1773,7 +1775,7 @@ public class TextDocumentController
       }
       catch (java.lang.Exception e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
   }
 
@@ -1905,7 +1907,7 @@ public class TextDocumentController
     }
     catch (ConfigurationErrorException e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
       return null;
     }
   }
@@ -1968,7 +1970,7 @@ public class TextDocumentController
       }
       catch (java.lang.Exception e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     }
     return null;
@@ -2003,7 +2005,7 @@ public class TextDocumentController
       }
       catch (NodeNotFoundException x)
       {
-        Logger.error(L.m(
+        LOGGER.error(L.m(
           "FRAG_ID Angabe fehlt in einem Eintrag der %1: %2\nVielleicht haben Sie die Klammern um (FRAG_ID 'A' NEW_FRAG_ID 'B') vergessen?",
           TextDocumentModel.OVERRIDE_FRAG_DB_SPALTE, conf.stringRepresentation()));
         continue;
@@ -2025,7 +2027,7 @@ public class TextDocumentController
       }
       catch (OverrideFragChainException x)
       {
-        Logger.error(L.m("Fehlerhafte Angabe in %1: %2",
+        LOGGER.error(L.m("Fehlerhafte Angabe in %1: %2",
           TextDocumentModel.OVERRIDE_FRAG_DB_SPALTE, conf.stringRepresentation()), x);
       }
     }
@@ -2044,7 +2046,7 @@ public class TextDocumentController
 
     String overrideFragDbSpalte = null;
     ConfigThingy overrideFragDbSpalteConf =
-      WollMuxFiles.getWollmuxConf().query(TextDocumentModel.OVERRIDE_FRAG_DB_SPALTE, 1);
+      MailMergeFiles.getWollmuxConf().query(TextDocumentModel.OVERRIDE_FRAG_DB_SPALTE, 1);
     try
     {
       overrideFragDbSpalte = overrideFragDbSpalteConf.getLastChild().toString();
@@ -2067,22 +2069,22 @@ public class TextDocumentController
       }
       catch (de.muenchen.allg.itd51.wollmux.core.db.DatasetNotFoundException e)
       {
-        Logger.log(L.m("Kein Absender ausgewählt => %1 bleibt wirkungslos",
+        LOGGER.info(L.m("Kein Absender ausgewählt => %1 bleibt wirkungslos",
           TextDocumentModel.OVERRIDE_FRAG_DB_SPALTE));
       }
       catch (ColumnNotFoundException e)
       {
-        Logger.error(L.m("%2 spezifiziert Spalte '%1', die nicht vorhanden ist",
+        LOGGER.error(L.m("%2 spezifiziert Spalte '%1', die nicht vorhanden ist",
           overrideFragDbSpalte, TextDocumentModel.OVERRIDE_FRAG_DB_SPALTE), e);
       }
       catch (IOException x)
       {
-        Logger.error(L.m("Fehler beim Parsen der %2 '%1'", overrideFragDbSpalte,
+        LOGGER.error(L.m("Fehler beim Parsen der %2 '%1'", overrideFragDbSpalte,
           TextDocumentModel.OVERRIDE_FRAG_DB_SPALTE), x);
       }
       catch (SyntaxErrorException x)
       {
-        Logger.error(L.m("Fehler beim Parsen der %2 '%1'", overrideFragDbSpalte,
+        LOGGER.error(L.m("Fehler beim Parsen der %2 '%1'", overrideFragDbSpalte,
           TextDocumentModel.OVERRIDE_FRAG_DB_SPALTE), x);
       }
     }

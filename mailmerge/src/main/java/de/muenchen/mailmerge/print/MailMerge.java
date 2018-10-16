@@ -40,8 +40,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -58,6 +60,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.sdb.CommandType;
@@ -78,11 +83,13 @@ import de.muenchen.allg.itd51.wollmux.core.db.QueryResults;
 import de.muenchen.allg.itd51.wollmux.core.db.TimeoutException;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.dialog.mailmerge.MailMergeProgressWindow;
 
 public class MailMerge
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MailMerge.class);
+
   /**
    * Anzahl Millisekunden, die maximal gewartet wird, bis alle Datensätze für den
    * Serienbrief aus der Datenbank gelesen wurden.
@@ -112,7 +119,7 @@ public class MailMerge
     }
     catch (Exception x)
     {
-      Logger.error(L.m("Kann DocumentSettings nicht auslesen"), x);
+      LOGGER.error(L.m("Kann DocumentSettings nicht auslesen"), x);
       return;
     }
 
@@ -121,8 +128,7 @@ public class MailMerge
     String table = (String) UNO.getProperty(settings, "CurrentDatabaseCommand");
     Integer type = (Integer) UNO.getProperty(settings, "CurrentDatabaseCommandType");
 
-    Logger.debug("Ausgewählte Datenquelle: \"" + datasource
-      + "\"  Tabelle/Kommando: \"" + table + "\"  Typ: \"" + type + "\"");
+    LOGGER.debug("Ausgewählte Datenquelle: \"{}\"  Tabelle/Kommando: \"{}\"  Typ: \"{}\"", datasource, table, type);
 
     mailMerge(pmod, datasource, table, type, offerSelection);
   }
@@ -168,7 +174,7 @@ public class MailMerge
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
       return;
     }
 
@@ -180,7 +186,7 @@ public class MailMerge
     }
     catch (TimeoutException e)
     {
-      Logger.error(
+      LOGGER.error(
         L.m("Konnte Daten für Serienbrief nicht aus der Datenquelle auslesen"), e);
       return;
     }
@@ -203,7 +209,7 @@ public class MailMerge
   static void mailMerge(XPrintModel pmod, boolean offerSelection,
       Set<String> schema, QueryResults data)
   {
-    Vector<ListElement> list = new Vector<>();
+    List<ListElement> list = new ArrayList<>();
     int index = 1;
     for (Dataset dataset : data)
     {
@@ -242,7 +248,7 @@ public class MailMerge
         }
         catch (Exception e)
         {
-          Logger.error(
+          LOGGER.error(
             L.m("Spalte \"%1\" fehlt unerklärlicherweise => Abbruch des Drucks",
               column), e);
           return;
@@ -267,7 +273,7 @@ public class MailMerge
    * @return true, gdw der Benutzer mit Okay bestätigt hat.
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
-  private static boolean selectFromListDialog(final Vector<ListElement> list)
+  private static boolean selectFromListDialog(final List<ListElement> list)
   {
     final boolean[] result = new boolean[] {
       false, false };
@@ -285,7 +291,7 @@ public class MailMerge
           }
           catch (Exception x)
           {
-            Logger.error(x);
+            LOGGER.error("", x);
             synchronized (result)
             {
               result[0] = true;
@@ -306,7 +312,7 @@ public class MailMerge
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
       return false;
     }
   }
@@ -325,7 +331,7 @@ public class MailMerge
    *          vorbelegt werden.
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
-  private static void createSelectFromListDialog(final Vector<ListElement> list,
+  private static void createSelectFromListDialog(final List<ListElement> list,
       final boolean[] result)
   {
     final JFrame myFrame = new JFrame(L.m("Gewünschte Ausdrucke wählen"));
@@ -347,7 +353,7 @@ public class MailMerge
     myPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     myFrame.setContentPane(myPanel);
 
-    final JList<ListElement> myList = new JList<>(list);
+    final JList<ListElement> myList = new JList<>(new Vector<>(list));
     myList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     for (int i = 0; i < list.size(); ++i)
     {
@@ -483,8 +489,8 @@ public class MailMerge
           UNO.XCellRangesQuery(foundDoc.getSheets().getByName(sheetName));
         if (sheet != null)
         {
-          SortedSet<Integer> columnIndexes = new TreeSet<Integer>();
-          SortedSet<Integer> rowIndexes = new TreeSet<Integer>();
+          SortedSet<Integer> columnIndexes = new TreeSet<>();
+          SortedSet<Integer> rowIndexes = new TreeSet<>();
           XSheetCellRanges visibleCellRanges = sheet.queryVisibleCells();
           XSheetCellRanges nonEmptyCellRanges =
             sheet.queryContentCells((short) (com.sun.star.sheet.CellFlags.VALUE
@@ -571,7 +577,7 @@ public class MailMerge
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
 
     return results;

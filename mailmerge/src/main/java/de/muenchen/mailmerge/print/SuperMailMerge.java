@@ -24,6 +24,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.sdb.CommandType;
@@ -37,7 +40,6 @@ import de.muenchen.allg.afid.UnoCollection;
 import de.muenchen.allg.itd51.wollmux.XPrintModel;
 import de.muenchen.allg.itd51.wollmux.core.db.QueryResults;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 /**
  * Klasse, die den ultimativen Seriendruck realisiert.
@@ -46,6 +48,9 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
  */
 class SuperMailMerge
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SuperMailMerge.class);
+
   /**
    * Liste von {@link Runnable}-Objekten, die sequentiell abgearbeitet werden im
    * Nicht-Event-Dispatching-Thread.
@@ -129,7 +134,7 @@ class SuperMailMerge
       }
       catch (Exception x)
       {
-        Logger.error(x);
+        LOGGER.error("", x);
       }
     }
 
@@ -147,7 +152,7 @@ class SuperMailMerge
     }
     catch (Exception x)
     {
-      Logger.error(L.m("Kann DocumentSettings nicht auslesen"), x);
+      LOGGER.error(L.m("Kann DocumentSettings nicht auslesen"), x);
       return;
     }
     String datasource =
@@ -211,7 +216,7 @@ class SuperMailMerge
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 
@@ -224,7 +229,6 @@ class SuperMailMerge
    *
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
-  @SuppressWarnings("unused")
   public void createGUI()
   {
     final JFrame myFrame = new JFrame(L.m("Seriendruck"));
@@ -398,7 +402,6 @@ class SuperMailMerge
    *          aktuelle Auswahl der ComboBox eingestellt werden soll.
    * @author Matthias Benkmann (D-III-ITD 5.1) TESTED
    */
-  @SuppressWarnings("unused")
   public void updateTableSelector(String[] datasourceAndTableName)
   {
     String datasourceName = datasourceAndTableName[0];
@@ -425,7 +428,7 @@ class SuperMailMerge
         }
         catch (Exception x)
         {
-          Logger.error(x);
+          LOGGER.error("", x);
           return;
         }
       }
@@ -436,7 +439,7 @@ class SuperMailMerge
       {
         XDataSource ds =
           UNO.XDataSource(UNO.dbContext.getRegisteredObject(datasourceName));
-        long lgto = MailMerge.DATABASE_TIMEOUT / 1000;
+        long lgto = MailMerge.DATABASE_TIMEOUT / 1000l;
         if (lgto < 1)
           lgto = 1;
         ds.setLoginTimeout((int) lgto);
@@ -446,7 +449,7 @@ class SuperMailMerge
       }
       catch (Exception x)
       {
-        Logger.error(x);
+        LOGGER.error("", x);
         return;
       }
     }
@@ -479,11 +482,11 @@ class SuperMailMerge
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
   }
 
-  @SuppressWarnings("unused") // wird per reflection aufgerufen
+  // wird per reflection aufgerufen
   public void print(Boolean offerselection)
   {
     if (calcDocumentTitles.contains(selectedDatasource))
@@ -535,7 +538,7 @@ class SuperMailMerge
             }
             catch (Exception x)
             {
-              Logger.error(x);
+              LOGGER.error("", x);
             }
           }
         });
@@ -544,7 +547,7 @@ class SuperMailMerge
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
   }
 
@@ -608,14 +611,14 @@ class SuperMailMerge
           }
           catch (Exception x)
           {
-            Logger.error(x);
+            LOGGER.error("", x);
           }
         }
       });
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
   }
 

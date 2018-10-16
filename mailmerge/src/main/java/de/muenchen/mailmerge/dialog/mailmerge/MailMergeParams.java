@@ -54,12 +54,14 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.muenchen.allg.itd51.wollmux.core.dialog.TextComponentTags;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.mailmerge.WollMuxFiles;
+import de.muenchen.mailmerge.MailMergeFiles;
 import de.muenchen.mailmerge.db.DatasourceJoinerFactory;
 import de.muenchen.mailmerge.dialog.mailmerge.gui.Section;
 import de.muenchen.mailmerge.dialog.mailmerge.gui.UIElementAction;
@@ -73,6 +75,9 @@ import de.muenchen.mailmerge.dialog.mailmerge.gui.UIElementType;
  */
 public class MailMergeParams
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MailMergeParams.class);
+
   /**
    * URL der Konfiguration der Fallback-Konfiguration für den Abschnitt
    * Dialoge/Seriendruckdialog, falls dieser Abschnitt nicht in der
@@ -285,13 +290,13 @@ public class MailMergeParams
     try
     {
       sdConf =
-        WollMuxFiles.getWollmuxConf().query("Dialoge").query("Seriendruckdialog").getLastChild();
+        MailMergeFiles.getWollmuxConf().query("Dialoge").query("Seriendruckdialog").getLastChild();
     }
     catch (NodeNotFoundException e)
     {}
     if (sdConf == null)
     {
-      Logger.log(L.m("Kein Abschnitt Dialoge/Seriendruckdialog in der WollMux-Konfiguration "
+      LOGGER.info(L.m("Kein Abschnitt Dialoge/Seriendruckdialog in der WollMux-Konfiguration "
         + "angegeben! Verwende Default-Konfiguration für den Seriendruckdialog."));
       try
       {
@@ -301,7 +306,7 @@ public class MailMergeParams
       }
       catch (Exception e)
       {
-        Logger.error(
+        LOGGER.error(
           L.m(
             "Kann Default-Konfiguration des Seriendruckdialogs nicht aus internem file %1 bestimmen. Dies darf nicht vorkommenen!",
             DEFAULT_MAILMERGEDIALOG_URL), e);
@@ -313,7 +318,7 @@ public class MailMergeParams
     try
     {
       ConfigThingy emailConf =
-        WollMuxFiles.getWollmuxConf().query("EMailEinstellungen").getLastChild();
+        MailMergeFiles.getWollmuxConf().query("EMailEinstellungen").getLastChild();
       String defaultEmailFromColumnName =
         emailConf.getString("DEFAULT_SENDER_DB_SPALTE", "");
       defaultFrom =
@@ -322,7 +327,7 @@ public class MailMergeParams
     }
     catch (Exception e)
     {
-      Logger.debug(L.m("Kann Voreinstellung der Absender E-Mailadresse für den Seriendruckdialog nicht bestimmen"));
+      LOGGER.debug(L.m("Kann Voreinstellung der Absender E-Mailadresse für den Seriendruckdialog nicht bestimmen"));
     }
 
     showDoMailmergeDialog(parent, mmc, sdConf, defaultFrom);
@@ -376,7 +381,7 @@ public class MailMergeParams
       }
       catch (NodeNotFoundException e2)
       {
-        Logger.error(L.m("Dialogbeschreibung für den Seriendruckdialog enthält keinen Abschnitt 'Regeln'"));
+        LOGGER.error(L.m("Dialogbeschreibung für den Seriendruckdialog enthält keinen Abschnitt 'Regeln'"));
         return;
       }
       ConfigThingy fensterConf = new ConfigThingy("");

@@ -29,11 +29,15 @@
  */
 package de.muenchen.mailmerge.document;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.star.document.XEventListener;
 import com.sun.star.lang.XComponent;
@@ -53,11 +57,10 @@ import de.muenchen.allg.itd51.wollmux.core.document.TransitionModeDataContainer;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.allg.itd51.wollmux.core.util.Utils;
 import de.muenchen.mailmerge.GlobalFunctions;
-import de.muenchen.mailmerge.WollMuxFiles;
-import de.muenchen.mailmerge.WollMuxSingleton;
+import de.muenchen.mailmerge.MailMergeFiles;
+import de.muenchen.mailmerge.MailMergeSingleton;
 
 /**
  * Verwaltet Informationen zu allen offenen OOo-Dokumenten.
@@ -66,6 +69,9 @@ import de.muenchen.mailmerge.WollMuxSingleton;
  */
 public class DocumentManager
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DocumentManager.class);
+
   /**
    * Verwaltet Informationen zu allen offenen OOo-Dokumenten.
    */
@@ -77,10 +83,10 @@ public class DocumentManager
    * Enthält alle registrierten XEventListener, die bei Statusänderungen der
    * Dokumentbearbeitung informiert werden.
    */
-  private Vector<XEventListener> registeredDocumentEventListener;
+  private List<XEventListener> registeredDocumentEventListener;
 
   private DocumentManager() {
-    registeredDocumentEventListener = new Vector<>();
+    registeredDocumentEventListener = new ArrayList<>();
   }
 
   /**
@@ -169,7 +175,7 @@ public class DocumentManager
    */
   public void addDocumentEventListener(XEventListener listener)
   {
-    Logger.debug2("DocumentManager::addDocumentEventListener()");
+    LOGGER.trace("DocumentManager::addDocumentEventListener()");
 
     if (listener == null)
         return;
@@ -194,7 +200,7 @@ public class DocumentManager
    */
   public void removeDocumentEventListener(XEventListener listener)
   {
-    Logger.debug2("DocumentManager::removeDocumentEventListener()");
+    LOGGER.trace("DocumentManager::removeDocumentEventListener()");
     Iterator<XEventListener> i = registeredDocumentEventListener.iterator();
     while (i.hasNext())
     {
@@ -247,7 +253,7 @@ public class DocumentManager
     Info info = getDocumentManager().getInfo(doc);
     if (info == null)
     {
-      Logger.error(
+      LOGGER.error(
         L.m("Irgendwer will hier ein TextDocumentModel für ein Objekt was der DocumentManager nicht kennt. Das sollte nicht passieren!"),
         new Exception());
 
@@ -351,7 +357,7 @@ public class DocumentManager
       if (documentController == null)
       {
         documentController = new TextDocumentController(
-            new TextDocumentModel(doc, createPersistentDataContainer(doc), WollMuxSingleton.getVersion(),
+            new TextDocumentModel(doc, createPersistentDataContainer(doc), MailMergeSingleton.getVersion(),
                 Utils.getOOoVersion()),
             GlobalFunctions.getInstance().getGlobalFunctions(), GlobalFunctions.getInstance().getFunctionDialogs());
       }
@@ -444,7 +450,7 @@ public class DocumentManager
   public static PersistentDataContainer createPersistentDataContainer(
       XTextDocument doc)
   {
-    ConfigThingy wmConf = WollMuxFiles.getWollmuxConf();
+    ConfigThingy wmConf = MailMergeFiles.getWollmuxConf();
     String pdMode;
     try
     {
@@ -453,7 +459,7 @@ public class DocumentManager
     catch (NodeNotFoundException e)
     {
       pdMode = PersistentDataContainer.PERSISTENT_DATA_MODE_RDFREADLEGACY;
-      Logger.debug(L.m("Attribut %1 nicht gefunden. Verwende Voreinstellung '%2'.",
+      LOGGER.debug(L.m("Attribut %1 nicht gefunden. Verwende Voreinstellung '%2'.",
         PersistentDataContainer.PERSISTENT_DATA_MODE, pdMode));
     }
 
@@ -477,15 +483,15 @@ public class DocumentManager
       }
       else
       {
-        Logger.error(L.m(
+        LOGGER.error(L.m(
           "Ungültiger Wert '%1' für Attribut %2. Verwende Voreinstellung '%3' statt dessen.",
-          pdMode, PersistentDataContainer.PERSISTENT_DATA_MODE, PersistentDataContainer.PERSISTENT_DATA_MODE_TRANSITION));
-        return new TransitionModeDataContainer(doc);
+            pdMode, PersistentDataContainer.PERSISTENT_DATA_MODE, PersistentDataContainer.PERSISTENT_DATA_MODE_RDFREADLEGACY));
+        return new RDFBasedPersistentDataContainer(doc);
       }
     }
     catch (RDFMetadataNotSupportedException e)
     {
-      Logger.log(L.m(
+      LOGGER.info(L.m(
         "Die Einstellung '%1' für Attribut %2 ist mit dieser OpenOffice.org-Version nicht kompatibel. Verwende Einstellung '%3' statt dessen.",
         pdMode, PersistentDataContainer.PERSISTENT_DATA_MODE, PersistentDataContainer.PERSISTENT_DATA_MODE_ANNOTATION));
       return new AnnotationBasedPersistentDataContainer(doc);

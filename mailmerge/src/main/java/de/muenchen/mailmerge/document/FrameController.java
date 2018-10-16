@@ -1,5 +1,8 @@
 package de.muenchen.mailmerge.document;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.awt.DeviceInfo;
 import com.sun.star.awt.PosSize;
 import com.sun.star.awt.XWindow;
@@ -12,10 +15,12 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 public class FrameController
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(FrameController.class);
+
   private XTextDocument doc;
 
   public FrameController(XTextDocument doc)
@@ -141,7 +146,7 @@ public class FrameController
     }
     catch (ConfigurationErrorException e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 

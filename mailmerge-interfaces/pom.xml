@@ -9,6 +9,10 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
+	<properties>
+		<ooo>/opt/libreoffice5.2</ooo>
+		<sdk>${ooo}/sdk</sdk>
+	</properties>
 
 	<build>
 		<plugins>

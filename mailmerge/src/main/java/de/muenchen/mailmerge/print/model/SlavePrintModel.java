@@ -1,5 +1,8 @@
 package de.muenchen.mailmerge.print.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.beans.PropertyVetoException;
 import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.beans.XPropertyChangeListener;
@@ -12,7 +15,6 @@ import com.sun.star.text.XTextDocument;
 
 import de.muenchen.allg.itd51.wollmux.XPrintModel;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.GlobalFunctions;
 import de.muenchen.mailmerge.print.PrintFunction;
 
@@ -33,6 +35,9 @@ import de.muenchen.mailmerge.print.PrintFunction;
 class SlavePrintModel extends WeakBase implements XPrintModel,
     InternalPrintModel
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SlavePrintModel.class);
+
   private int idx;
 
   private MasterPrintModel master;
@@ -107,7 +112,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
       }
       catch (InterruptedException e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
       master.setPrintProgressMaxValue(pmod, (short) 0);
     }
@@ -327,7 +332,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
       PrintFunction currentFunc = master.getPrintFunction(idx);
       if (function.compareTo(currentFunc) <= 0)
       {
-        Logger.error(L.m(
+        LOGGER.error(L.m(
           "Druckfunktion '%1' muss einen höheren ORDER-Wert besitzen als die Druckfunktion '%2'",
           function.getFunctionName(), currentFunc.getFunctionName()));
         return false;
@@ -337,7 +342,7 @@ class SlavePrintModel extends WeakBase implements XPrintModel,
     }
     else
     {
-      Logger.error(L.m("Die angeforderte interne Druckfunktion ist ungültig."));
+      LOGGER.error(L.m("Die angeforderte interne Druckfunktion ist ungültig."));
       return false;
     }
   }

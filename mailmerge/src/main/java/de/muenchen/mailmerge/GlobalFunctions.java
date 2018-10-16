@@ -38,7 +38,7 @@ public class GlobalFunctions
      * darstellen, die global einheitliche Werte haben.
      */
     funcDialogs =
-      DialogFactory.parseFunctionDialogs(WollMuxFiles.getWollmuxConf(), null, null);
+        DialogFactory.parseFunctionDialogs(MailMergeFiles.getWollmuxConf(), null);
 
     /*
      * Globale Funktionen parsen. ACHTUNG! Verwendet die Funktionsdialoge. Diese
@@ -46,14 +46,14 @@ public class GlobalFunctions
      * Funktionen keinen Kontext haben.
      */
     globalFunctions =
-      FunctionFactory.parseFunctions(WollMuxFiles.getWollmuxConf(),
+      FunctionFactory.parseFunctions(MailMergeFiles.getWollmuxConf(),
         getFunctionDialogs(), null, null);
 
     /*
      * Globale Druckfunktionen parsen.
      */
     globalPrintFunctions =
-      PrintFunctionLibrary.parsePrintFunctions(WollMuxFiles.getWollmuxConf());
+      PrintFunctionLibrary.parsePrintFunctions(MailMergeFiles.getWollmuxConf());
     StandardPrint.addInternalDefaultPrintFunctions(globalPrintFunctions);
 
     /*
@@ -61,7 +61,7 @@ public class GlobalFunctions
      */
     documentActionFunctions = new FunctionLibrary(null, true);
     FunctionFactory.parseFunctions(documentActionFunctions,
-      WollMuxFiles.getWollmuxConf(), "Dokumentaktionen", null, null);
+      MailMergeFiles.getWollmuxConf(), "Dokumentaktionen", null, null);
 
 
   }

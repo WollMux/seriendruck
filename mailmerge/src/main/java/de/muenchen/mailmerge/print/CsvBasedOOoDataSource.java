@@ -2,6 +2,9 @@ package de.muenchen.mailmerge.print;
 
 import java.io.File;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.frame.XModel;
 import com.sun.star.frame.XStorable;
 import com.sun.star.io.IOException;
@@ -11,7 +14,6 @@ import com.sun.star.util.URL;
 
 import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.afid.UnoProps;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 /**
  * Implementierung einer {@link OOoDataSource}, die als Backend ein CSV-Datei
@@ -21,6 +23,9 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
  */
 public class CsvBasedOOoDataSource extends OOoDataSource
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CsvBasedOOoDataSource.class);
+
   File parentDir;
 
   CSVDataSourceWriter dsw;
@@ -67,7 +72,7 @@ public class CsvBasedOOoDataSource extends OOoDataSource
       }
       catch (Exception e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
 
     if (dataSource != null)
@@ -98,7 +103,7 @@ public class CsvBasedOOoDataSource extends OOoDataSource
         }
         catch (IOException e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
     }
     return dataSource;

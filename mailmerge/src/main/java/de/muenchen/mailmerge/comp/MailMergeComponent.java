@@ -47,7 +47,7 @@ import com.sun.star.lib.uno.helper.WeakBase;
 import com.sun.star.registry.XRegistryKey;
 import com.sun.star.uno.XComponentContext;
 
-import de.muenchen.mailmerge.WollMuxSingleton;
+import de.muenchen.mailmerge.MailMergeSingleton;
 import de.muenchen.mailmerge.event.DispatchProviderAndInterceptor;
 import de.muenchen.mailmerge.event.MailMergeEventHandler;
 
@@ -81,7 +81,7 @@ public class MailMergeComponent extends WeakBase implements XServiceInfo, XDispa
    */
   public MailMergeComponent(XComponentContext ctx)
   {
-    WollMuxSingleton.initialize(ctx);
+    MailMergeSingleton.initialize(ctx);
 
     // Event ON_FIRST_INITIALIZE erzeugen:
     MailMergeEventHandler.getInstance().handleInitialize();

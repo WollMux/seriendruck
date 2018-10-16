@@ -3,13 +3,15 @@ package de.muenchen.mailmerge.print;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.beans.NamedValue;
 import com.sun.star.task.XJob;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.util.XCancellable;
 
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 /**
  * A optional XCancellable mail merge thread.
@@ -18,6 +20,9 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
  */
 class MailMergeThread extends Thread
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MailMergeThread.class);
+
   private XCancellable mailMergeCancellable = null;
 
   private Object result = null;
@@ -40,22 +45,22 @@ class MailMergeThread extends Thread
   {
     try
     {
-      Logger.debug(L.m("Starting OOo-MailMerge in Verzeichnis %1", outputDir));
+      LOGGER.debug(L.m("Starting OOo-MailMerge in Verzeichnis %1", outputDir));
       // The XCancellable mail merge interface was included in LO >= 4.3.
       mailMergeCancellable =
         UnoRuntime.queryInterface(XCancellable.class, mailMerge);
       if (mailMergeCancellable != null)
-        Logger.debug(L.m("XCancellable interface im mailMerge-Objekt gefunden!"));
+        LOGGER.debug(L.m("XCancellable interface im mailMerge-Objekt gefunden!"));
       else
-        Logger.debug(L.m("KEIN XCancellable interface im mailMerge-Objekt gefunden!"));
+        LOGGER.debug(L.m("KEIN XCancellable interface im mailMerge-Objekt gefunden!"));
 
       result = mailMerge.execute(mmProps.toArray(new NamedValue[mmProps.size()]));
 
-      Logger.debug(L.m("Finished Mail Merge"));
+      LOGGER.debug(L.m("Finished Mail Merge"));
     }
     catch (Exception e)
     {
-      Logger.debug(L.m("OOo-MailMergeService fehlgeschlagen: %1", e.getMessage()));
+      LOGGER.debug(L.m("OOo-MailMergeService fehlgeschlagen: %1", e.getMessage()));
     }
     mailMergeCancellable = null;
   }

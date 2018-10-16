@@ -50,12 +50,14 @@
 
 package de.muenchen.mailmerge.event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.frame.XModel;
 import com.sun.star.lang.EventObject;
 import com.sun.star.lang.XComponent;
 
 import de.muenchen.allg.afid.UNO;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.document.DocumentManager;
 
 /**
@@ -70,6 +72,9 @@ import de.muenchen.mailmerge.document.DocumentManager;
  */
 public class GlobalEventListener implements com.sun.star.document.XEventListener
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(GlobalEventListener.class);
+
   private static final String ON_UNLOAD = "OnUnload";
 
   private static final String ON_CREATE = "OnCreate";
@@ -117,7 +122,7 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
     }
     catch (Throwable t)
     {
-      Logger.error(t);
+      LOGGER.error("", t);
     }
   }
 

@@ -35,6 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.lang.NoSuchMethodException;
 import com.sun.star.text.XTextDocument;
@@ -46,7 +49,6 @@ import de.muenchen.allg.itd51.wollmux.XPrintModel;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.ModalDialogs;
 import de.muenchen.mailmerge.SachleitendeVerfuegung;
 import de.muenchen.mailmerge.Workarounds;
@@ -60,6 +62,9 @@ import de.muenchen.mailmerge.print.PrintIntoFile;
 
 public class StandardPrint
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(StandardPrint.class);
+
   /**
    * Unter diesem Key werden in den Properties eines XPrintModels die Einstellungen
    * zu den Sachleitenden Verfügungen als Objekte vom Typ List<VerfuegungspunktInfo>
@@ -89,7 +94,7 @@ public class StandardPrint
     }
     catch (NoSuchMethodException e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
       pmod.cancel();
       return;
     }
@@ -104,7 +109,7 @@ public class StandardPrint
       }
       catch (java.lang.Exception e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
         pmod.cancel();
         return;
       }
@@ -130,7 +135,7 @@ public class StandardPrint
     }
     catch (java.lang.Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
 
     short countMax = 0;
@@ -458,7 +463,7 @@ public class StandardPrint
       }
       catch (ConfigurationErrorException e)
       {
-        Logger.error(L.m("Interne Druckfunktion '%1' nicht definiert!",
+        LOGGER.error(L.m("Interne Druckfunktion '%1' nicht definiert!",
           intMethodName), e);
         return null;
       }
@@ -479,7 +484,7 @@ public class StandardPrint
       if (!names.contains(f.name()))
       {
         funcLib.add(f.name(), f.createPrintFunction());
-        Logger.debug(L.m("Registriere interne Druckfunktion %1 als Fallback",
+        LOGGER.debug(L.m("Registriere interne Druckfunktion %1 als Fallback",
           f.name()));
       }
   }

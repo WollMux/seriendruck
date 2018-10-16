@@ -4,7 +4,7 @@ import com.sun.star.lang.XComponent;
 import com.sun.star.text.XTextDocument;
 
 import de.muenchen.allg.afid.UNO;
-import de.muenchen.mailmerge.WollMuxFehlerException;
+import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.document.DocumentManager;
 
 /**
@@ -28,7 +28,7 @@ public class OnCreateDocument extends BasicEvent
   }
 
   @Override
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {
     DocumentManager docManager = DocumentManager.getDocumentManager();
     XTextDocument xTextDoc = UNO.XTextDocument(comp);

@@ -48,7 +48,7 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.mailmerge.WollMuxFiles;
+import de.muenchen.mailmerge.MailMergeFiles;
 import de.muenchen.mailmerge.Workarounds;
 
 public class EMailSender
@@ -124,7 +124,7 @@ public class EMailSender
   private MailServerSettings getWollMuxMailServerSettings()
   {
     MailServerSettings mailserver = new MailServerSettings();
-    ConfigThingy wollmuxconf = WollMuxFiles.getWollmuxConf();
+    ConfigThingy wollmuxconf = MailMergeFiles.getWollmuxConf();
     try
     {
       wollmuxconf = wollmuxconf.query("EMailEinstellungen").getLastChild();

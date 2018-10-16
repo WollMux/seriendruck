@@ -4,7 +4,7 @@ import java.awt.event.ActionListener;
 
 import com.sun.star.text.XTextDocument;
 
-import de.muenchen.mailmerge.WollMuxFehlerException;
+import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.document.DocumentManager;
 import de.muenchen.mailmerge.document.TextDocumentController;
 
@@ -58,7 +58,7 @@ public class OnSetFormValue extends BasicEvent
   }
 
   @Override
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {
     TextDocumentController documentController = DocumentManager.getTextDocumentController(doc);
 

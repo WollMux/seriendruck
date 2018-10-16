@@ -40,10 +40,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.star.container.XEnumerationAccess;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.container.XNameContainer;
 import com.sun.star.container.XNamed;
@@ -67,7 +70,6 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.dialog.SachleitendeVerfuegungenDruckdialog;
 import de.muenchen.mailmerge.dialog.SachleitendeVerfuegungenDruckdialog.VerfuegungspunktInfo;
 import de.muenchen.mailmerge.document.DocumentManager;
@@ -75,6 +77,9 @@ import de.muenchen.mailmerge.document.TextDocumentController;
 
 public class SachleitendeVerfuegung
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SachleitendeVerfuegung.class);
+
   public static final String BLOCKNAME_SLV_ALL_VERSIONS = "AllVersions";
 
   public static final String BLOCKNAME_SLV_ORIGINAL_ONLY = "OriginalOnly";
@@ -242,9 +247,27 @@ public class SachleitendeVerfuegung
    */
   private static boolean isAbdruck(XTextRange paragraph)
   {
-    String str = paragraph.getString();
+    String str = getStringOfXTextRange(paragraph);
     return str.contains(copyName + " von " + romanNumbers[0])
       || str.contains(copyName + " von <Vorgänger>.");
+  }
+
+  /**
+   * Liefert einen String des übergebenen TextRange zurück
+   * 
+   * @param textRange
+   * 
+   * @return String
+   */
+  private static String getStringOfXTextRange(XTextRange textRange)
+  {
+    String str = "";
+    XEnumerationAccess enumerationAccess = UNO.XEnumerationAccess(textRange);
+    if (enumerationAccess.hasElements())
+    {
+      str = textRange.getString();
+    }
+    return str;
   }
 
   /**
@@ -501,7 +524,7 @@ public class SachleitendeVerfuegung
    */
   private static List<Verfuegungspunkt> scanVerfuegungspunkte(XTextDocument doc)
   {
-    List<Verfuegungspunkt> verfuegungspunkte = new ArrayList<Verfuegungspunkt>();
+    List<Verfuegungspunkt> verfuegungspunkte = new ArrayList<>();
 
     // Verfügungspunkt1 hinzufügen wenn verfügbar.
     XTextRange punkt1 = getVerfuegungspunkt1(doc);
@@ -578,11 +601,11 @@ public class SachleitendeVerfuegung
       {
         text += "\n  --> '" + zuleit + "'";
       }
-      Logger.debug2(text);
+      LOGGER.trace(text);
     }
 
     // Beschreibung des Druckdialogs auslesen.
-    ConfigThingy conf = WollMuxFiles.getWollmuxConf();
+    ConfigThingy conf = MailMergeFiles.getWollmuxConf();
     ConfigThingy svdds =
       conf.query("Dialoge").query("SachleitendeVerfuegungenDruckdialog");
     ConfigThingy printDialogConf = null;
@@ -592,7 +615,7 @@ public class SachleitendeVerfuegung
     }
     catch (NodeNotFoundException e)
     {
-      Logger.error(
+      LOGGER.error(
         L.m("Fehlende Dialogbeschreibung für den Dialog 'SachleitendeVerfuegungenDruckdialog'."),
         e);
       return null;
@@ -616,7 +639,7 @@ public class SachleitendeVerfuegung
         else
         {
           // sonst in umgekehrter Reihenfolge
-          List<VerfuegungspunktInfo> lList = new ArrayList<VerfuegungspunktInfo>();
+          List<VerfuegungspunktInfo> lList = new ArrayList<>();
           ListIterator<VerfuegungspunktInfo> lIt = slvd.getCurrentSettings().listIterator(slvd.getCurrentSettings().size());
           while (lIt.hasPrevious())
           {
@@ -629,7 +652,7 @@ public class SachleitendeVerfuegung
     }
     catch (ConfigurationErrorException e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
       return null;
     }
   }
@@ -713,7 +736,7 @@ public class SachleitendeVerfuegung
     List<XTextSection> hidingSections =
       getSectionsFromPosition(pmod.getTextDocument(), setInvisibleRange);
     HashMap<XTextSection, Boolean> sectionOldState =
-      new HashMap<XTextSection, Boolean>();
+      new HashMap<>();
     for (XTextSection section : hidingSections)
       try
       {
@@ -809,7 +832,7 @@ public class SachleitendeVerfuegung
   private static List<XTextSection> getSectionsFromPosition(XTextDocument doc,
       XTextRange pos)
   {
-    Vector<XTextSection> v = new Vector<XTextSection>();
+    List<XTextSection> v = new ArrayList<>();
     if (pos == null)
       return v;
     XTextRangeCompare comp = UNO.XTextRangeCompare(pos.getText());
@@ -830,7 +853,7 @@ public class SachleitendeVerfuegung
       }
       catch (java.lang.Exception e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
 
       if (section != null)
@@ -922,12 +945,12 @@ public class SachleitendeVerfuegung
   private static String getCopyName()
   {
     String name = L.m("Abdruck");
-    ConfigThingy conf = WollMuxFiles.getWollmuxConf();
+    ConfigThingy conf = MailMergeFiles.getWollmuxConf();
     ConfigThingy nan = conf.query("SachleitendeVerfuegungen").query("ABDRUCK_NAME");
     try
     {
       name = L.m(nan.getLastChild().toString());
-      Logger.debug(L.m("Verwende ABDRUCK_NAME '%1'", name));
+      LOGGER.debug(L.m("Verwende ABDRUCK_NAME '%1'", name));
     }
     catch (NodeNotFoundException x)
     {}
@@ -946,12 +969,12 @@ public class SachleitendeVerfuegung
   private static String[] getNumbers()
   {
     String numbers = "roman";
-    ConfigThingy conf = WollMuxFiles.getWollmuxConf();
+    ConfigThingy conf = MailMergeFiles.getWollmuxConf();
     ConfigThingy nan = conf.query("SachleitendeVerfuegungen").query("NUMBERS");
     try
     {
       numbers = nan.getLastChild().toString();
-      Logger.debug(L.m("Verwende Zahlenformat '%1' aus Attribut NUMBERS.", numbers));
+      LOGGER.debug(L.m("Verwende Zahlenformat '%1' aus Attribut NUMBERS.", numbers));
     }
     catch (NodeNotFoundException x)
     {}
@@ -967,7 +990,8 @@ public class SachleitendeVerfuegung
     {
       // roman is default
       if (!"roman".equalsIgnoreCase(numbers))
-        Logger.error(L.m(
+        LOGGER.error(
+            L.m(
           "Ungültiger Wert '%1' für Attribut NUMBERS (zulässig: 'roman' und 'arabic'). Verwende 'roman' statt dessen.",
           numbers));
       return new String[] {
@@ -988,7 +1012,7 @@ public class SachleitendeVerfuegung
     if (doc == null)
       return;
 
-    HashMap<String, String> mapOldNameToNewName = new HashMap<String, String>();
+    HashMap<String, String> mapOldNameToNewName = new HashMap<>();
     XParagraphCursor cursor =
       UNO.XParagraphCursor(doc.getText().createTextCursorByRange(
         doc.getText().getStart()));

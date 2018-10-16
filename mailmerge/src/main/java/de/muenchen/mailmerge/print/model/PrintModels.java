@@ -30,11 +30,13 @@
  */
 package de.muenchen.mailmerge.print.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.lang.NoSuchMethodException;
 
 import de.muenchen.allg.itd51.wollmux.XPrintModel;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.document.TextDocumentController;
 
 /**
@@ -48,6 +50,9 @@ import de.muenchen.mailmerge.document.TextDocumentController;
  */
 public class PrintModels
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PrintModels.class);
+
   /**
    * Spezial-Property für {@link XPrintModel#setPropertyValue(String, Object)} zum
    * Setzen eines Beschreibungsstrings des aktuell in Bearbeitung befindlichen
@@ -100,7 +105,7 @@ public class PrintModels
         }
         catch (NoSuchMethodException e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
       }
     }
@@ -125,7 +130,7 @@ public class PrintModels
     }
     catch (Exception e)
     {
-      Logger.error(L.m("Kann Stage nicht auf '%1' setzen", stage), e);
+      LOGGER.error(L.m("Kann Stage nicht auf '%1' setzen", stage), e);
     }
   }
 }

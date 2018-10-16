@@ -3,11 +3,15 @@ package de.muenchen.mailmerge;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.muenchen.mailmerge.dialog.Common;
 
 public class ModalDialogs
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ModalDialogs.class);
 
   /**
    * Diese Methode erzeugt einen modalen Swing-Dialog zur Anzeige von Informationen
@@ -123,11 +127,11 @@ public class ModalDialogs
       if (retValue.intValue() == 0){
         ret = true;
       }
-      Logger.debug(retValue.toString());
+      LOGGER.debug("{}", retValue);
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
     return ret;
   }

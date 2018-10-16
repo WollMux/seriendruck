@@ -4,7 +4,7 @@ import java.util.Set;
 
 import de.muenchen.allg.itd51.wollmux.XPrintModel;
 import de.muenchen.mailmerge.SachleitendeVerfuegung;
-import de.muenchen.mailmerge.WollMuxFehlerException;
+import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.document.TextDocumentController;
 import de.muenchen.mailmerge.print.model.PrintModels;
 
@@ -28,7 +28,7 @@ public class OnExecutePrintFunction extends BasicEvent
   }
 
   @Override
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {
     // Prüfen, ob alle gesetzten Druckfunktionen im aktuellen Kontext noch
     // Sinn machen:

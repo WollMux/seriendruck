@@ -1,5 +1,8 @@
 package de.muenchen.mailmerge.event.handlers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.frame.XModel;
 import com.sun.star.lang.IllegalArgumentException;
@@ -9,8 +12,7 @@ import com.sun.star.uno.AnyConverter;
 import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.afid.UnoProps;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.mailmerge.WollMuxFehlerException;
+import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.document.DocumentManager;
 import de.muenchen.mailmerge.document.DocumentManager.Info;
 import de.muenchen.mailmerge.event.GlobalEventListener;
@@ -25,6 +27,9 @@ import de.muenchen.mailmerge.event.MailMergeEventHandler;
  */
 public class OnViewCreated extends BasicEvent
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(OnViewCreated.class);
+
   private XModel comp;
 
   public OnViewCreated(XModel comp)
@@ -34,7 +39,7 @@ public class OnViewCreated extends BasicEvent
   }
 
   @Override
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {
     DocumentManager docManager = DocumentManager.getDocumentManager();
     Info docInfo = docManager.getInfo(comp);
@@ -80,7 +85,7 @@ public class OnViewCreated extends BasicEvent
     }
     catch (IllegalArgumentException e)
     {
-      Logger.error(L.m("das darf nicht vorkommen!"), e);
+      LOGGER.error(L.m("das darf nicht vorkommen!"), e);
       return false;
     }
   }

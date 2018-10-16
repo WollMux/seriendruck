@@ -3,13 +3,15 @@ package de.muenchen.mailmerge.print;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.sdb.XDocumentDataSource;
 
-import de.muenchen.allg.itd51.wollmux.core.document.SimulationResults;
 import de.muenchen.allg.itd51.wollmux.core.document.FormFieldFactory.FormField;
 import de.muenchen.allg.itd51.wollmux.core.document.FormFieldFactory.FormFieldType;
+import de.muenchen.allg.itd51.wollmux.core.document.SimulationResults;
 import de.muenchen.allg.itd51.wollmux.core.document.SimulationResults.SimulationResultsProcessor;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 /**
  * Repräsentiert eine (noch nicht registrierte) Datenquelle für OpenOffice.org.
@@ -18,6 +20,9 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
  */
 public abstract class OOoDataSource implements SimulationResultsProcessor
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(OOoDataSource.class);
+
   /**
    * Liefert das für die Registrierung der OOo-Datenquelle benötigte
    * {@link XDocumentDataSource}-Objekt zurück.
@@ -82,7 +87,7 @@ public abstract class OOoDataSource implements SimulationResultsProcessor
 
     for (Map.Entry<String, Boolean> entry : simRes.getGroupsVisibilityState().entrySet())
     {
-      Logger.log(entry.getKey() + " --> " + entry.getValue());
+      LOGGER.info("{} --> {}", entry.getKey(), entry.getValue());
       data.put(OOoBasedMailMerge.COLUMN_PREFIX_TEXTSECTION + entry.getKey(), entry.getValue().toString());
     }
 
@@ -92,7 +97,7 @@ public abstract class OOoDataSource implements SimulationResultsProcessor
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 }

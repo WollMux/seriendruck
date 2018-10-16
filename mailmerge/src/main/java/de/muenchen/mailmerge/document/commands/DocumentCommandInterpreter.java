@@ -45,8 +45,10 @@
  */
 package de.muenchen.mailmerge.document.commands;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.document.TextDocumentController;
 
 /**
@@ -57,6 +59,8 @@ import de.muenchen.mailmerge.document.TextDocumentController;
  */
 public class DocumentCommandInterpreter
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DocumentCommandInterpreter.class);
 
   private TextDocumentController documentController;
 
@@ -116,7 +120,7 @@ public class DocumentCommandInterpreter
    */
   public void scanGlobalDocumentCommands()
   {
-    Logger.debug("scanGlobalDocumentCommands");
+    LOGGER.debug("scanGlobalDocumentCommands");
     boolean modified = getDocumentController().getModel().isDocumentModified();
     
     try
@@ -150,7 +154,7 @@ public class DocumentCommandInterpreter
    */
   public void scanInsertFormValueCommands()
   {
-    Logger.debug("scanInsertFormValueCommands");
+    LOGGER.debug("scanInsertFormValueCommands");
     boolean modified = getDocumentController().getModel().isDocumentModified();
     
     try

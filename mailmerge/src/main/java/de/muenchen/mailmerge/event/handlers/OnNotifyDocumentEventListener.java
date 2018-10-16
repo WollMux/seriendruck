@@ -2,11 +2,13 @@ package de.muenchen.mailmerge.event.handlers;
 
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.document.XEventListener;
 import com.sun.star.lang.XComponent;
 
 import de.muenchen.allg.afid.UNO;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.document.DocumentManager;
 import de.muenchen.mailmerge.event.MailMergeEventHandler;
 
@@ -19,6 +21,9 @@ import de.muenchen.mailmerge.event.MailMergeEventHandler;
  */
 public class OnNotifyDocumentEventListener extends BasicEvent
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(OnNotifyDocumentEventListener.class);
+
   private String eventName;
 
   private Object source;
@@ -59,7 +64,7 @@ public class OnNotifyDocumentEventListener extends BasicEvent
         DocumentManager.getDocumentManager().documentEventListenerIterator();
     while (i.hasNext())
     {
-      Logger.debug2("notifying XEventListener (event '" + eventName + "')");
+      LOGGER.trace("notifying XEventListener (event '{}')", eventName);
       try
       {
         final XEventListener listener = i.next();

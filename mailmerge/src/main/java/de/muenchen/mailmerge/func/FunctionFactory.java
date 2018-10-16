@@ -56,6 +56,9 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.core.dialog.Dialog;
 import de.muenchen.allg.itd51.wollmux.core.dialog.DialogLibrary;
@@ -66,7 +69,6 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.func.functions.AbsFunction;
 import de.muenchen.mailmerge.func.functions.AlwaysTrueFunction;
 import de.muenchen.mailmerge.func.functions.AndFunction;
@@ -101,6 +103,9 @@ import de.muenchen.mailmerge.func.functions.ValueFunction;
  */
 public class FunctionFactory
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(FunctionFactory.class);
+
   /**
    * Eine Funktion, die immer true liefert.
    */
@@ -940,7 +945,7 @@ public class FunctionFactory
           funcs.add(name, func);
         } catch (ConfigurationErrorException e)
         {
-          Logger.error(L.m("Fehler beim Parsen der Funktion \"%1\" im Abschnitt \"%2\"", name, section), e);
+          LOGGER.error(L.m("Fehler beim Parsen der Funktion \"%1\" im Abschnitt \"%2\"", name, section), e);
         }
       }
     }
@@ -969,7 +974,7 @@ public class FunctionFactory
           trafos.put(name, func);
         } catch (ConfigurationErrorException e)
         {
-          Logger.error(L.m("Fehler beim Parsen der Spaltenumsetzungsfunktion für Ergebnisspalte \"%1\"", name), e);
+          LOGGER.error(L.m("Fehler beim Parsen der Spaltenumsetzungsfunktion für Ergebnisspalte \"%1\"", name), e);
         }
       }
     }

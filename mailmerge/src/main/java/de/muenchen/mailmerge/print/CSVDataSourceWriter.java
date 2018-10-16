@@ -10,11 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import de.muenchen.allg.itd51.wollmux.core.db.ColumnNotFoundException;
-import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.mailmerge.ModalDialogs;
-
 /**
  * Implementiert einen DataSourceWriter, der Daten in eine CSV-Datei data.csv in
  * einem frei wählbaren Zielverzeichnis schreibt.
@@ -42,12 +37,6 @@ public class CSVDataSourceWriter implements DataSourceWriter
    * Enthält nach einem Aufruf von {@link #getHeaders()} die sortierten Headers.
    */
   ArrayList<String> headers = null;
-
-  /**
-   * Wenn {@link #validateColumntHeaders()} Leerzeichen in den Headern findet,
-   * müssen die PersistentData des Originaldokuments angepasst werden.
-   */
-  private boolean adjustPersistentData = false;
 
   /**
    * Erzeugt einen CSVDataSourceWriter, der die zu erzeugende csv-Datei in
@@ -96,62 +85,22 @@ public class CSVDataSourceWriter implements DataSourceWriter
   @Override
   public void flushAndClose() throws Exception
   {
-    validateColumnHeaders();
-
     FileOutputStream fos = new FileOutputStream(csvFile);
-    PrintStream p = new PrintStream(fos, true, "UTF-8");
-    p.print(line(getHeaders()));
-    for (Map<String, String> ds : datasets)
+    try (PrintStream p = new PrintStream(fos, true, "UTF-8"))
     {
-      ArrayList<String> entries = new ArrayList<>();
-      for (String key : getHeaders())
+      p.print(line(getHeaders()));
+      for (Map<String, String> ds : datasets)
       {
-        String val = ds.get(key);
-        if (val == null)
-          val = "";
-        entries.add(val);
+        ArrayList<String> entries = new ArrayList<>();
+        for (String key : getHeaders())
+        {
+          String val = ds.get(key);
+          if (val == null)
+            val = "";
+          entries.add(val);
+        }
+        p.print(line(entries));
       }
-      p.print(line(entries));
-    }
-    p.close();
-  }
-
-  /**
-   * Überprüft ob die Headerzeilen der Datenquelle gültig sind, dh. keine
-   * Zeilenumbrüche enthalten. Wenn Zeilenumbrüche gefunden werden, wird eine
-   * entsprechende Meldung angezeigt.
-   *
-   * @throws ColumnNotFoundException
-   *           Falls die Datenquelle in der Headerzeile mindestens 1 Spalte mit
-   *           Zeilenumbruch enthält.
-   */
-  private void validateColumnHeaders() throws ColumnNotFoundException
-  {
-    Logger.debug(L.m("validateColumnHeaders()"));
-    String invalidHeaders = "";
-    for (String key : getHeaders())
-    {
-      if (key.contains("\n"))
-      {
-        invalidHeaders += "• " + key + "\n";
-      }
-    }
-    if (!invalidHeaders.isEmpty())
-    {
-      boolean anpassen =
-        ModalDialogs.showQuestionModal(
-          L.m("WollMux-Seriendruck"),
-          L.m("Zeilenumbrüche in Spaltenüberschriften sind für den Seriendruck nicht erlaubt.\n")
-            + L.m("\nBitte entfernen Sie die Zeilenumbrüche aus den folgenden Überschriften der Datenquelle:\n\n")
-            + invalidHeaders
-            + L.m("\nSoll das Hauptdokument entsprechend angepasst werden?"));
-
-      if (anpassen)
-      {
-        adjustPersistentData = true;
-      }
-      throw new ColumnNotFoundException(
-        L.m("Spaltenüberschriften enthalten newlines"));
     }
   }
 
@@ -163,7 +112,7 @@ public class CSVDataSourceWriter implements DataSourceWriter
    */
   private String line(List<String> list)
   {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     for (String el : list)
     {
       if (buf.length() != 0)
@@ -209,16 +158,5 @@ public class CSVDataSourceWriter implements DataSourceWriter
   public File getCSVFile()
   {
     return csvFile;
-  }
-
-  /**
-   * Liefert den Wert von {@link #adjustPersistentData} zurück.
-   *
-   * @author Ulrich Kitzinger (GBI I21)
-   */
-  @Override
-  public boolean isAdjustMainDoc()
-  {
-    return adjustPersistentData;
   }
 }

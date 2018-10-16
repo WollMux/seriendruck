@@ -4,7 +4,7 @@ import com.sun.star.frame.XFrame;
 import com.sun.star.text.XTextDocument;
 
 import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
-import de.muenchen.mailmerge.WollMuxFehlerException;
+import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.dialog.mailmerge.MailMergeNew;
 import de.muenchen.mailmerge.document.DocumentManager;
 import de.muenchen.mailmerge.document.TextDocumentController;
@@ -57,7 +57,7 @@ public class OnTextDocumentClosed extends BasicEvent
   }
 
   @Override
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {
     if (docInfo.hasTextDocumentModel())
     {

@@ -2,21 +2,26 @@ package de.muenchen.mailmerge.func.functions;
 
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.muenchen.allg.itd51.wollmux.core.functions.ExternalFunction;
 import de.muenchen.allg.itd51.wollmux.core.functions.Function;
 import de.muenchen.allg.itd51.wollmux.core.functions.Values;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.mailmerge.WollMuxClassLoader;
+import de.muenchen.mailmerge.MailMergeClassLoader;
 
 public class ExternalFunctionFunction implements Function
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ExternalFunctionFunction.class);
+
   private ExternalFunction func;
 
   public ExternalFunctionFunction(ConfigThingy conf)
   {
-    func = new ExternalFunction(conf, WollMuxClassLoader.getClassLoader());
+    func = new ExternalFunction(conf, MailMergeClassLoader.getClassLoader());
   }
 
   @Override
@@ -42,7 +47,7 @@ public class ExternalFunctionFunction implements Function
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
       return Function.ERROR;
     }
   }

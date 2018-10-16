@@ -5,7 +5,7 @@ import com.sun.star.frame.XDispatch;
 import com.sun.star.view.DocumentZoomType;
 
 import de.muenchen.allg.afid.UNO;
-import de.muenchen.mailmerge.WollMuxFehlerException;
+import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.Workarounds;
 import de.muenchen.mailmerge.document.TextDocumentController;
 import de.muenchen.mailmerge.event.MailMergeEventHandler;
@@ -39,7 +39,7 @@ public class OnPrint extends BasicEvent
   }
 
   @Override
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {
     boolean hasPrintFunction = !documentController.getModel().getPrintFunctions().isEmpty();
 

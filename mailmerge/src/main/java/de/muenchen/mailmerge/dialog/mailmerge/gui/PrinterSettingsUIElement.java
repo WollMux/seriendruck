@@ -26,7 +26,6 @@ public class PrinterSettingsUIElement extends UIElement
     printerNameField = new JTextField();
     printerNameField.setEditable(false);
     printerNameField.setFocusable(false);
-    // DimAdjust.maxHeightIsPrefMaxWidthUnlimited(printerNameField);
     hbox.add(new JLabel(label));
     hbox.add(Box.createHorizontalStrut(5));
     hbox.add(printerNameField);

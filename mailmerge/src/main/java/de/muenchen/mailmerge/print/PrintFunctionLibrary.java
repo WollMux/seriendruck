@@ -36,11 +36,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 /**
  * Eine Bibliothek von benannten PrintFunctions
@@ -49,6 +51,9 @@ import de.muenchen.allg.itd51.wollmux.core.util.Logger;
  */
 public class PrintFunctionLibrary
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PrintFunctionLibrary.class);
+
   private Map<String, PrintFunction> mapIdToFunction;
 
   private PrintFunctionLibrary baselib;
@@ -154,7 +159,7 @@ public class PrintFunctionLibrary
           }
           catch (NodeNotFoundException e)
           {
-            Logger.error(
+            LOGGER.error(
               L.m("Druckfunktion '%1' enthält keinen Schlüssel EXTERN", name), e);
             continue;
           }
@@ -167,7 +172,7 @@ public class PrintFunctionLibrary
           }
           catch (NodeNotFoundException e)
           {
-            Logger.debug(L.m(
+            LOGGER.debug(L.m(
               "Druckfunktion '%1' enthält keinen Schlüssel ORDER. Verwende Standard-Wert %2",
               name, "" + PrintFunctionLibrary.DEFAULT_PRINTFUNCTION_ORDER_VALUE));
           }
@@ -177,7 +182,7 @@ public class PrintFunctionLibrary
           }
           catch (NumberFormatException e)
           {
-            Logger.error(
+            LOGGER.error(
               L.m(
                 "Der Wert '%1' des Schlüssels ORDER in der Druckfunktion '%2' ist ungültig.",
                 orderStr, name), e);
@@ -190,7 +195,7 @@ public class PrintFunctionLibrary
         }
         catch (ConfigurationErrorException e)
         {
-          Logger.error(L.m("Fehler beim Parsen der Druckfunktion \"%1\"", name), e);
+          LOGGER.error(L.m("Fehler beim Parsen der Druckfunktion \"%1\"", name), e);
         }
       }
     }

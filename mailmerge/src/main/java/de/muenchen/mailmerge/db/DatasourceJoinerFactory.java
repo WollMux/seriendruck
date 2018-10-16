@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.muenchen.allg.itd51.wollmux.core.db.AttachDatasource;
 import de.muenchen.allg.itd51.wollmux.core.db.ColumnTransformer;
 import de.muenchen.allg.itd51.wollmux.core.db.Datasource;
@@ -26,12 +29,14 @@ import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.mailmerge.WollMuxFiles;
+import de.muenchen.mailmerge.MailMergeFiles;
 import de.muenchen.mailmerge.func.FunctionFactory;
 
 public class DatasourceJoinerFactory
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatasourceJoinerFactory.class);
+
   /**
    * Enthält den zentralen DataSourceJoiner.
    */
@@ -48,7 +53,7 @@ public class DatasourceJoinerFactory
     if (datasourceJoiner == null)
     {
       ConfigThingy senderSource =
-        WollMuxFiles.getWollmuxConf().query("SENDER_SOURCE", 1);
+        MailMergeFiles.getWollmuxConf().query("SENDER_SOURCE", 1);
       String senderSourceStr = null;
       try
       {
@@ -62,7 +67,7 @@ public class DatasourceJoinerFactory
       }
   
       ConfigThingy dataSourceTimeout =
-        WollMuxFiles.getWollmuxConf().query("DATASOURCE_TIMEOUT", 1);
+        MailMergeFiles.getWollmuxConf().query("DATASOURCE_TIMEOUT", 1);
       String datasourceTimeoutStr = "";
       long datasourceTimeoutLong = 0;
       try
@@ -70,16 +75,16 @@ public class DatasourceJoinerFactory
         datasourceTimeoutStr = dataSourceTimeout.getLastChild().toString();
         try
         {
-          datasourceTimeoutLong = new Long(datasourceTimeoutStr).longValue();
+          datasourceTimeoutLong = Long.parseLong(datasourceTimeoutStr);
         }
         catch (NumberFormatException e)
         {
-          Logger.error(L.m("DATASOURCE_TIMEOUT muss eine ganze Zahl sein"));
+          LOGGER.error(L.m("DATASOURCE_TIMEOUT muss eine ganze Zahl sein"), e);
           datasourceTimeoutLong = DatasourceJoiner.DATASOURCE_TIMEOUT;
         }
         if (datasourceTimeoutLong <= 0)
         {
-          Logger.error(L.m("DATASOURCE_TIMEOUT muss größer als 0 sein!"));
+          LOGGER.error(L.m("DATASOURCE_TIMEOUT muss größer als 0 sein!"));
         }
       }
       catch (NodeNotFoundException e)
@@ -93,10 +98,10 @@ public class DatasourceJoinerFactory
           senderSourceStr = DatasourceJoiner.NOCONFIG;
   
         datasourceJoiner =
-          new DatasourceJoiner(collectDatasources(WollMuxFiles.getWollmuxConf(),
-              WollMuxFiles.getDEFAULT_CONTEXT()), 
+          new DatasourceJoiner(collectDatasources(MailMergeFiles.getWollmuxConf(),
+              MailMergeFiles.getDEFAULT_CONTEXT()), 
               senderSourceStr, 
-              createLocalOverrideStorage(senderSourceStr, WollMuxFiles.getLosCacheFile(), WollMuxFiles.getDEFAULT_CONTEXT()),
+              createLocalOverrideStorage(senderSourceStr, MailMergeFiles.getLosCacheFile(), MailMergeFiles.getDEFAULT_CONTEXT()),
               datasourceTimeoutLong);
         /*
          * Zum Zeitpunkt wo der DJ initialisiert wird sind die Funktions- und
@@ -111,15 +116,15 @@ public class DatasourceJoinerFactory
          */
         FunctionLibrary funcLib = new FunctionLibrary();
         DialogLibrary dialogLib = new DialogLibrary();
-        Map<Object, Object> context = new HashMap<Object, Object>();
+        Map<Object, Object> context = new HashMap<>();
         ColumnTransformer columnTransformer =
-          new ColumnTransformer(FunctionFactory.parseTrafos(WollMuxFiles.getWollmuxConf(),
+          new ColumnTransformer(FunctionFactory.parseTrafos(MailMergeFiles.getWollmuxConf(),
             "AbsenderdatenSpaltenumsetzung", funcLib, dialogLib, context));
         datasourceJoiner.setTransformer(columnTransformer);
       }
       catch (ConfigurationErrorException e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     }
   
@@ -128,7 +133,7 @@ public class DatasourceJoinerFactory
 
   private static Map<String, Datasource> collectDatasources(ConfigThingy joinConf, URL context)
   {
-    HashMap<String, Datasource> datasources = new HashMap<String, Datasource>();
+    HashMap<String, Datasource> datasources = new HashMap<>();
     
     ConfigThingy datenquellen = joinConf.query("Datenquellen").query("Datenquelle");
     Iterator<ConfigThingy> iter = datenquellen.iterator();
@@ -138,7 +143,7 @@ public class DatasourceJoinerFactory
       ConfigThingy c = sourceDesc.query("NAME");
       if (c.count() == 0)
       {
-        Logger.error(L.m("Datenquelle ohne NAME gefunden"));
+        LOGGER.error(L.m("Datenquelle ohne NAME gefunden"));
         continue;
       }
       String name = c.toString();
@@ -146,7 +151,7 @@ public class DatasourceJoinerFactory
       c = sourceDesc.query("TYPE");
       if (c.count() == 0)
       {
-        Logger.error(L.m("Datenquelle %1 hat keinen TYPE", name));
+        LOGGER.error(L.m("Datenquelle %1 hat keinen TYPE", name));
         continue;
       }
       String type = c.toString();
@@ -173,18 +178,18 @@ public class DatasourceJoinerFactory
         else if (type.equals("funky"))
           ds = new FunkyDatasource(datasources, sourceDesc, context);
         else
-          Logger.error(L.m("Ununterstützter Datenquellentyp: %1", type));
+          LOGGER.error(L.m("Ununterstützter Datenquellentyp: %1", type));
       }
       catch (Exception x)
       {
-        Logger.error(L.m(
+        LOGGER.error(L.m(
           "Fehler beim Initialisieren von Datenquelle \"%1\" (Typ \"%2\"):", name,
           type), x);
       }
 
       if (ds == null)
       {
-        Logger.error(L.m(
+        LOGGER.error(L.m(
           "Datenquelle '%1' von Typ '%2' konnte nicht initialisiert werden", name,
           type));
         /*

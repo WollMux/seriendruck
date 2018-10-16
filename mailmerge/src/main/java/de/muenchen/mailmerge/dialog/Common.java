@@ -43,15 +43,10 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -61,10 +56,12 @@ import javax.swing.JTextField;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
-import de.muenchen.mailmerge.WollMuxFiles;
+import de.muenchen.mailmerge.MailMergeFiles;
 
 /**
  * Enthält von den Dialogen gemeinsam genutzten Code.
@@ -73,6 +70,9 @@ import de.muenchen.mailmerge.WollMuxFiles;
  */
 public class Common
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Common.class);
+
   /**
    * Spezialwert wenn eine Breite oder Höhe die maximal sinnvolle sein soll.
    */
@@ -108,7 +108,7 @@ public class Common
    * Der Unit-Increment für vertikale Scrollbars, die Zeilen von Eingabefeldern
    * enthalten, wie z,B, die Steuerelemente-Ansicht des FM4000.
    */
-  private static int vertical_scrollbar_unit_increment = 12;
+  private static int verticalScrollbarUnitIncrement = 12;
 
   /**
    * Gibt an ob {@link #setLookAndFeel()} bereits aufgerufen wurde.
@@ -163,10 +163,7 @@ public class Common
    */
   private static void setLookAndFeel()
   {
-    Logger.debug("setLookAndFeel");
-    // String lafName = UIManager.getSystemLookAndFeelClassName();
-    // if (lafName.equals("javax.swing.plaf.metal.MetalLookAndFeel"))
-    // lafName = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+    LOGGER.debug("setLookAndFeel");
 
     // Das Standard-LAF für den WollMux
     String lafName = "javax.swing.plaf.metal.MetalLookAndFeel";
@@ -178,7 +175,7 @@ public class Common
 
         // Ist der Konfig-Parameter "LAF_CLASS_NAME" gesetzt, wird das angegebene
         // LAF verwendet.
-        ConfigThingy config = WollMuxFiles.getWollmuxConf();
+        ConfigThingy config = MailMergeFiles.getWollmuxConf();
         ConfigThingy lafConf = config.get( "LAF_CLASS_NAME" );
         lafName = lafConf.toString();
 
@@ -197,7 +194,7 @@ public class Common
     // configure behaviour of JTextFields:
     configureTextFieldBehaviour();
 
-    defaultFontsizes = new HashMap<Object, Float>();
+    defaultFontsizes = new HashMap<>();
     UIDefaults def = UIManager.getLookAndFeelDefaults();
     Enumeration<Object> keys = def.keys();
     float fontSize;
@@ -208,7 +205,7 @@ public class Common
       font = def.getFont(key);
       if (font != null){
         fontSize = font.getSize();
-        defaultFontsizes.put(key, new Float(fontSize));
+        defaultFontsizes.put(key, fontSize);
       }
     }
     lafSet = true;
@@ -250,19 +247,15 @@ public class Common
     // KeyEventPostProcessor hinzu, der beim Loslassen (KeyEvent.KEY_RELEASED)
     // der Tabulator-Taste überprüft, ob das KeyEvent von einem JTextField ausgelöst
     // wurde und in diesem Fall allen Text in dem Textfeld selektiert.
-    kfm.addKeyEventPostProcessor(new KeyEventPostProcessor()
+    kfm.addKeyEventPostProcessor(event ->
     {
-      @Override
-      public boolean postProcessKeyEvent(KeyEvent e)
+      if (event.getKeyCode() == KeyEvent.VK_TAB && event.getID() == KeyEvent.KEY_RELEASED
+        && event.getComponent() instanceof JTextField)
       {
-        if (e.getKeyCode() == KeyEvent.VK_TAB && e.getID() == KeyEvent.KEY_RELEASED
-          && e.getComponent() instanceof JTextField)
-        {
-          JTextField textField = (JTextField) e.getComponent();
-          textField.selectAll();
-        }
-        return false;
+        JTextField textField = (JTextField) event.getComponent();
+        textField.selectAll();
       }
+      return false;
     });
 
     // Wir melden am aktuellen KeyboardFocusManager einen PropertyChangeListener an,
@@ -270,22 +263,14 @@ public class Common
     // löscht.
     // Das darf nicht passieren wenn in ein JTextField das recht Mouse Taste geklickt ist
     // und ein PopUp Menu angezeigt wird.
-    kfm.addPropertyChangeListener("focusOwner", new PropertyChangeListener()
+    kfm.addPropertyChangeListener("focusOwner", event ->
     {
-      @Override
-      public void propertyChange(PropertyChangeEvent evt)
+      if (event.getOldValue() instanceof JTextField && !isPopupVisible)
       {
-        if (evt.getOldValue() instanceof JTextField && !isPopupVisible)
-        {
-          JTextField textField = (JTextField) evt.getOldValue();
+        JTextField textField = (JTextField) event.getOldValue();
 
-          // Aufruf von setCaretPosition löscht die Selektion.
-          textField.setCaretPosition(textField.getCaretPosition());
-
-          // eigentlich sollte folgendes ausreichen:
-          // textField.getCaret().setSelectionVisible(false);
-          // geht aber aus irgendeinem Grund nicht
-        }
+        // Aufruf von setCaretPosition löscht die Selektion.
+        textField.setCaretPosition(textField.getCaretPosition());
       }
     });
   }
@@ -300,7 +285,7 @@ public class Common
    */
   public static void zoomFonts(double zoomFactor)
   {
-    Logger.debug("zoomFonts(" + zoomFactor + ")");
+    LOGGER.debug("zoomFonts({})", zoomFactor);
     UIDefaults def = UIManager.getLookAndFeelDefaults();
     Set<Map.Entry<Object, Float>> mappings;
     mappings = defaultFontsizes.entrySet();
@@ -308,7 +293,8 @@ public class Common
     Entry<Object,Float> mappingEntry;
     Object key;
     Float size;
-    Font oldFnt, newFont;
+    Font oldFnt;
+    Font newFont;
     int changedFonts = 0;
     while (mappingEntries.hasNext())
     {
@@ -326,48 +312,16 @@ public class Common
       }
       catch (Exception ex)
       {
-        Logger.debug(ex);
+        LOGGER.debug("", ex);
       }
     }
 
-    /*Enumeration<Object> enu = def.keys();
-
-    while (enu.hasMoreElements())
-    {
-      Object key = enu.nextElement();
-      //Font elem = def.getFont(key);
-      //if (elem == null ) continue;
-      if (key.toString().endsWith(".font"))
-      {
-        Logger.debug(key.toString());
-        try
-        {
-          Object obj = def.get(key);
-          if (obj instanceof FontUIResource){
-            FontUIResource res = (FontUIResource) def.get(key);
-            Font fnt = res.deriveFont((float) (defaultFontsize * zoomFactor));
-            def.put(key, fnt);
-          }
-          if (obj instanceof Font){
-            Font res = (Font) def.get(key);
-            //Font fnt = res.deriveFont((float) (res.getSize() * zoomFactor));
-            Font fnt = res.deriveFont((float) (defaultFontsize * zoomFactor));
-            def.put(key, fnt);
-          }
-
-        }
-        catch (Exception x)
-        {
-          Logger.debug(x);
-        }
-      }
-    }*/
-    Logger.debug(changedFonts + L.m(" Fontgrößen verändert!"));
+    LOGGER.debug(changedFonts + L.m(" Fontgrößen verändert!"));
   }
 
   public static int getVerticalScrollbarUnitIncrement()
   {
-    return vertical_scrollbar_unit_increment;
+    return verticalScrollbarUnitIncrement;
   }
 
   /**
@@ -472,14 +426,6 @@ public class Common
   /**
    * Sets the icon of the passed in JFrame to the WollMux icon.
    *
-   * FIXME: At the moment this method works only with Java 6 because we use the
-   * "setIconImages" method; we could have used the "setIconImage" method from Java 5
-   * instead but the result looks absolutely terrible under KDE using Java 5; to
-   * avoid this the following is realized using the reflection API so that it only
-   * works when you use Java 6 but doesn't cause any problems in our build
-   * environment that uses Java 5. When we completely switch to Java 6 this code can
-   * be cleaned up.
-   *
    * @param myFrame
    *          JFrame which should get the WollMux icon
    * @author Daniel Benkmann
@@ -488,24 +434,21 @@ public class Common
   {
     try
     {
-      List<Image> iconList = new ArrayList<Image>();
-      URL url =
-        Common.class.getClassLoader().getResource("data/wollmux_icon32x32.png");
-      if (url != null)
-        iconList.add(Toolkit.getDefaultToolkit().createImage(url));
+      URL url = Common.class.getClassLoader().getResource("data/wollmux_icon32x32.png");
 
-      Class<?> cls = myFrame.getClass();
-      Class<?>[] parameterTypes = new Class[1];
-      parameterTypes[0] = Class.forName("java.util.List");
-      Method method = cls.getMethod("setIconImages", parameterTypes);
-      Object[] args = new Object[1];
-      args[0] = iconList;
-      method.invoke(myFrame, args);
+      if (url == null)
+      {
+        LOGGER.error("Could not retrieve image from resource.");
+
+        return;
+      }
+
+      Image image = Toolkit.getDefaultToolkit().createImage(url);
+      myFrame.setIconImage(image);
     }
     catch (Throwable e)
     {
-      // you probably didn't use Java 6 (or above)
-      // -> no icon for you
+      LOGGER.error("", e);
     }
   }
 

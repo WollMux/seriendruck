@@ -1,18 +1,20 @@
 package de.muenchen.mailmerge.dialog.mailmerge;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.mail.MessagingException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import com.sun.star.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.lang.NoSuchMethodException;
 import com.sun.star.text.XTextDocument;
 
@@ -24,7 +26,6 @@ import de.muenchen.allg.itd51.wollmux.core.dialog.TextComponentTags;
 import de.muenchen.allg.itd51.wollmux.core.document.SimulationResults.SimulationResultsProcessor;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigurationErrorException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.ModalDialogs;
 import de.muenchen.mailmerge.dialog.mailmerge.gui.IndexSelection;
 import de.muenchen.mailmerge.dialog.mailmerge.gui.SubmitArgument;
@@ -35,6 +36,9 @@ import de.muenchen.mailmerge.print.model.PrintModels;
 
 public class MailMergeControllerImpl implements MailMergeController
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MailMergeControllerImpl.class);
+
   /**
    * ID der Property in der die Serienbriefdaten gespeichert werden.
    */
@@ -152,7 +156,7 @@ public class MailMergeControllerImpl implements MailMergeController
     documentController.collectNonWollMuxFormFields();
     QueryResultsWithSchema data = ds.getData();
 
-    List<Integer> selected = new Vector<>();
+    List<Integer> selected = new ArrayList<>();
     switch (datasetSelectionType)
     {
       case ALL:
@@ -223,7 +227,7 @@ public class MailMergeControllerImpl implements MailMergeController
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
       return;
     }
 
@@ -237,7 +241,7 @@ public class MailMergeControllerImpl implements MailMergeController
     }
     catch (NoSuchMethodException e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
       ModalDialogs.showInfoModal(
         L.m("Fehler beim Drucken"),
         L.m(
@@ -266,7 +270,7 @@ public class MailMergeControllerImpl implements MailMergeController
         documentController.setFormFieldsPreviewMode(false);
 
         long duration = (System.currentTimeMillis() - startTime) / 1000;
-        Logger.debug(L.m("MailMerge finished after %1 seconds", duration));
+        LOGGER.debug(L.m("MailMerge finished after %1 seconds", duration));
       }
     }.start();
   }
@@ -338,12 +342,12 @@ public class MailMergeControllerImpl implements MailMergeController
         }
         catch (Exception e)
         {
-          Logger.error(L.m("darf nicht vorkommen"), e);
+          LOGGER.error(L.m("darf nicht vorkommen"), e);
         }
       }
       catch (java.io.IOException e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     if (tmpOutDir == null)
     {
@@ -403,7 +407,7 @@ public class MailMergeControllerImpl implements MailMergeController
     }
     catch (ConfigurationErrorException e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
       ModalDialogs.showInfoModal(
         MAIL_ERROR_MESSAGE_TITLE,
         L.m("Es konnten keine Angaben zum Mailserver gefunden werden - eventuell ist die WollMux-Konfiguration nicht vollständig."));
@@ -412,7 +416,7 @@ public class MailMergeControllerImpl implements MailMergeController
     }
     catch (MessagingException e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
       ModalDialogs.showInfoModal(MAIL_ERROR_MESSAGE_TITLE,
         L.m("Der Versand der E-Mail ist fehlgeschlagen."));
       pmod.cancel();
@@ -420,7 +424,7 @@ public class MailMergeControllerImpl implements MailMergeController
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
       pmod.cancel();
       return;
     }
@@ -438,8 +442,7 @@ public class MailMergeControllerImpl implements MailMergeController
    * @author Ignaz Forster (D-III-ITD-D102)
    * @throws java.io.IOException
    */
-  public static File saveToFile(XPrintModel pmod, boolean isODT) throws IOException,
-      java.io.IOException
+  public static File saveToFile(XPrintModel pmod, boolean isODT)
   {
     XTextDocument textDocument = pmod.getTextDocument();
 
@@ -485,7 +488,7 @@ public class MailMergeControllerImpl implements MailMergeController
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
       return 0;
     }
     return selection.size();
@@ -573,6 +576,9 @@ public class MailMergeControllerImpl implements MailMergeController
       for(String spalte : schema)
       {
         String value = ds.get(spalte);
+        // Wert zuerst entsetzen um sicher eine Änderung hervorzurufen.
+        // Denn ansonsten werden die Sichtbarkeiten nicht richtig aktualisiert.
+        pmod.setFormValue(spalte, "");
         pmod.setFormValue(spalte, value);
         dataSetExport.put(spalte, value);
       }

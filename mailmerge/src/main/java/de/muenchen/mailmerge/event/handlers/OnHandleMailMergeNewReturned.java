@@ -1,6 +1,6 @@
 package de.muenchen.mailmerge.event.handlers;
 
-import de.muenchen.mailmerge.WollMuxFehlerException;
+import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.document.TextDocumentController;
 
 /**
@@ -19,8 +19,9 @@ public class OnHandleMailMergeNewReturned extends BasicEvent
   }
 
   @Override
-  protected void doit() throws WollMuxFehlerException
+  protected void doit() throws MailMergeFehlerException
   {
+    documentController.setFormFieldsPreviewMode(true);
   }
 
   @Override

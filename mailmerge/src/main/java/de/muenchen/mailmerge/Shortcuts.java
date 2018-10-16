@@ -31,11 +31,12 @@
 
 package de.muenchen.mailmerge;
 
-import java.io.File;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.star.awt.Key;
 import com.sun.star.awt.KeyEvent;
@@ -48,10 +49,12 @@ import de.muenchen.allg.afid.UNO;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 
 public class Shortcuts
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Shortcuts.class);
+
   /**
    * Liest alle Attribute SHORTCUT und URL aus tastenkombinationenConf aus, löscht
    * alle bisher vorhandenen Tastenkombinationen deren URL mit "wollmux:" beginnt und
@@ -88,7 +91,7 @@ public class Shortcuts
       }
       catch (NodeNotFoundException e)
       {
-        Logger.error(L.m("SHORTCUT Angabe fehlt in '%1%'",
+        LOGGER.error(L.m("SHORTCUT Angabe fehlt in '%1%'",
           tastenkombination.stringRepresentation()));
         continue;
       }
@@ -101,7 +104,7 @@ public class Shortcuts
       }
       catch (NodeNotFoundException e)
       {
-        Logger.error(L.m("URL Angabe fehlt in '%1'",
+        LOGGER.error(L.m("URL Angabe fehlt in '%1'",
           tastenkombination.stringRepresentation()));
         continue;
       }
@@ -116,12 +119,12 @@ public class Shortcuts
         }
         catch (Exception e)
         {
-          Logger.error(e);
+          LOGGER.error("", e);
         }
       }
       else
       {
-        Logger.error(L.m(
+        LOGGER.error(L.m(
           "Ungültige Tastenkombination '%1' im .conf Abschnitt Tastenkuerzel",
           shortcut));
       }
@@ -137,7 +140,7 @@ public class Shortcuts
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 
@@ -173,7 +176,7 @@ public class Shortcuts
       }
       catch (NoSuchElementException e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     }
   }
@@ -195,14 +198,12 @@ public class Shortcuts
     {
       for (int i = 0; i < keys.length; i++)
       {
-        Logger.debug2("Modifiers: " + keys[i].Modifiers + " KeyCode: "
-          + keys[i].KeyCode + " --> " + xac.getCommandByKeyEvent(keys[i]));
-
+        LOGGER.trace("Modifiers: {} KeyCode: {} --> {}", keys[i].Modifiers, keys[i].KeyCode, xac.getCommandByKeyEvent(keys[i]));
       }
     }
     catch (Exception e)
     {
-      Logger.debug2(e);
+      LOGGER.trace("", e);
     }
 
   }
@@ -263,7 +264,7 @@ public class Shortcuts
   private static Short returnKeyCode(String shortcut)
   {
 
-    final Map<String, Short> myMap = new HashMap<String, Short>();
+    final Map<String, Short> myMap = new HashMap<>();
 
     // Zahlen 0-9
     myMap.put("0", Short.valueOf(Key.NUM0));
@@ -395,7 +396,7 @@ public class Shortcuts
   private static Short returnKeyModifier(String shortcut)
   {
 
-    final Map<String, Short> myMap = new HashMap<String, Short>();
+    final Map<String, Short> myMap = new HashMap<>();
 
     // SHIFT, CTRL und ALT
     myMap.put("SHIFT", Short.valueOf(KeyModifier.SHIFT));
@@ -405,26 +406,5 @@ public class Shortcuts
     myMap.put("ALT", Short.valueOf(KeyModifier.MOD2));
 
     return myMap.get(shortcut.toUpperCase());
-  }
-
-  public static void main(String[] args) throws Exception
-  {
-
-    UNO.init();
-
-    // lesen der conf --> fällt nachher weg
-    ConfigThingy conf = null;
-    String confFile = "../../.wollmux/wollmux.conf";
-
-    conf = new ConfigThingy("", new URL(new File(".").toURI().toURL(), confFile));
-
-    // ConfigThingy conf = WollMuxSingleton.getInstance().getWollmuxConf();
-
-    // lesen des .conf Abschnitt "Tastenkuerzel"
-    ConfigThingy tastenkombinationenConf = conf.query("Tastenkuerzel");
-
-    createShortcuts(tastenkombinationenConf);
-
-    System.exit(0);
   }
 }

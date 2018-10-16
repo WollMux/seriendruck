@@ -57,6 +57,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.star.awt.XTopWindow;
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.container.XNameAccess;
@@ -97,7 +100,6 @@ import de.muenchen.allg.itd51.wollmux.core.exceptions.UnavailableException;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.document.TextDocumentController;
 
 /**
@@ -111,6 +113,9 @@ import de.muenchen.mailmerge.document.TextDocumentController;
  */
 public class MailMergeDatasource
 {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MailMergeDatasource.class);
+
   /**
    * Wert für {@link #sourceType}, der anzeigt, dass keine Datenquelle ausgewählt
    * ist.
@@ -240,13 +245,13 @@ public class MailMergeDatasource
         case SOURCE_DB:
           return getDbColumnNames(getOOoDatasource());
         default:
-          return new Vector<>();
+        return new ArrayList<>();
       }
     }
     catch (Exception x)
     {
-      Logger.error(x);
-      return new Vector<>();
+      LOGGER.error("", x);
+      return new ArrayList<>();
     }
   }
 
@@ -274,13 +279,13 @@ public class MailMergeDatasource
         case SOURCE_DB:
           return getDbValuesForDataset(getOOoDatasource(), rowIndex);
         default:
-          return new Vector<>();
+        return new ArrayList<>();
       }
     }
     catch (Exception x)
     {
-      Logger.error(x);
-      return new Vector<>();
+      LOGGER.error("", x);
+      return new ArrayList<>();
     }
   }
 
@@ -307,7 +312,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
       return 0;
     }
   }
@@ -354,7 +359,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
       return new QueryResultsWithSchema();
     }
   }
@@ -542,7 +547,7 @@ public class MailMergeDatasource
       }
       catch (Exception x)
       {
-        Logger.error(x);
+        LOGGER.error("", x);
       }
     }
 
@@ -558,7 +563,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
   }
 
@@ -611,12 +616,12 @@ public class MailMergeDatasource
         }
         catch (UnavailableException e)
         {
-          Logger.debug(e);
+          LOGGER.debug("", e);
         }
       }
       catch (NodeNotFoundException e)
       {
-        Logger.error(L.m("Fehlendes Argument für Datenquelle vom Typ '%1':", type),
+        LOGGER.error(L.m("Fehlendes Argument für Datenquelle vom Typ '%1':", type),
           e);
       }
     }
@@ -631,13 +636,13 @@ public class MailMergeDatasource
       }
       catch (NodeNotFoundException e)
       {
-        Logger.error(L.m("Fehlendes Argument für Datenquelle vom Typ '%1':", type),
+        LOGGER.error(L.m("Fehlendes Argument für Datenquelle vom Typ '%1':", type),
           e);
       }
     }
     else if (type != null)
     {
-      Logger.error(L.m("Ignoriere Datenquelle mit unbekanntem Typ '%1'", type));
+      LOGGER.error(L.m("Ignoriere Datenquelle mit unbekanntem Typ '%1'", type));
     }
   }
 
@@ -755,7 +760,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
       return 0;
     }
     finally
@@ -813,7 +818,7 @@ public class MailMergeDatasource
       }
       catch (Exception x)
       {
-        Logger.error(L.m("Kann Anzahl Datensätze nicht bestimmen"), x);
+        LOGGER.error(L.m("Kann Anzahl Datensätze nicht bestimmen"), x);
       }
     }
 
@@ -829,7 +834,7 @@ public class MailMergeDatasource
    */
   private List<String> getDbColumnNames(Datasource oooDatasource)
   {
-    List<String> columnNames = new Vector<>();
+    List<String> columnNames = new ArrayList<>();
     columnNames.addAll(oooDatasource.getSchema());
     Collections.sort(columnNames);
     return columnNames;
@@ -843,7 +848,7 @@ public class MailMergeDatasource
    */
   private List<String> getColumnNames(XSpreadsheetDocument calcDoc, String tableName)
   {
-    List<String> columnNames = new Vector<>();
+    List<String> columnNames = new ArrayList<>();
     if (calcDoc == null)
       return columnNames;
     try
@@ -878,7 +883,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(L.m("Kann Spaltennamen nicht bestimmen"), x);
+      LOGGER.error(L.m("Kann Spaltennamen nicht bestimmen"), x);
     }
     return columnNames;
   }
@@ -948,8 +953,8 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(x);
-      return new Vector<>();
+      LOGGER.error("", x);
+      return new ArrayList<>();
     }
   }
 
@@ -971,7 +976,7 @@ public class MailMergeDatasource
   private List<String> getValuesForDataset(XSpreadsheetDocument calcDoc,
       String tableName, int rowIndex)
   {
-    List<String> columnValues = new Vector<>();
+    List<String> columnValues = new ArrayList<>();
     if (calcDoc == null)
       return columnValues;
     try
@@ -1031,7 +1036,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(L.m("Kann Spaltenwerte nicht bestimmen"), x);
+      LOGGER.error(L.m("Kann Spaltenwerte nicht bestimmen"), x);
     }
     return columnValues;
   }
@@ -1142,7 +1147,7 @@ public class MailMergeDatasource
    */
   private List<String> getRegisteredDatabaseNames()
   {
-    List<String> datasourceNames = new Vector<>();
+    List<String> datasourceNames = new ArrayList<>();
     try
     {
       String[] datasourceNamesA = UNO.XNameAccess(UNO.dbContext).getElementNames();
@@ -1153,7 +1158,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
     return datasourceNames;
   }
@@ -1242,7 +1247,7 @@ public class MailMergeDatasource
   {
     try
     {
-      Logger.debug(L.m("Öffne neues Calc-Dokument als Datenquelle für Seriendruck"));
+      LOGGER.debug(L.m("Öffne neues Calc-Dokument als Datenquelle für Seriendruck"));
       XSpreadsheetDocument spread =
         UNO.XSpreadsheetDocument(UNO.loadComponentFromURL("private:factory/scalc",
           true, true));
@@ -1264,7 +1269,7 @@ public class MailMergeDatasource
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
   }
 
@@ -1290,7 +1295,7 @@ public class MailMergeDatasource
         return;
       try
       {
-        Logger.debug(L.m("Öffne %1 als Datenquelle für Seriendruck", files[0]));
+        LOGGER.debug(L.m("Öffne %1 als Datenquelle für Seriendruck", files[0]));
         try
         {
           getCalcDoc(files[0]);
@@ -1304,7 +1309,7 @@ public class MailMergeDatasource
       }
       catch (Exception e)
       {
-        Logger.error(e);
+        LOGGER.error("", e);
       }
     }
   }
@@ -1406,7 +1411,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(L.m("Kann CloseListener nicht auf Calc-Dokument registrieren"), x);
+      LOGGER.error(L.m("Kann CloseListener nicht auf Calc-Dokument registrieren"), x);
     }
     try
     {
@@ -1414,7 +1419,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(L.m("Kann EventListener nicht auf Calc-Dokument registrieren"), x);
+      LOGGER.error(L.m("Kann EventListener nicht auf Calc-Dokument registrieren"), x);
     }
   }
 
@@ -1435,7 +1440,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(L.m("Konnte alten XCloseListener nicht deregistrieren"), x);
+      LOGGER.error(L.m("Konnte alten XCloseListener nicht deregistrieren"), x);
     }
     try
     {
@@ -1443,7 +1448,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(L.m("Konnte alten XEventListener nicht deregistrieren"), x);
+      LOGGER.error(L.m("Konnte alten XEventListener nicht deregistrieren"), x);
     }
 
   }
@@ -1540,7 +1545,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
     return win;
   }
@@ -1595,7 +1600,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
 
     /**
@@ -1702,7 +1707,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
       return;
     }
     if (newDsName.length() == 0)
@@ -1800,7 +1805,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(L.m("Fehler beim Zugriff auf Calc-Dokument"), x);
+      LOGGER.error(L.m("Fehler beim Zugriff auf Calc-Dokument"), x);
       return;
     }
 
@@ -1878,7 +1883,7 @@ public class MailMergeDatasource
       }
       catch (Exception x)
       {
-        Logger.error(L.m("Kann Spalte \"%1\" nicht hinzufügen", fieldId), x);
+        LOGGER.error(L.m("Kann Spalte \"%1\" nicht hinzufügen", fieldId), x);
       }
     }
   }
@@ -1902,13 +1907,13 @@ public class MailMergeDatasource
         case SOURCE_DB:
           return getDbTableNames();
         default:
-          return new Vector<>();
+        return new ArrayList<>();
       }
     }
     catch (Exception x)
     {
-      Logger.error(x);
-      return new Vector<>();
+      LOGGER.error("", x);
+      return new ArrayList<>();
     }
   }
 
@@ -1923,7 +1928,7 @@ public class MailMergeDatasource
    */
   private List<String> getDbTableNames()
   {
-    List<String> tableNames = new Vector<>();
+    List<String> tableNames = new ArrayList<>();
     if (sourceType == SOURCE_DB && oooDatasourceName != null)
     {
       try
@@ -1944,7 +1949,7 @@ public class MailMergeDatasource
       }
       catch (Exception x)
       {
-        Logger.error(x);
+        LOGGER.error("", x);
       }
     }
     return tableNames;
@@ -1959,7 +1964,7 @@ public class MailMergeDatasource
    */
   private List<String> getRelevantTableNames(XSpreadsheetDocument calcDoc)
   {
-    List<String> nonEmptyTableNames = new Vector<>();
+    List<String> nonEmptyTableNames = new ArrayList<>();
     if (calcDoc != null)
       try
       {
@@ -1983,7 +1988,7 @@ public class MailMergeDatasource
           }
           catch (Exception x)
           {
-            Logger.error(x);
+            LOGGER.error("", x);
           }
         }
 
@@ -1993,7 +1998,7 @@ public class MailMergeDatasource
       }
       catch (Exception x)
       {
-        Logger.error(x);
+        LOGGER.error("", x);
       }
     return nonEmptyTableNames;
   }
@@ -2009,7 +2014,7 @@ public class MailMergeDatasource
     @Override
     public void notifyClosing(EventObject arg0)
     {
-      Logger.debug(L.m("Calc-Datenquelle wurde unerwartet geschlossen"));
+      LOGGER.debug(L.m("Calc-Datenquelle wurde unerwartet geschlossen"));
       javax.swing.SwingUtilities.invokeLater(new Runnable()
       {
         @Override
@@ -2023,7 +2028,7 @@ public class MailMergeDatasource
     @Override
     public void disposing(EventObject arg0)
     {
-      Logger.debug(L.m("Calc-Datenquelle wurde disposed()"));
+      LOGGER.debug(L.m("Calc-Datenquelle wurde disposed()"));
       javax.swing.SwingUtilities.invokeLater(new Runnable()
       {
         @Override
@@ -2046,7 +2051,7 @@ public class MailMergeDatasource
           public void run()
           {
             calcUrl = UNO.XModel(calcDoc).getURL();
-            Logger.debug(L.m("Speicherort der Tabelle hat sich geändert: \"%1\"",
+            LOGGER.debug(L.m("Speicherort der Tabelle hat sich geändert: \"%1\"",
               calcUrl));
             storeDatasourceSettings();
           }
@@ -2141,7 +2146,7 @@ public class MailMergeDatasource
     }
     catch (Exception x)
     {
-      Logger.error(x);
+      LOGGER.error("", x);
     }
 
     return results;

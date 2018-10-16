@@ -52,9 +52,13 @@
 package de.muenchen.mailmerge;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Iterator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.star.lang.WrappedTargetException;
 import com.sun.star.uno.UnoRuntime;
@@ -66,7 +70,6 @@ import de.muenchen.allg.afid.UnoService;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.parser.NodeNotFoundException;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.allg.itd51.wollmux.core.util.Logger;
 import de.muenchen.mailmerge.document.DocumentManager;
 import de.muenchen.mailmerge.event.GlobalEventListener;
 
@@ -76,10 +79,12 @@ import de.muenchen.mailmerge.event.GlobalEventListener;
  * de.muenchen.allg.itd51.wollmux.comp.WollMux, der früher zentraler Anlaufpunkt war,
  * bedient sich größtenteils aus den zentralen Methoden des Singletons.
  */
-public class WollMuxSingleton
+public class MailMergeSingleton
 {
 
-   private static WollMuxSingleton singletonInstance = null;
+  private static final Logger LOGGER = LoggerFactory.getLogger(MailMergeSingleton.class);
+
+  private static MailMergeSingleton singletonInstance = null;
 
   /**
    * Enthält den default XComponentContext in dem der WollMux (bzw. das OOo) läuft.
@@ -94,7 +99,7 @@ public class WollMuxSingleton
   /**
    * Die WollMux-Hauptklasse ist als singleton realisiert.
    */
-  private WollMuxSingleton(XComponentContext ctx)
+  private MailMergeSingleton(XComponentContext ctx)
   {
     // Der XComponentContext wir hier gesichert und vom WollMuxSingleton mit
     // getXComponentContext zurückgeliefert.
@@ -108,10 +113,10 @@ public class WollMuxSingleton
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
 
-    if (!WollMuxFiles.setupWollMuxDir())
+    if (!MailMergeFiles.setupWollMuxDir())
     {
       noConfig = new NoConfig(true);
       showNoConfigInfo();
@@ -121,25 +126,24 @@ public class WollMuxSingleton
       noConfig = new NoConfig(false);
     }
 
-    WollMuxClassLoader.initClassLoader();
+    MailMergeClassLoader.initClassLoader();
 
-    Logger.debug(L.m("StartupWollMux"));
-    Logger.debug("Build-Info: " + getBuildInfo());
-    if (WollMuxFiles.getWollMuxConfFile() != null)
+    LOGGER.debug(L.m("StartupWollMux"));
+    LOGGER.debug("Build-Info: {}", getBuildInfo());
+    if (MailMergeFiles.getWollMuxConfFile() != null)
     {
-      Logger.debug("wollmuxConfFile = " + WollMuxFiles.getWollMuxConfFile().toString());
+      LOGGER.debug("wollmuxConfFile = {}", MailMergeFiles.getWollMuxConfFile());
     }
-    Logger.debug("DEFAULT_CONTEXT \"" + WollMuxFiles.getDEFAULT_CONTEXT().toString()
-      + "\"");
-    Logger.debug("CONF_VERSION: " + getConfVersionInfo());
+    LOGGER.debug("DEFAULT_CONTEXT \"{}\"", MailMergeFiles.getDEFAULT_CONTEXT());
+    LOGGER.debug("CONF_VERSION: {}", getConfVersionInfo());
 
     /*
      * Datenquellen/Registriere Abschnitte verarbeiten. ACHTUNG! Dies muss vor
      * getDatasourceJoiner() geschehen, da die entsprechenden Datenquellen womöglich
      * schon für WollMux-Datenquellen benötigt werden.
      */
-    registerDatasources(WollMuxFiles.getWollmuxConf(),
-      WollMuxFiles.getDEFAULT_CONTEXT());
+    registerDatasources(MailMergeFiles.getWollmuxConf(),
+      MailMergeFiles.getDEFAULT_CONTEXT());
 
     // register global EventListener
     try
@@ -152,7 +156,7 @@ public class WollMuxSingleton
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
 
     /*
@@ -170,7 +174,7 @@ public class WollMuxSingleton
     try
     {
       tastenkuerzel =
-        WollMuxFiles.getWollmuxConf().query("Tastenkuerzel").getLastChild();
+        MailMergeFiles.getWollmuxConf().query("Tastenkuerzel").getLastChild();
     }
     catch (NodeNotFoundException e)
     {}
@@ -180,16 +184,18 @@ public class WollMuxSingleton
     }
     catch (Exception e)
     {
-      Logger.error(e);
+      LOGGER.error("", e);
     }
 
     // Setzen der in den Abschnitten OOoEinstellungen eingestellten
     // Konfigurationsoptionen
-    ConfigThingy oooEinstellungenConf =
-      WollMuxFiles.getWollmuxConf().query("OOoEinstellungen");
-    for (Iterator<ConfigThingy> iter = oooEinstellungenConf.iterator(); iter.hasNext();)
+    this.setOOoConfiguration(MailMergeFiles.getWollmuxConf().query("OOoEinstellungen"));
+  }
+
+  private void setOOoConfiguration(ConfigThingy oooEinstellungenConf)
+  {
+    for (ConfigThingy settings : oooEinstellungenConf)
     {
-      ConfigThingy settings = iter.next();
       setConfigurationValues(settings);
     }
   }
@@ -200,7 +206,7 @@ public class WollMuxSingleton
    *
    * @return Instanz des WollMuxSingletons oder null.
    */
-  public static WollMuxSingleton getInstance()
+  public static MailMergeSingleton getInstance()
   {
     return singletonInstance;
   }
@@ -213,7 +219,7 @@ public class WollMuxSingleton
   {
     if (singletonInstance == null)
     {
-      singletonInstance = new WollMuxSingleton(ctx);
+      singletonInstance = new MailMergeSingleton(ctx);
     }
   }
 
@@ -241,30 +247,21 @@ public class WollMuxSingleton
    */
   public static String getBuildInfo()
   {
-    BufferedReader in = null;
-    try
+
+    URL url = MailMergeSingleton.class.getClassLoader().getResource("mailmerge.version.txt");
+    if (url != null)
     {
-      URL url = WollMuxSingleton.class.getClassLoader().getResource("mailmerge.version.txt");
-      if (url != null)
+      try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream())))
       {
-        in = new BufferedReader(new InputStreamReader(url.openStream()));
         String str = in.readLine();
         if (str != null)
         {
           return str;
         }
-      }
-    }
-    catch (Exception x)
-    {}
-    finally
-    {
-      try
+      } catch (IOException e)
       {
-        in.close();
+        LOGGER.debug("", e);
       }
-      catch (Exception y)
-      {}
     }
 
     return L.m("Version: unbekannt");
@@ -281,7 +278,7 @@ public class WollMuxSingleton
    */
   public String getConfVersionInfo()
   {
-    ConfigThingy versions = WollMuxFiles.getWollmuxConf().query("CONF_VERSION");
+    ConfigThingy versions = MailMergeFiles.getWollmuxConf().query("CONF_VERSION");
     try
     {
       return versions.getLastChild().toString();
@@ -331,7 +328,7 @@ public class WollMuxSingleton
       }
       catch (NodeNotFoundException e)
       {
-        Logger.error(
+        LOGGER.error(
           L.m("NAME-Attribut fehlt in Datenquellen/Registriere-Abschnitt"), e);
         continue;
       }
@@ -343,7 +340,7 @@ public class WollMuxSingleton
       }
       catch (NodeNotFoundException e)
       {
-        Logger.error(
+        LOGGER.error(
           L.m(
             "URL-Attribut fehlt in Datenquellen/Registriere-Abschnitt für Datenquelle '%1'",
             name), e);
@@ -370,12 +367,12 @@ public class WollMuxSingleton
       }
       catch (Exception x)
       {
-        Logger.error(L.m(
+        LOGGER.error(L.m(
           "Fehler beim Überprüfen, ob Datenquelle '%1' bereits registriert ist",
           name), x);
       }
 
-      Logger.debug(L.m(
+      LOGGER.debug(L.m(
         "Versuche, Datenquelle '%1' bei OOo zu registrieren für URL '%2'", name,
         urlStr));
 
@@ -387,7 +384,7 @@ public class WollMuxSingleton
       }
       catch (Exception x)
       {
-        Logger.error(L.m(
+        LOGGER.error(L.m(
           "Fehler beim Registrieren von Datenquelle '%1': Illegale URL: '%2'", name,
           urlStr), x);
         continue;
@@ -398,13 +395,13 @@ public class WollMuxSingleton
         Object datasource = UNO.XNameAccess(UNO.dbContext).getByName(parsedUrl);
         UNO.dbContext.registerObject(name, datasource);
         if (!UnoRuntime.areSame(UNO.dbContext.getRegisteredObject(name), datasource))
-          Logger.error(L.m(
+          LOGGER.error(L.m(
             "Testzugriff auf Datenquelle '%1' nach Registrierung fehlgeschlagen",
             name));
       }
       catch (Exception x)
       {
-        Logger.error(
+        LOGGER.error(
           L.m(
             "Fehler beim Registrieren von Datenquelle '%1'. Stellen Sie sicher, dass die URL '%2' gültig ist.",
             name, parsedUrl), x);
@@ -423,9 +420,8 @@ public class WollMuxSingleton
    */
   private static void setConfigurationValues(ConfigThingy oooEinstellungenConf)
   {
-    for (Iterator<ConfigThingy> iter = oooEinstellungenConf.iterator(); iter.hasNext();)
+    for (ConfigThingy element : oooEinstellungenConf)
     {
-      ConfigThingy element = iter.next();
       try
       {
         String node = element.get("NODE").toString();
@@ -438,7 +434,7 @@ public class WollMuxSingleton
       }
       catch (Exception e)
       {
-        Logger.error(L.m("OOoEinstellungen: Konnte Einstellung '%1'nicht setzen:",
+        LOGGER.error(L.m("OOoEinstellungen: Konnte Einstellung '%1'nicht setzen:",
           element.stringRepresentation()), e);
       }
     }
@@ -460,21 +456,24 @@ public class WollMuxSingleton
    */
   private static Object getObjectByType(String type, String value)
   {
-    if (type.equalsIgnoreCase("boolean"))
+    try
     {
-      return Boolean.valueOf(value);
-    }
-    else if (type.equalsIgnoreCase("integer"))
+      if (type.equalsIgnoreCase("boolean"))
+      {
+        return Boolean.valueOf(value);
+      } else if (type.equalsIgnoreCase("integer"))
+      {
+        return Integer.valueOf(value);
+      } else if (type.equalsIgnoreCase("float"))
+      {
+        return Float.valueOf(value);
+      } else if (type.equalsIgnoreCase("string"))
+      {
+        return value;
+      }
+    } catch (NumberFormatException e)
     {
-      return Integer.valueOf(value);
-    }
-    else if (type.equalsIgnoreCase("float"))
-    {
-      return Float.valueOf(value);
-    }
-    else if (type.equalsIgnoreCase("string"))
-    {
-      return value;
+      LOGGER.error("", e);
     }
 
     throw new IllegalArgumentException(
@@ -497,17 +496,22 @@ public class WollMuxSingleton
   private static void setConfigurationValue(String node, String prop, Object value)
   {
     XChangesBatch updateAccess = UNO.getConfigurationUpdateAccess(node);
-    if (value != null)
-      UNO.setProperty(updateAccess, prop, value);
-    if (updateAccess != null)
-      try
-      {
-        updateAccess.commitChanges();
-      }
-      catch (WrappedTargetException e)
-      {
-        Logger.error(e);
-      }
+
+    if (updateAccess == null)
+    {
+      LOGGER.error("setConfigurationValue(): updateAccess is NULL.");
+      return;
+    }
+
+    UNO.setProperty(updateAccess, prop, value);
+
+    try
+    {
+      updateAccess.commitChanges();
+    } catch (WrappedTargetException e)
+    {
+      LOGGER.error("", e);
+    }
   }
 
   /**

@@ -31,4 +31,9 @@
 		</snapshotRepository>
 	</distributionManagement>
 	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<libreoffice.version>5.2.7</libreoffice.version>
+	</properties>
+	
 </project>

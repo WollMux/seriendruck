@@ -27,16 +27,16 @@ package de.muenchen.mailmerge;
  * 
  * @author christoph.lutz
  */
-public class WollMuxFehlerException extends java.lang.Exception
+public class MailMergeFehlerException extends java.lang.Exception
 {
   private static final long serialVersionUID = 3618646713098791791L;
 
-  public WollMuxFehlerException(String msg)
+  public MailMergeFehlerException(String msg)
   {
     super(msg);
   }
 
-  public WollMuxFehlerException(String msg, java.lang.Exception e)
+  public MailMergeFehlerException(String msg, java.lang.Exception e)
   {
     super(msg, e);
   }
