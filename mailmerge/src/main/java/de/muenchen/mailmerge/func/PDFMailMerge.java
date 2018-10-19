@@ -6,9 +6,10 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.util.PDFMergerUtility;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
 import com.sun.star.beans.PropertyState;
 import com.sun.star.beans.PropertyValue;
@@ -149,7 +150,7 @@ public class PDFMailMerge
       pmod.setPrintProgressValue(n++);
 
       // Files alphabetisch sortieren:
-      SortedMap<String, File> sorter = new TreeMap<String, File>();
+      SortedMap<String, File> sorter = new TreeMap<>();
       for (File file : tmpOutDir.listFiles())
         sorter.put(file.getName(), file);
 
@@ -161,9 +162,9 @@ public class PDFMailMerge
           break;
         }
         File file = entry.getValue();
-        PDDocument source = PDDocument.load(file.getAbsolutePath());
+        PDDocument source = PDDocument.load(file);
         if (duplex && source.getNumberOfPages() % 2 != 0)
-          source.addPage(new PDPage(PDPage.PAGE_SIZE_A4));
+          source.addPage(new PDPage(PDRectangle.A4));
         merger.appendDocument(dest, source);
         source.close();
         file.delete();
