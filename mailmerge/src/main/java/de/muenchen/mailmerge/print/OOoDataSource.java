@@ -76,7 +76,7 @@ public abstract class OOoDataSource implements SimulationResultsProcessor
 
       // Checkboxen müssen über bestimmte Zeichen der Schriftart OpenSymbol
       // angenähert werden.
-      if (field.getType() == FormFieldType.CheckBoxFormField)
+      if (field.getType() == FormFieldType.CHECKBOX_FORM_FIELD)
         if (content.equalsIgnoreCase("TRUE"))
           content = "" + OOoBasedMailMerge.OPENSYMBOL_CHECKED;
         else

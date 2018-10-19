@@ -591,7 +591,7 @@ public class OOoBasedMailMerge
 
           // Checkboxen müssen über bestimmte Zeichen der Schriftart OpenSymbol
           // angenähert werden.
-          if (field.getType() == FormFieldType.CheckBoxFormField)
+          if (field.getType() == FormFieldType.CHECKBOX_FORM_FIELD)
             UNO.setProperty(ifvCmd.getTextCursor(), "CharFontName", "OpenSymbol");
         }
         catch (Exception e)
@@ -617,11 +617,11 @@ public class OOoBasedMailMerge
     String trafo = field.getTrafoName();
     String id = field.getId();
 
-    if (field.getType() == FormFieldType.CheckBoxFormField && id != null
+    if (field.getType() == FormFieldType.CHECKBOX_FORM_FIELD && id != null
       && trafo != null)
       return COLUMN_PREFIX_CHECKBOX_FUNCTION + SEP + id + SEP + trafo;
 
-    else if (field.getType() == FormFieldType.CheckBoxFormField && id != null
+    else if (field.getType() == FormFieldType.CHECKBOX_FORM_FIELD && id != null
       && trafo == null)
       return COLUMN_PREFIX_CHECKBOX_FUNCTION + SEP + id;
 

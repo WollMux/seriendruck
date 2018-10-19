@@ -483,12 +483,12 @@ public class SachleitendeVerfuegung
    */
   private static String abdruckString(int number)
   {
-    String str = romanNumber(number) + "\t" + copyName + " von " + romanNumber(1);
+    StringBuilder str = new StringBuilder(romanNumber(number) + "\t" + copyName + " von " + romanNumber(1));
     for (int j = 2; j < (number - 1); ++j)
-      str += ", " + romanNumber(j);
+      str.append(", " + romanNumber(j));
     if (number >= 3)
-      str += " und " + romanNumber(number - 1);
-    return str;
+      str.append(" und " + romanNumber(number - 1));
+    return str.toString();
   }
 
   /**
@@ -572,7 +572,7 @@ public class SachleitendeVerfuegung
         {
           String zuleit = cursor.getString();
           // nicht leere Zuleitungszeilen zum Verfügungspunkt hinzufügen.
-          if (!(zuleit.length() == 0))
+          if (zuleit.length() != 0)
             currentVerfpunkt.addZuleitungszeile(zuleit);
         }
       } while (cursor.gotoNextParagraph(false));
@@ -596,12 +596,12 @@ public class SachleitendeVerfuegung
     DocumentManager.getTextDocumentController(doc).updateDocumentCommands();
     for (Verfuegungspunkt vp : scanVerfuegungspunkte(doc))
     {
-      String text = L.m("Verfügungspunkt '%1'", vp.getHeading());
+      StringBuilder text = new StringBuilder(L.m("Verfügungspunkt '%1'", vp.getHeading()));
       for (String zuleit : vp.getZuleitungszeilen())
       {
-        text += "\n  --> '" + zuleit + "'";
+        text.append("\n  --> '" + zuleit + "'");
       }
-      LOGGER.trace(text);
+      LOGGER.trace("{}", text);
     }
 
     // Beschreibung des Druckdialogs auslesen.
