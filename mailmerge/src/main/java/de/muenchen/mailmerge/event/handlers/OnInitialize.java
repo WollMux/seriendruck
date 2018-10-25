@@ -36,8 +36,7 @@ public class OnInitialize extends BasicEvent
     List<String> removeButtonsFor = new ArrayList<>();
     removeButtonsFor.add(Dispatch.DISP_wmSeriendruck);
     removeButtonsFor.add(Dispatch.DISP_wmAbout);
-    createMenuButton(Dispatch.DISP_wmSeriendruck, L.m("Seriendruck (WollMux)"), ".uno:ToolsMenu",
-        ".uno:MailMergeWizard", removeButtonsFor);
+    createMenuButton(Dispatch.DISP_wmSeriendruck, L.m("Seriendruck (WollMux)"), ".uno:ToolsMenu", ".uno:MailMergeWizard", removeButtonsFor);
     createMenuButton(Dispatch.DISP_wmAbout, L.m("Info über Seriendruck (WollMux)"), ".uno:HelpMenu",
         ".uno:About", removeButtonsFor);
   }

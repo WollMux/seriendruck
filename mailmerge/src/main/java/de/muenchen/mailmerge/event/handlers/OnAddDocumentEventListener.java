@@ -1,7 +1,7 @@
 package de.muenchen.mailmerge.event.handlers;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import com.sun.star.document.XEventListener;
 import com.sun.star.lang.XComponent;
@@ -28,7 +28,7 @@ public class OnAddDocumentEventListener extends BasicEvent
   {
     DocumentManager.getDocumentManager().addDocumentEventListener(listener);
 
-    List<XComponent> processedDocuments = new Vector<>();
+    List<XComponent> processedDocuments = new ArrayList<>();
     DocumentManager.getDocumentManager().getProcessedDocuments(processedDocuments);
 
     for (XComponent compo : processedDocuments)

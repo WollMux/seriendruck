@@ -19,11 +19,9 @@ import de.muenchen.mailmerge.event.GlobalEventListener;
 import de.muenchen.mailmerge.event.MailMergeEventHandler;
 
 /**
- * Event wird aufgerufen, wenn die Erstellung eines neuen
- * Dokuments abgeschlossen wird.
+ * Event wird aufgerufen, wenn die Erstellung eines neuen Dokuments abgeschlossen wird.
  *
- *  @see GlobalEventListener
- *
+ * @see GlobalEventListener
  */
 public class OnViewCreated extends BasicEvent
 {
@@ -43,8 +41,7 @@ public class OnViewCreated extends BasicEvent
   {
     DocumentManager docManager = DocumentManager.getDocumentManager();
     Info docInfo = docManager.getInfo(comp);
-    // docInfo ist hier nur dann ungleich null, wenn das Dokument mit Create erzeugt
-    // wurde.
+    // docInfo ist hier nur dann ungleich null, wenn das Dokument mit Create erzeugt wurde.
     XTextDocument xTextDoc = UNO.XTextDocument(comp);
     if (xTextDoc != null && docInfo != null && isDocumentLoadedHidden(comp))
     {
@@ -59,10 +56,8 @@ public class OnViewCreated extends BasicEvent
 
     if (xTextDoc != null)
     {
-      /**
-       * Dispatch Handler in eigenem Event registrieren, da es Deadlocks gegeben hat.
-       */
-      MailMergeEventHandler.getInstance().handleRegisterDispatchInterceptor(DocumentManager.getTextDocumentController(xTextDoc));
+      // Dispatch Handler in eigenem Event registrieren, da es Deadlocks gegeben hat.
+      MailMergeEventHandler.getInstance().handleRegisterDispatchInterceptor(comp.getCurrentController().getFrame());
     }
   }
 

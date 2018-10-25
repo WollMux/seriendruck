@@ -1,8 +1,7 @@
 package de.muenchen.mailmerge.document.commands;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import com.sun.star.text.XParagraphCursor;
 import com.sun.star.text.XTextRange;
@@ -29,7 +28,7 @@ class SurroundingGarbageCollector extends AbstractExecutor
   /**
    * Speichert Muellmann-Objekte, die zu löschenden Müll entfernen.
    */
-  private List<Muellmann> muellmaenner = new Vector<>();
+  private List<Muellmann> muellmaenner = new ArrayList<>();
 
   /**
    * @param documentCommandInterpreter
@@ -86,10 +85,8 @@ class SurroundingGarbageCollector extends AbstractExecutor
   int execute(DocumentCommands commands)
   {
     int errors = 0;
-    Iterator<DocumentCommand> iter = commands.iterator();
-    while (iter.hasNext())
+    for (DocumentCommand cmd : commands)
     {
-      DocumentCommand cmd = iter.next();
       errors += cmd.execute(this);
     }
 
@@ -106,12 +103,7 @@ class SurroundingGarbageCollector extends AbstractExecutor
     try
     {
       this.documentCommandInterpreter.getDocumentController().setLockControllers(true);
-      Iterator<Muellmann> iter = muellmaenner.iterator();
-      while (iter.hasNext())
-      {
-        Muellmann muellmann = iter.next();
-        muellmann.tueDeinePflicht();
-      }
+      muellmaenner.forEach(Muellmann::tueDeinePflicht);
     }
     finally
     {

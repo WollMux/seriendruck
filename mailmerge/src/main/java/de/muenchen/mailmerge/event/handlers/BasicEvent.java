@@ -30,7 +30,7 @@ public abstract class BasicEvent implements WollMuxEvent
   @Override
   public void process()
   {
-    LOGGER.debug("Process WollMuxEvent {}", this);
+    LOGGER.debug("Process SeriendruckEvent {}", this);
     try
     {
       doit();
@@ -74,7 +74,7 @@ public abstract class BasicEvent implements WollMuxEvent
     {
       msg += "\n\n" + c;
     }
-    ModalDialogs.showInfoModal(L.m("WollMux-Fehler"), msg);
+    ModalDialogs.showInfoModal(L.m("Seriendruck-Fehler"), msg);
   }
 
   /**

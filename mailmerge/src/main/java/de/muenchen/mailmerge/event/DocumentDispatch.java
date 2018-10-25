@@ -61,7 +61,7 @@ public class DocumentDispatch extends Dispatch
   private com.sun.star.util.URL origUrl;
 
   /**
-   * Der Frame des Textdokuments das sich alle Dispatches beziehen.
+   * Der Frame des Textdokuments auf das sich alle Dispatches beziehen.
    */
   private XFrame frame;
 
@@ -139,7 +139,7 @@ public class DocumentDispatch extends Dispatch
 
   public void dispatch_mailmerge_seriendruck(String arg, PropertyValue[] props)
   {
-    MailMergeEventHandler.getInstance().handleSeriendruck(getDocumentController(), false);
+    MailMergeEventHandler.getInstance().handleSeriendruck(getDocumentController());
   }
 
   public boolean status_mailmerge_seriendruck()

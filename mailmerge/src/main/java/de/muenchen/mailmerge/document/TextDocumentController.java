@@ -382,10 +382,12 @@ public class TextDocumentController
   }
 
   /**
-   * Übernimmt einen Formularwert ins Model uns ins Dokument.
+   * Übernimmt einen Formularwert ins Model und ins Dokument.
    *
-   * @param id Name des Formularfelds
-   * @param value Inhalt des Formularfelds
+   * @param id
+   *          Name des Formularfelds
+   * @param value
+   *          Inhalt des Formularfelds
    */
   public synchronized void addFormFieldValue(String id, String value)
   {
@@ -938,18 +940,19 @@ public class TextDocumentController
     String newFieldId = null;
 
     // Neuen Text zusammenbauen, Felder sind darin mit <feldname> gekennzeichnet
-    String substStr = "";
+    StringBuilder substStr = new StringBuilder();
     int count = 0;
-    for (Iterator<FieldSubstitution.SubstElement> substIter = subst.iterator(); substIter.hasNext();)
+    for (FieldSubstitution.SubstElement ele : subst)
     {
-      FieldSubstitution.SubstElement ele = substIter.next();
       if (ele.isFixedText())
       {
-        substStr += ele.getValue();
+        substStr.append(ele.getValue());
       }
       else if (ele.isField())
       {
-        substStr += "<" + ele.getValue() + ">";
+        substStr.append("<");
+        substStr.append(ele.getValue());
+        substStr.append(">");
         newFieldId = ele.getValue();
       }
       count++;
@@ -961,9 +964,8 @@ public class TextDocumentController
     List<FormField> c = model.getIdToFormFields().get(fieldId);
     if (c != null)
     {
-      for (Iterator<FormField> iter = c.iterator(); iter.hasNext();)
+      for (FormField f : c)
       {
-        FormField f = iter.next();
         if (f.getTrafoName() != null)
         {
           // Transformierte Felder soweit möglich behandeln
@@ -982,7 +984,7 @@ public class TextDocumentController
             // Cursor erzeugen, Formularfeld löschen und neuen String setzen
             XTextCursor cursor = anchor.getText().createTextCursorByRange(anchor);
             f.dispose();
-            cursor.setString(substStr);
+            cursor.setString(substStr.toString());
 
             // Neue Bookmarks passend zum Text platzieren
             cursor.collapseToStart();
@@ -1012,9 +1014,8 @@ public class TextDocumentController
     c = model.getIdToTextFieldFormFields().get(fieldId);
     if (c != null)
     {
-      for (Iterator<FormField> iter = c.iterator(); iter.hasNext();)
+      for (FormField f : c)
       {
-        FormField f = iter.next();
         if (f.getTrafoName() != null)
         {
           // Transformierte Felder soweit möglich behandeln
@@ -1034,7 +1035,7 @@ public class TextDocumentController
             // Cursor über den Anker erzeugen und Formularfeld löschen
             XTextCursor cursor = anchor.getText().createTextCursorByRange(anchor);
             f.dispose();
-            cursor.setString(substStr);
+            cursor.setString(substStr.toString());
 
             // Neue Datenbankfelder passend zum Text einfügen
             cursor.collapseToStart();

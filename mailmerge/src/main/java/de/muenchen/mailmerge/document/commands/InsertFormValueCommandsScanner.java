@@ -27,7 +27,7 @@ class InsertFormValueCommandsScanner extends AbstractExecutor
   private Map<String, FormField> bookmarkNameToFormField = new HashMap<>();
 
   /** Mapping von IDs zu FormFields */
-  public HashMap<String, List<FormField>> idToFormFields = new HashMap<>();
+  public Map<String, List<FormField>> idToFormFields = new HashMap<>();
 
   /**
    * @param documentCommandInterpreter
@@ -48,16 +48,8 @@ class InsertFormValueCommandsScanner extends AbstractExecutor
   {
     // idToFormFields aufbauen
     String id = cmd.getID();
-    LinkedList<FormField> fields;
-    if (idToFormFields.containsKey(id))
-    {
-      fields = (LinkedList<FormField>) idToFormFields.get(id);
-    }
-    else
-    {
-      fields = new LinkedList<>();
-      idToFormFields.put(id, fields);
-    }
+    List<FormField> fields = idToFormFields.computeIfAbsent(id, key -> new LinkedList<>());
+
     FormField field =
       FormFieldFactory.createFormField(this.documentCommandInterpreter.getModel().doc, cmd, bookmarkNameToFormField);
 

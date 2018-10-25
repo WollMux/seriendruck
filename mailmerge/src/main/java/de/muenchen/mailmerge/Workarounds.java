@@ -63,8 +63,6 @@ public class Workarounds
 
   private static Boolean workaround73229 = null;
 
-  private static Boolean workaround96281 = null;
-
   private static ClassLoader workaround102164CL = null;
 
   public static Boolean applyWorkaround(String issueNumber)
@@ -127,48 +125,27 @@ public class Workarounds
   }
 
   /**
-   * Issue #96281 betrifft OOo 3.1 und 3.2. Ob es in 3.3 gelöst sein wird wissen wir
-   * nicht. Seien wir einfach mal pessimistisch.
-   *
-   * @author Matthias Benkmann (D-III-ITD-D101)
-   */
-  public static boolean applyWorkaroundForOOoIssue96281()
-  {
-    if (workaround96281 == null)
-    {
-      String version = Utils.getOOoVersion();
-      if (version != null
-        && (version.startsWith("3.1") || version.startsWith("3.2") || version.startsWith("3.3")))
-      {
-        workaround96281 = applyWorkaround("96281");
-      }
-      else
-        workaround96281 = Boolean.FALSE;
-    }
-
-    return workaround96281.booleanValue();
-  }
-
-  /**
    * Wegen https://bugs.documentfoundation.org/show_bug.cgi?id=89783 muss der
    * OOoMailMerge in mehrere Pakete aufgeteilt werden, wenn das
    * Seriendruck-Hauptdokument doc viele der im Issue genannten Elemente (z.B.
-   * Rahmen, PageStyles, ...) enthält. Betroffen davon sind alle aktuell bekannten
-   * Versionen von OOo, AOO und LO.
+   * Rahmen, PageStyles, ...) enthält. Betroffen davon sind alle aktuell
+   * bekannten Versionen von OOo, AOO und LO.
    *
    * @param doc
-   *         Das Seriendruck-Hauptdokument
+   *          Das Seriendruck-Hauptdokument
    *
-   * @return Der Rückgabewert dieser Methode beschreibt, wie viele Datensätze zu doc
-   *         ohne Einfrierer von der aktuell genutzen Office-Version verarbeitet
-   *         werden können. Der Rückgabewert kann auch null sein, dann soll der der
-   *         Workaround nicht angewendet werden.
+   * @return Der Rückgabewert dieser Methode beschreibt, wie viele Datensätze zu
+   *         doc ohne Einfrierer von der aktuell genutzen Office-Version
+   *         verarbeitet werden können. Der Rückgabewert kann auch null sein,
+   *         dann soll der Workaround nicht angewendet werden.
    *
    * @author Christoph Lutz (CIB software GmbH)
    */
   public static Integer workaroundForTDFIssue89783(XTextDocument doc)
   {
-    if (workaround89783 == null)
+    String version = Utils.getOOoVersion();
+    
+    if (workaround89783 == null && (version.startsWith("4") || version.startsWith("5.0")))
     {
       LOGGER.debug(L.m("Workaround für TDF Issue 89783 aktiv."));
       workaround89783 = true;

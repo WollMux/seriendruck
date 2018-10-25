@@ -94,6 +94,7 @@ import de.muenchen.allg.itd51.wollmux.core.document.TextDocumentModel;
 import de.muenchen.allg.itd51.wollmux.core.exceptions.UnavailableException;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
 import de.muenchen.allg.itd51.wollmux.core.util.L;
+import de.muenchen.mailmerge.MailMergeFiles;
 import de.muenchen.mailmerge.dialog.Common;
 import de.muenchen.mailmerge.dialog.NonNumericKeyConsumer;
 import de.muenchen.mailmerge.dialog.trafo.GenderDialog;
@@ -101,6 +102,7 @@ import de.muenchen.mailmerge.dialog.trafo.TrafoDialog;
 import de.muenchen.mailmerge.dialog.trafo.TrafoDialogFactory;
 import de.muenchen.mailmerge.dialog.trafo.TrafoDialogParameters;
 import de.muenchen.mailmerge.document.TextDocumentController;
+import de.muenchen.mailmerge.document.commands.DocumentCommandInterpreter;
 import de.muenchen.mailmerge.event.MailMergeEventHandler;
 
 /**
@@ -256,6 +258,9 @@ public class MailMergeNew
   public void run()
   {
     // GUI im Event-Dispatching Thread erzeugen wg. Thread-Safety.
+    DocumentCommandInterpreter dci = new DocumentCommandInterpreter(documentController, MailMergeFiles.isDebugMode());
+    dci.scanGlobalDocumentCommands();
+    dci.scanInsertFormValueCommands();
     try
     {
       javax.swing.SwingUtilities.invokeLater(new Runnable()

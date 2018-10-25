@@ -2,11 +2,8 @@ package de.muenchen.mailmerge.event.handlers;
 
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.frame.XDispatch;
-import com.sun.star.view.DocumentZoomType;
 
-import de.muenchen.allg.afid.UNO;
 import de.muenchen.mailmerge.MailMergeFehlerException;
-import de.muenchen.mailmerge.Workarounds;
 import de.muenchen.mailmerge.document.TextDocumentController;
 import de.muenchen.mailmerge.event.MailMergeEventHandler;
 
@@ -42,19 +39,6 @@ public class OnPrint extends BasicEvent
   protected void doit() throws MailMergeFehlerException
   {
     boolean hasPrintFunction = !documentController.getModel().getPrintFunctions().isEmpty();
-
-    if (Workarounds.applyWorkaroundForOOoIssue96281())
-    {
-      try
-      {
-        Object viewSettings =
-          UNO.XViewSettingsSupplier(documentController.getModel().doc.getCurrentController()).getViewSettings();
-        UNO.setProperty(viewSettings, "ZoomType", DocumentZoomType.BY_VALUE);
-        UNO.setProperty(viewSettings, "ZoomValue", Short.valueOf((short) 100));
-      }
-      catch (java.lang.Exception e)
-      {}
-    }
 
     if (hasPrintFunction)
     {

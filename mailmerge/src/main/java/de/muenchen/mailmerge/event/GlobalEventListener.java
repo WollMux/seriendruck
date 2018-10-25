@@ -169,11 +169,10 @@ public class GlobalEventListener implements com.sun.star.document.XEventListener
    */
   private void onViewCreated(Object source)
   {
-    XModel comp = UNO.XModel(source);
-
-    if (comp != null)
+    XModel model = UNO.XModel(source);
+    if (model != null)
     {
-      MailMergeEventHandler.getInstance().handleOnViewCreated(comp);
+      MailMergeEventHandler.getInstance().handleOnViewCreated(model);
     }
   }
 

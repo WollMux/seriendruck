@@ -288,9 +288,9 @@ public class MailMergeEventHandler
    *          der {@link XFrame} auf den der {@link DispatchProviderAndInterceptor}
    *          registriert werden soll.
    */
-  public void handleRegisterDispatchInterceptor(TextDocumentController documentController)
+  public void handleRegisterDispatchInterceptor(XFrame frame)
   {
-      handle(new OnRegisterDispatchInterceptor(documentController));
+    handle(new OnRegisterDispatchInterceptor(frame));
   }
 
 
@@ -442,10 +442,9 @@ public class MailMergeEventHandler
    * "Extras->Seriendruck (WollMux)" die dispatch-url wollmux:SeriendruckNeu
    * abgesetzt wurde.
    */
-  public void handleSeriendruck(TextDocumentController documentController,
-      boolean useDocPrintFunctions)
+  public void handleSeriendruck(TextDocumentController documentController)
   {
-    handle(new OnSeriendruck(documentController, useDocPrintFunctions));
+    handle(new OnSeriendruck(documentController));
   }
 
 
@@ -476,9 +475,9 @@ public class MailMergeEventHandler
 
   // *******************************************************************************************
 
-  public void handleOnViewCreated(XModel comp)
+  public void handleOnViewCreated(XModel frame)
   {
-    handle(new OnViewCreated(comp));
+    handle(new OnViewCreated(frame));
   }
 
   /**

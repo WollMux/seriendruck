@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory;
 import com.sun.star.frame.XFrame;
 
 import de.muenchen.allg.itd51.wollmux.core.util.L;
-import de.muenchen.mailmerge.document.FrameController;
-import de.muenchen.mailmerge.document.TextDocumentController;
 import de.muenchen.mailmerge.event.DispatchProviderAndInterceptor;
 
 /**
@@ -19,25 +17,24 @@ public class OnRegisterDispatchInterceptor extends BasicEvent
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OnRegisterDispatchInterceptor.class);
 
-  private TextDocumentController documentController;
+  private XFrame frame;
 
-  public OnRegisterDispatchInterceptor(TextDocumentController documentController)
+  public OnRegisterDispatchInterceptor(XFrame frame)
   {
-    this.documentController = documentController;
+    this.frame = frame;
   }
 
   @Override
   protected void doit()
   {
-    FrameController fc = documentController.getFrameController(); 
-    if (fc.getFrame() == null)
+    if (frame == null)
     {
       LOGGER.debug(L.m("Ignoriere handleRegisterDispatchInterceptor(null)"));
       return;
     }
     try
     {
-      DispatchProviderAndInterceptor.registerDocumentDispatchInterceptor(fc.getFrame());
+      DispatchProviderAndInterceptor.registerDocumentDispatchInterceptor(frame);
     }
     catch (java.lang.Exception e)
     {
@@ -47,7 +44,7 @@ public class OnRegisterDispatchInterceptor extends BasicEvent
     // Sicherstellen, dass die Schaltflächen der Symbolleisten aktiviert werden:
     try
     {
-      fc.getFrame().contextChanged();
+      frame.contextChanged();
     }
     catch (java.lang.Exception e)
     {}
@@ -56,7 +53,6 @@ public class OnRegisterDispatchInterceptor extends BasicEvent
   @Override
   public String toString()
   {
-    XFrame frame = documentController.getFrameController().getFrame();
     return this.getClass().getSimpleName() + "(#" + ((frame != null) ? frame.hashCode() : "Kein Frame") + ")";
   }
 }
