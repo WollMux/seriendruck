@@ -70,6 +70,7 @@ import de.muenchen.mailmerge.event.handlers.OnCloseTextDocument;
 import de.muenchen.mailmerge.event.handlers.OnCollectNonWollMuxFormFieldsViaPrintModel;
 import de.muenchen.mailmerge.event.handlers.OnCreateDocument;
 import de.muenchen.mailmerge.event.handlers.OnExecutePrintFunction;
+import de.muenchen.mailmerge.event.handlers.OnFormValueChanged;
 import de.muenchen.mailmerge.event.handlers.OnHandleMailMergeNewReturned;
 import de.muenchen.mailmerge.event.handlers.OnInitialize;
 import de.muenchen.mailmerge.event.handlers.OnNotifyDocumentEventListener;
@@ -403,10 +404,9 @@ public class MailMergeEventHandler
    *          Der unlockActionListener wird immer informiert, wenn alle notwendigen
    *          Anpassungen durchgeführt wurden.
    */
-  public void handleSetFormValue(XTextDocument doc, String id, String value,
-      ActionListener unlockActionListener)
+  public void handleSetFormValue(XTextDocument doc, String id, String value)
   {
-    handle(new OnSetFormValue(doc, id, value, unlockActionListener));
+    handle(new OnSetFormValue(doc, id, value));
   }
 
 
@@ -432,8 +432,6 @@ public class MailMergeEventHandler
     handle(new OnCollectNonWollMuxFormFieldsViaPrintModel(documentController, listener));
   }
 
-  // *******************************************************************************************
-
   /**
    * Erzeugt ein neues WollMuxEvent, das signasisiert, dass die neue
    * Seriendruckfunktion des WollMux gestartet werden soll.
@@ -447,9 +445,30 @@ public class MailMergeEventHandler
     handle(new OnSeriendruck(documentController));
   }
 
-
-
-  // *******************************************************************************************
+  /**
+   * Erzeugt ein neues WollMuxEvent, welches dafür sorgt, dass alle Formularfelder Dokument auf den
+   * neuen Wert gesetzt werden. Bei Formularfeldern mit TRAFO-Funktion wird die Transformation
+   * entsprechend durchgeführt.
+   *
+   * Dieses Event wird (derzeit) vom FormModelImpl ausgelöst, wenn in der Formular-GUI der Wert des
+   * Formularfeldes fieldID geändert wurde und sorgt dafür, dass die Wertänderung auf alle
+   * betroffenen Formularfelder im Dokument doc übertragen werden.
+   *
+   * @param idToFormValues
+   *          Eine HashMap die unter dem Schlüssel fieldID den Vektor aller FormFields mit der ID
+   *          fieldID liefert.
+   * @param fieldId
+   *          Die ID der Formularfelder, deren Werte angepasst werden sollen.
+   * @param newValue
+   *          Der neue untransformierte Wert des Formularfeldes.
+   * @param funcLib
+   *          Die Funktionsbibliothek, die zur Gewinnung der Trafo-Funktion verwendet werden soll.
+   */
+  public void handleFormValueChanged(TextDocumentController documentController,
+      String fieldId, String newValue)
+  {
+    handle(new OnFormValueChanged(documentController, fieldId, newValue));
+  }
 
   /**
    * Der Handler für das Drucken eines TextDokuments führt in Abhängigkeit von der

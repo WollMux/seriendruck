@@ -452,9 +452,8 @@ class MasterPrintModel implements XPrintModel, InternalPrintModel
   @Override
   public void setFormValue(String id, String value)
   {
-    SyncActionListener s = new SyncActionListener();
-    MailMergeEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc, id, value, s);
-    s.synchronize();
+    MailMergeEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc, id,
+        value);
   }
 
   /**

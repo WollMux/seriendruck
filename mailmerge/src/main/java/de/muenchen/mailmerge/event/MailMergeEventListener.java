@@ -8,6 +8,7 @@ import de.muenchen.mailmerge.event.handlers.OnCloseTextDocument;
 import de.muenchen.mailmerge.event.handlers.OnCollectNonWollMuxFormFieldsViaPrintModel;
 import de.muenchen.mailmerge.event.handlers.OnCreateDocument;
 import de.muenchen.mailmerge.event.handlers.OnExecutePrintFunction;
+import de.muenchen.mailmerge.event.handlers.OnFormValueChanged;
 import de.muenchen.mailmerge.event.handlers.OnHandleMailMergeNewReturned;
 import de.muenchen.mailmerge.event.handlers.OnNotifyDocumentEventListener;
 import de.muenchen.mailmerge.event.handlers.OnPrint;
@@ -91,6 +92,12 @@ public class MailMergeEventListener
 
   @Subscribe
   public void onSetFormValue(OnSetFormValue event)
+  {
+    event.process();
+  }
+
+  @Subscribe
+  public void onFormValueChanged(OnFormValueChanged event)
   {
     event.process();
   }

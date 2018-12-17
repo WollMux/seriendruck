@@ -1,9 +1,9 @@
 package de.muenchen.mailmerge.event.handlers;
 
-import java.awt.event.ActionListener;
-
 import com.sun.star.text.XTextDocument;
 
+import de.muenchen.allg.itd51.wollmux.core.form.model.FormModel;
+import de.muenchen.allg.itd51.wollmux.core.form.model.FormModelException;
 import de.muenchen.mailmerge.MailMergeFehlerException;
 import de.muenchen.mailmerge.document.DocumentManager;
 import de.muenchen.mailmerge.document.TextDocumentController;
@@ -31,8 +31,6 @@ public class OnSetFormValue extends BasicEvent
 
   private String value;
 
-  private final ActionListener listener;
-
   /**
    * 
    * @param doc
@@ -44,28 +42,34 @@ public class OnSetFormValue extends BasicEvent
    *          Formularwerte neu gesetzt.
    * @param value
    *          Der neue Wert des Formularfeldes id
-   * @param unlockActionListener
-   *          Der unlockActionListener wird immer informiert, wenn alle
-   *          notwendigen Anpassungen durchgeführt wurden.
    */
-  public OnSetFormValue(XTextDocument doc, String id, String value,
-      ActionListener listener)
+  public OnSetFormValue(XTextDocument doc, String id, String value)
   {
     this.doc = doc;
     this.id = id;
     this.value = value;
-    this.listener = listener;
   }
 
   @Override
   protected void doit() throws MailMergeFehlerException
   {
     TextDocumentController documentController = DocumentManager.getTextDocumentController(doc);
-
-    // Werte selber setzen:
-    documentController.addFormFieldValue(id, value);
-    if (listener != null)
-      listener.actionPerformed(null);
+    try
+    {
+      FormModel model = documentController.getFormModel();
+      if (model != null)
+      {
+        model.setValue(id, value);
+      } else
+      {
+        // Werte selber setzen:
+        documentController.addFormFieldValue(id, value);
+      }
+    } catch (FormModelException e)
+    {
+      // Werte selber setzen:
+      documentController.addFormFieldValue(id, value);
+    }
   }
 
   @Override

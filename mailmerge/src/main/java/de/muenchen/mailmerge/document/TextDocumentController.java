@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.container.XNameAccess;
+import com.sun.star.frame.XFrame;
 import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XMultiServiceFactory;
 import com.sun.star.text.XDependentTextField;
@@ -40,7 +41,12 @@ import de.muenchen.allg.itd51.wollmux.core.document.VisibilityElement;
 import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommand;
 import de.muenchen.allg.itd51.wollmux.core.document.commands.DocumentCommand.OptionalHighlightColorProvider;
 import de.muenchen.allg.itd51.wollmux.core.exceptions.UnavailableException;
+import de.muenchen.allg.itd51.wollmux.core.form.model.FormModel;
+import de.muenchen.allg.itd51.wollmux.core.form.model.FormModelException;
+import de.muenchen.allg.itd51.wollmux.core.form.model.FormValueChangedListener;
+import de.muenchen.allg.itd51.wollmux.core.form.model.VisibilityChangedListener;
 import de.muenchen.allg.itd51.wollmux.core.functions.Function;
+import de.muenchen.allg.itd51.wollmux.core.functions.FunctionFactory;
 import de.muenchen.allg.itd51.wollmux.core.functions.FunctionLibrary;
 import de.muenchen.allg.itd51.wollmux.core.functions.Values.SimpleMap;
 import de.muenchen.allg.itd51.wollmux.core.parser.ConfigThingy;
@@ -52,14 +58,17 @@ import de.muenchen.mailmerge.MailMergeFiles;
 import de.muenchen.mailmerge.SachleitendeVerfuegung;
 import de.muenchen.mailmerge.db.DatasourceJoinerFactory;
 import de.muenchen.mailmerge.dialog.DialogFactory;
-import de.muenchen.mailmerge.func.FunctionFactory;
+import de.muenchen.mailmerge.dialog.mailmerge.MailMergeDatasource;
+import de.muenchen.mailmerge.event.MailMergeEventHandler;
 
-public class TextDocumentController
+public class TextDocumentController implements FormValueChangedListener, VisibilityChangedListener
 {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TextDocumentController.class);
 
   private TextDocumentModel model;
+
+  private FormModel formModel;
 
   /**
    * Enthält den Kontext für die Funktionsbibliotheken und Dialogbibliotheken dieses
@@ -2091,5 +2100,139 @@ public class TextDocumentController
     }
 
     return overrideFragConf;
+  }
+
+  public FormModel getFormModel() throws FormModelException
+  {
+    if (formModel == null)
+    {
+      // Abschnitt "Formular" holen:
+      try
+      {
+        ConfigThingy formConf = getFormDescription().get("Formular");
+        formModel = new FormModel(formConf, getWindowTitle(), getFunctionContext(),
+            getFunctionLibrary(), getDialogLibrary(), getIDToPresetValue(), this, this);
+      } catch (NodeNotFoundException e)
+      {
+        throw new FormModelException(
+            L.m("Kein Abschnitt 'Formular' in der Formularbeschreibung vorhanden"));
+      }
+    }
+    return formModel;
+  }
+
+  /**
+   * Liefert den Titel des zum FormModel gehörenden Fensters oder null, falls kein Titel bekannt.
+   */
+  public String getWindowTitle()
+  {
+    try
+    {
+      XFrame frame = UNO.XModel(getModel().doc).getCurrentController().getFrame();
+      String frameTitle = (String) UNO.getProperty(frame, "Title");
+      frameTitle = MailMergeDatasource.stripOpenOfficeFromWindowName(frameTitle);
+      return frameTitle;
+    } catch (Exception x)
+    {
+      return null;
+    }
+  }
+
+  /**
+   * Diese Hilfsmethode liest das Attribut ooSetupFactoryWindowAttributes aus dem
+   * Konfigurationsknoten "/org.openoffice.Setup/Office/Factories/com.sun.star.text.TextDocument"
+   * der OOo-Konfiguration, welches die Standard-FensterAttribute enthält, mit denen neue Fenster
+   * für TextDokumente erzeugt werden.
+   *
+   * @return Wert des Attributes.
+   */
+  public String getDefaultWindowAttributes()
+  {
+    try
+    {
+      Object cp = UNO.createUNOService("com.sun.star.configuration.ConfigurationProvider");
+
+      // creation arguments: nodepath
+      com.sun.star.beans.PropertyValue aPathArgument = new com.sun.star.beans.PropertyValue();
+      aPathArgument.Name = "nodepath";
+      aPathArgument.Value = "/org.openoffice.Setup/Office/Factories/com.sun.star.text.TextDocument";
+      Object[] aArguments = new Object[1];
+      aArguments[0] = aPathArgument;
+
+      Object ca = UNO.XMultiServiceFactory(cp).createInstanceWithArguments(
+          "com.sun.star.configuration.ConfigurationAccess", aArguments);
+
+      return UNO.getProperty(ca, "ooSetupFactoryWindowAttributes").toString();
+    } catch (java.lang.Exception e)
+    {
+    }
+    return null;
+  }
+
+  /**
+   * Diese Hilfsmethode setzt das Attribut ooSetupFactoryWindowAttributes aus dem
+   * Konfigurationsknoten "/org.openoffice.Setup/Office/Factories/com.sun.star.text.TextDocument"
+   * der OOo-Konfiguration auf den neuen Wert value, der (am besten) über einen vorhergehenden
+   * Aufruf von getDefaultWindowAttributes() gewonnen wird.
+   *
+   * @param value
+   */
+  public void setDefaultWindowAttributes(String value)
+  {
+    try
+    {
+      Object cp = UNO.createUNOService("com.sun.star.configuration.ConfigurationProvider");
+
+      // creation arguments: nodepath
+      com.sun.star.beans.PropertyValue aPathArgument = new com.sun.star.beans.PropertyValue();
+      aPathArgument.Name = "nodepath";
+      aPathArgument.Value = "/org.openoffice.Setup/Office/Factories/com.sun.star.text.TextDocument";
+      Object[] aArguments = new Object[1];
+      aArguments[0] = aPathArgument;
+
+      Object ca = UNO.XMultiServiceFactory(cp).createInstanceWithArguments(
+          "com.sun.star.configuration.ConfigurationUpdateAccess", aArguments);
+
+      UNO.setProperty(ca, "ooSetupFactoryWindowAttributes", value);
+
+      UNO.XChangesBatch(ca).commitChanges();
+    } catch (java.lang.Exception e)
+    {
+      LOGGER.error("", e);
+    }
+  }
+
+  /**
+   * Setzt den Wert aller Formularfelder im Dokument, die von fieldId abhängen auf den neuen Wert
+   * newValue (bzw. auf das Ergebnis der zu diesem Formularelement hinterlegten Trafo-Funktion).
+   * 
+   * Es ist nicht garantiert, dass sich der Wert tatsächlich geändert hat. Die fieldId kann leer
+   * sein (aber nie null).
+   */
+  @Override
+  public void valueChanged(String id, String value)
+  {
+    if (id.length() > 0)
+      MailMergeEventHandler.getInstance().handleFormValueChanged(this, id, value);
+  }
+
+  /**
+   * Setzt den Sichtbarkeitsstatus der Sichtbarkeitsgruppe mit der ID groupID auf visible.
+   * 
+   * @param groupId
+   *          Die ID der Gruppe, die Sichtbar/unsichtbar geschalten werden soll.
+   * @param visible
+   *          true==sichtbar, false==unsichtbar
+   */
+  @Override
+  public void visibilityChanged(String groupId, boolean visible)
+  {
+    MailMergeEventHandler.getInstance().handleSetVisibleState(this, groupId, visible, null);
+  }
+
+  @Override
+  public void statusChanged(String id, boolean okay)
+  {
+    // nothing to do here, only for form gui.
   }
 }
