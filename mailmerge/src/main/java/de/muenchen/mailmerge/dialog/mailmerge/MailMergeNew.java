@@ -643,12 +643,13 @@ public class MailMergeNew
     Iterator<String> dataIter = data.iterator();
     for (String column : schema)
     {
-      MailMergeEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc, column, dataIter.next(), null);
+      MailMergeEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc,
+          column, dataIter.next());
     }
     MailMergeEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc,
-      MailMergeParams.TAG_DATENSATZNUMMER, previewDatasetNumberStr, null);
+        MailMergeParams.TAG_DATENSATZNUMMER, previewDatasetNumberStr);
     MailMergeEventHandler.getInstance().handleSetFormValue(documentController.getModel().doc,
-      MailMergeParams.TAG_SERIENBRIEFNUMMER, previewDatasetNumberStr, null);
+        MailMergeParams.TAG_SERIENBRIEFNUMMER, previewDatasetNumberStr);
   }
 
   /**
